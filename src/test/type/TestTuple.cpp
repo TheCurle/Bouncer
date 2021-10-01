@@ -296,3 +296,15 @@ SCENARIO("Dot product of two tuples", "[Tuple]") {
         }
     }
 }
+
+SCENARIO("Cross product of two vectors", "[Tuple]") {
+    GIVEN("a <- vector(1, 2, 3)") {
+        Vector a(1, 2, 3);
+        AND_GIVEN("b <- vector(2, 3, 4)") {
+            Vector b(2, 3, 4);
+            THEN("a.cross(b) = vector(-1, 2, -1)") {
+                REQUIRE((a.cross(b) == Vector(-1, 2, -1)));
+            }
+        }
+    }
+}

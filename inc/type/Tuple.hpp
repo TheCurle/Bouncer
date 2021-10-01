@@ -92,6 +92,12 @@ class Vector : public Tuple {
                  w * other.w;
     }
 
+    Vector cross(const Vector& other) {
+        return Vector(y * other.z - z * other.y,
+                z * other.x - x * other.z,
+                x * other.y - y * other.x);
+    }
+
     Vector(const Tuple& other) {
         x=other.x; y=other.y; z=other.y; w=0;
     }
