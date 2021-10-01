@@ -26,12 +26,15 @@ file(GLOB test_src CONFIGURE_DEPENDS
 include_directories("inc")
 
 # Compile settings
-add_executable(bouncer ${renderer_src} ${test_src})
-target_link_libraries(bouncer PRIVATE Catch2::Catch2WithMain)
-
+add_executable(bouncer ${renderer_src})
 set_target_properties(bouncer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
+
+add_executable(tests ${test_src} )
+set_target_properties(tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+
 
 # Catch tests
 include(CTest)
 include(Catch)
-catch_discover_tests(bouncer)
+catch_discover_tests(tests)
