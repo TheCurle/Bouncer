@@ -256,7 +256,31 @@ SCENARIO("Normalizing vector(4, 0, 0) gives vector(1, 0, 0)", "[Tuple]") {
         Vector v(4, 0, 0);
 
         THEN("v.normalize() = vector(1, 0, 0)") {
+            REQUIRE((v.normalize() == Vector(1, 0, 0)));
+        }
+    }
+}
 
+SCENARIO("Normalizing vector(1, 2, 3)", "[Tuple]") {
+    GIVEN("v <- vector(1, 2, 3)") {
+        Vector v(1, 2, 3);
+
+        THEN("v.normalize() = vector(0.26726, 0.53452, 0.80178)") {
+            REQUIRE((v.normalize() == Vector(0.26726, 0.53452, 0.80178)));
+        }
+    }
+}
+
+SCENARIO("Magnitude of a normalized vector", "[Tuple]") {
+    GIVEN("v <= vector(1, 2, 3)") {
+        Vector v(1, 2, 3);
+
+        WHEN("norm <- v.normalize()") {
+            Tuple norm = v.normalize();
+
+            THEN("norm.magnitude() = 1") {
+                REQUIRE(norm.magnitude() == 1);
+            }
         }
     }
 }

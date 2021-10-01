@@ -48,6 +48,9 @@ struct Tuple {
         return Tuple(-x, -y, -z, -w);
     }
 
+    double magnitude() {
+        return sqrt((x*x) + (y*y) + (z*z) + (w*w));
+    }
 
     double x;
     double y;
@@ -63,7 +66,6 @@ struct Tuple {
         return abs(a - b) < epsilon;
     }
 
-    private:
     static constexpr double epsilon = 0.00001;
 };
 
@@ -83,12 +85,20 @@ class Vector : public Tuple {
         return Vector(x - other.x, y - other.y, z - other.z);
     }
 
-    double magnitude() {
-        return sqrt((x*x) + (y*y) + (z*z));
+    Vector(const Tuple& other) {
+        x=other.x; y=other.y; z=other.y; w=0;
     }
 
     Vector(double a, double b, double c) {
         x=a; y=b; z=c; w=0;
+    }
+    
+    Tuple normalize() {
+        double mag = magnitude();
+        if(mag < Tuple::epsilon)
+            return Tuple(0, 0, 0, 0);
+
+        return Tuple(x / mag, y / mag, z / mag, w);
     }
 };
 
