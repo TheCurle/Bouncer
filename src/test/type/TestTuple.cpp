@@ -166,3 +166,33 @@ SCENARIO("Subtracting two vectors", "[Tuple]") {
         }
     }
 }
+
+SCENARIO("Subtracting a vector from the zero vector", "[Tuple]") {
+
+    GIVEN("zero <- vector(0, 0, 0)") {
+        Vector zero(0, 0, 0);
+
+        AND_GIVEN("v <- vector(1, -2, 3)") {
+            Vector v(1, -2, 3);
+
+            THEN("zero - v = vector(-1, 2, -3)") {
+                Vector res(-1, 2, -3);
+
+                REQUIRE(((zero - v) == res));
+            }
+        }
+    }
+}
+
+SCENARIO("Negating a tuple", "[Tuple]") {
+
+    GIVEN("a <- tuple(1, 2, 3, 4)") {
+        Tuple a(1, 2, 3, 4);
+
+        THEN("-a = tuple(-1, -2, -3, -4)") {
+            Tuple b(-1, -2, -3, -4);
+
+            REQUIRE((-a == b));
+        }
+    }
+}

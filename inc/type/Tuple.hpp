@@ -29,8 +29,14 @@ struct Tuple {
                  safeCompare(other.z, z) && safeCompare(other.w, w);
     }
 
+    // Overloaded addition operator. Have to add each element individually.
     Tuple operator+(const Tuple& other) {
         return Tuple(other.x + x, other.y + y, other.z + z, other.w + w);
+    }
+
+    // Overloaded negation operator. Have to negate each element individually.
+    Tuple operator-() {
+        return Tuple(-x, -y, -z, -w);
     }
 
     double x;
