@@ -59,12 +59,12 @@ struct Tuple {
     
 
     // Compare two doubles with tolerance.
-    bool safeCompare(double a, double b) const {
+    static bool safeCompare(double a, double b) {
         return abs(a - b) < epsilon;
     }
 
     private:
-    double epsilon = 0.001;
+    static constexpr double epsilon = 0.001;
 };
 
 
@@ -81,6 +81,10 @@ class Vector : public Tuple {
 
     Vector operator-(const Vector& other) {
         return Vector(x - other.x, y - other.y, z - other.z);
+    }
+
+    double magnitude() {
+        return sqrt((x*x) + (y*y) + (z*z));
     }
 
     Vector(double a, double b, double c) {
