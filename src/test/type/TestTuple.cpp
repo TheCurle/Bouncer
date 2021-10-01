@@ -113,3 +113,39 @@ SCENARIO("Adding two tuples", "[Tuple]") {
         }
     }
 }
+
+SCENARIO("Subtracting two tuples", "[Tuple]") {
+
+    GIVEN("a <- point(3, 2, 1)") {
+        Point a(3, 2, 1);
+
+        AND_GIVEN("b <- point(5, 6, 7)") {
+            Point b(5, 6, 7);
+
+            THEN("a - b = vector(-2, -4, -6)") {
+                Vector c(-2, -4, -6);
+
+                REQUIRE(((a - b) == c));
+            }
+        }
+    }
+}
+
+SCENARIO("Subtracting a vector from a point", "[Tuple]") {
+
+    GIVEN("p <- point(3, 2, 1)") {
+        Point p(3, 2, 1);
+
+        AND_GIVEN("v <- vector(5, 6, 7)") {
+            Vector v(5, 6, 7);
+
+            THEN("p - v = point(-2, -4, -6)") {
+                Point a(-2, -4, -6);
+
+                Point res = p - v;
+
+                REQUIRE((res == a));
+            }
+        }
+    }
+}
