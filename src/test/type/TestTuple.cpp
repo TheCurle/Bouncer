@@ -284,3 +284,15 @@ SCENARIO("Magnitude of a normalized vector", "[Tuple]") {
         }
     }
 }
+
+SCENARIO("Dot product of two tuples", "[Tuple]") {
+    GIVEN("a <- vector(1, 2, 3)") {
+        Vector a(1, 2, 3);
+        AND_GIVEN("b <- vector(2, 3, 4)") {
+            Vector b(2, 3, 4);
+            THEN("a * b = 20") {
+                REQUIRE((a * b) == 20);
+            }
+        }
+    }
+}

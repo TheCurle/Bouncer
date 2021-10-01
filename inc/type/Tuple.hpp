@@ -85,6 +85,13 @@ class Vector : public Tuple {
         return Vector(x - other.x, y - other.y, z - other.z);
     }
 
+    double operator*(const Vector& other) {
+        return x * other.x +
+                 y * other.y + 
+                 z * other.z + 
+                 w * other.w;
+    }
+
     Vector(const Tuple& other) {
         x=other.x; y=other.y; z=other.y; w=0;
     }
