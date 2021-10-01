@@ -137,4 +137,8 @@ class Point : public Tuple {
     Point(double a, double b, double c) {
         x=a; y=b; z=c; w=1;
     }
+    
+    Point(const Tuple& other) {
+        x=other.x; y=other.y; z=other.z; w=1;
+    }
 };
