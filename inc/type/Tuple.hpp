@@ -34,10 +34,20 @@ struct Tuple {
         return Tuple(other.x + x, other.y + y, other.z + z, other.w + w);
     }
 
+    // Overloaded multiplication operator. Have to multiply each element individually.
+    Tuple operator*(const double& dub) {
+        return Tuple(x * dub, y * dub, z * dub, w * dub);
+    }
+    
+    // Overloaded division operator. Have to divide each element individually.
+    Tuple operator/(const double& dub) {
+        return Tuple(x / dub, y / dub, z / dub, w / dub);
+    }
     // Overloaded negation operator. Have to negate each element individually.
     Tuple operator-() {
         return Tuple(-x, -y, -z, -w);
     }
+
 
     double x;
     double y;

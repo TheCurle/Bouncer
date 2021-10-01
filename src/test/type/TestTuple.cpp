@@ -196,3 +196,39 @@ SCENARIO("Negating a tuple", "[Tuple]") {
         }
     }
 }
+
+SCENARIO("Multiplying a tuple by a scalar", "[Tuple]") {
+    GIVEN("a <- tuple(1, -2, 3, -4)") { 
+        Tuple a(1, -2, 3, -4);
+
+        THEN("a * 3.5 = tuple(3.5, -7, 10.5, -14)") {
+            Tuple res(3.5, -7, 10.5, -14);
+
+            REQUIRE((a * 3.5 == res));
+        }
+    }
+}
+
+SCENARIO("Multiplying a tuple by a fraction", "[Tuple]") {
+    GIVEN("a <- tuple(1, -2, 3, -4)") { 
+        Tuple a(1, -2, 3, -4);
+
+        THEN("a * 0.5 = tuple(0.5, -1, 1.5, -2)") {
+            Tuple res(0.5, -1, 1.5, -2);
+
+            REQUIRE((a * 0.5 == res));
+        }
+    }
+}
+
+SCENARIO("Dividing a tuple by a scalar", "[Tuple]") {
+    GIVEN("a <- tuple(1, -2, 3, -4)") { 
+        Tuple a(1, -2, 3, -4);
+
+        THEN("a / 2= tuple(0.5, -1, 1.5, -2)") {
+            Tuple res(0.5, -1, 1.5, -2);
+
+            REQUIRE((a / 2 == res));
+        }
+    }
+}
