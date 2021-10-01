@@ -74,9 +74,7 @@ SCENARIO("point() creates tuples with w = 1", "[Tuple]") {
         Point a(4, -4, 1);
 
         THEN("a = tuple(4, -4, 3, 1)") {
-            Tuple b(4, -4, 1, 1);
-
-            REQUIRE((a == b));
+            REQUIRE((a == Tuple(4, -4, 1, 1)));
         }
     }
 }
@@ -87,9 +85,7 @@ SCENARIO("vector() creates tuples with w = 0", "[Tuple]") {
         Vector a(4, -4, 1);
 
         THEN("a = tuple(4, -4, 1, 0)") {
-            Tuple b(4, -4, 1, 0);
-
-            REQUIRE((a == b));
+            REQUIRE((a == Tuple(4, -4, 1, 0)));
         }
     }
 }
@@ -123,9 +119,7 @@ SCENARIO("Subtracting two tuples", "[Tuple]") {
             Point b(5, 6, 7);
 
             THEN("a - b = vector(-2, -4, -6)") {
-                Vector c(-2, -4, -6);
-
-                REQUIRE(((a - b) == c));
+                REQUIRE(((a - b) == Vector(-2, -4, -6)));
             }
         }
     }
@@ -140,11 +134,7 @@ SCENARIO("Subtracting a vector from a point", "[Tuple]") {
             Vector v(5, 6, 7);
 
             THEN("p - v = point(-2, -4, -6)") {
-                Point a(-2, -4, -6);
-
-                Point res = p - v;
-
-                REQUIRE((res == a));
+                REQUIRE((p - v == Point(-2, -4, -6)));
             }
         }
     }
@@ -159,9 +149,7 @@ SCENARIO("Subtracting two vectors", "[Tuple]") {
             Vector b(5, 6, 7);
 
             THEN("a - b = vector(-2, -4, -6)") {
-                Vector c(-2, -4, -6);
-
-                REQUIRE(((a - b) == c));
+                REQUIRE(((a - b) == Vector(-2, -4, -6)));
             }
         }
     }
@@ -176,9 +164,7 @@ SCENARIO("Subtracting a vector from the zero vector", "[Tuple]") {
             Vector v(1, -2, 3);
 
             THEN("zero - v = vector(-1, 2, -3)") {
-                Vector res(-1, 2, -3);
-
-                REQUIRE(((zero - v) == res));
+                REQUIRE(((zero - v) == Vector(-1, 2, -3)));
             }
         }
     }
@@ -190,9 +176,7 @@ SCENARIO("Negating a tuple", "[Tuple]") {
         Tuple a(1, 2, 3, 4);
 
         THEN("-a = tuple(-1, -2, -3, -4)") {
-            Tuple b(-1, -2, -3, -4);
-
-            REQUIRE((-a == b));
+            REQUIRE((-a == Tuple(-1, -2, -3, -4)));
         }
     }
 }
@@ -202,9 +186,7 @@ SCENARIO("Multiplying a tuple by a scalar", "[Tuple]") {
         Tuple a(1, -2, 3, -4);
 
         THEN("a * 3.5 = tuple(3.5, -7, 10.5, -14)") {
-            Tuple res(3.5, -7, 10.5, -14);
-
-            REQUIRE((a * 3.5 == res));
+            REQUIRE((a * 3.5 == Tuple(3.5, -7, 10.5, -14)));
         }
     }
 }
@@ -214,9 +196,7 @@ SCENARIO("Multiplying a tuple by a fraction", "[Tuple]") {
         Tuple a(1, -2, 3, -4);
 
         THEN("a * 0.5 = tuple(0.5, -1, 1.5, -2)") {
-            Tuple res(0.5, -1, 1.5, -2);
-
-            REQUIRE((a * 0.5 == res));
+            REQUIRE((a * 0.5 == Tuple(0.5, -1, 1.5, -2)));
         }
     }
 }
@@ -226,9 +206,7 @@ SCENARIO("Dividing a tuple by a scalar", "[Tuple]") {
         Tuple a(1, -2, 3, -4);
 
         THEN("a / 2= tuple(0.5, -1, 1.5, -2)") {
-            Tuple res(0.5, -1, 1.5, -2);
-
-            REQUIRE((a / 2 == res));
+            REQUIRE((a / 2 == Tuple(0.5, -1, 1.5, -2)));
         }
     }
 }
@@ -268,6 +246,17 @@ SCENARIO("Computing the magnitude of vector(1, 2, 3)", "[Tuple]") {
 
         THEN("v.magnitude() = √14") {
             REQUIRE(Tuple::safeCompare(v.magnitude(), sqrt(14)));
+        }
+    }
+}
+
+
+SCENARIO("Normalizing vector(4, 0, 0) gives vector(1, 0, 0)", "[Tuple]") {
+    GIVEN("v <- vector(4, 0, 0)") {
+        Vector v(4, 0, 0);
+
+        THEN("v.normalize() = vector(1, 0, 0)") {
+
         }
     }
 }

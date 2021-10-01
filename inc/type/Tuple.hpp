@@ -64,7 +64,7 @@ struct Tuple {
     }
 
     private:
-    static constexpr double epsilon = 0.001;
+    static constexpr double epsilon = 0.00001;
 };
 
 
