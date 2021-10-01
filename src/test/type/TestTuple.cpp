@@ -149,3 +149,20 @@ SCENARIO("Subtracting a vector from a point", "[Tuple]") {
         }
     }
 }
+
+SCENARIO("Subtracting two vectors", "[Tuple]") {
+
+    GIVEN("a <- vector(3, 2, 1)") {
+        Vector a(3, 2, 1);
+
+        AND_GIVEN("b <- vector(5, 6, 7)") {
+            Vector b(5, 6, 7);
+
+            THEN("a - b = vector(-2, -4, -6)") {
+                Vector c(-2, -4, -6);
+
+                REQUIRE(((a - b) == c));
+            }
+        }
+    }
+}

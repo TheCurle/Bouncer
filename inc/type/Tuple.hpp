@@ -63,6 +63,10 @@ class Vector : public Tuple {
                  safeCompare(other.z, z) && safeCompare(other.w, w);
     }
 
+    Vector operator-(const Vector& other) {
+        return Vector(x - other.x, y - other.y, z - other.z);
+    }
+
     Vector(double a, double b, double c) {
         x=a; y=b; z=c; w=0;
     }
