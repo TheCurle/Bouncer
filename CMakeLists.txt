@@ -5,13 +5,14 @@ project(bouncer)
 enable_testing()
 
 # if you're on linux.... good luck
-list(APPEND CMAKE_MODULE_PATH "C:/Program Files (x86)/Catch2/lib/cmake/Catch2/")
+list(APPEND CMAKE_PREFIX_PATH "D:/catch2/lib/cmake/Catch2")
 find_package(Catch2 3 REQUIRED)
 
 # Compile flags
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Werror -Wall -Wextra -O0")
+SET(CMAKE_CXX_COMPILER_TARGET x86_64-w64-mingw32)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Werror -Wall -Wextra -O0 -fuse-ld=lld")
 
 # Source sets
 file(GLOB renderer_src CONFIGURE_DEPENDS
