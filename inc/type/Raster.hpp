@@ -5,6 +5,7 @@
 
 #include <type/Tuple.hpp>
 #include <vector>
+#include <algorithm>
 
 #pragma once
 
@@ -63,7 +64,7 @@ public:
     // Value constructor.
     Framebuffer(size_t w, size_t h) : width(w), height(h) {
         // Assign the buffer array to a 2-dimensional array of white.
-        buffer.assign(height, std::vector<Color>(width, Color(0, 0, 0)));
+        buffer.assign(w, std::vector<Color>(h, Color(0, 0, 0)));
     }
 
     // Get the Color of the specified pixel.
@@ -71,7 +72,7 @@ public:
         assert(x <= width);
         assert(y <= height);
 
-        return buffer[y][x];
+        return buffer[x][y];
     }
 
     // Set the Color of the specified pixel.
@@ -79,11 +80,61 @@ public:
         assert(x <= width);
         assert(y <= height);
 
-        buffer[y][x] = col;
+        buffer[x][y] = col;
     }
+
+    // Export the Framebuffer to a Portable PixMap formatted string, ready for writing to disk.
+    std::string export_ppm() {
+        std::string ppm;
+        // PPM header. Version 3, width height, pixel limit.
+        ppm.append("P3\n");
+        ppm.append(std::to_string(width)).append(" ");
+        ppm.append(std::to_string(height)).append("\n");
+        ppm.append(std::to_string(export_pixel_limit)).append("\n");
+
+        size_t lineLength = 0;
+        for(size_t i = 0; i < height; i++) {
+            for(size_t j = 0; j < width; j++) {
+                Color col = at(j, i);
+                std::string red(std::to_string(clamp((int) std::round(col.red() * export_pixel_limit))));
+                red.append(" ");
+                
+                std::string green(std::to_string(clamp((int) std::round(col.green() * export_pixel_limit))));
+                green.append(" ");
+                
+                std::string blue(std::to_string(clamp((int) std::round(col.blue() * export_pixel_limit))));
+                blue.append(" ");
+
+                size_t newSize = red.size() + green.size() + blue.size();
+
+                lineLength += newSize;
+                if(lineLength >= 70) {
+                    ppm.append("\n/");
+                }
+
+                ppm.append(red).append(green).append(blue);
+            }
+
+            ppm = ppm.substr(0, ppm.size() - 1);
+            lineLength = 0;
+            ppm.append("\n");
+        }
+        return ppm;
+    }   
 
 
 private:
     // Internal backing storage for the framebuffer's pixel grid.
     std::vector<std::vector<Color>> buffer;
+
+    // The maximum value of an exported pixel (currently only used for PPM export)
+    size_t export_pixel_limit = 255;
+
+    size_t clamp(int val) {
+        if(val < 0)
+            val = 0;
+        if(val > 255)
+            val = 255;
+        return val;
+    }
 };

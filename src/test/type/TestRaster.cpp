@@ -4,6 +4,7 @@
  ***************/
 
 #include <catch2/catch_test_macros.hpp>
+#include <string>
 #include <type/Tuple.hpp>
 #include <type/Raster.hpp>
 
@@ -34,6 +35,61 @@ SCENARIO("Writing a pixel to a framebuffer", "[Raster]") {
                 f.set(2, 3, red);
                 THEN("f.at(2, 3) = red") {
                     REQUIRE((f.at(2, 3) == red));
+                    REQUIRE(!(f.at(2, 3) == Color(0, 0, 0)));
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Constructing a Portable PixMap header", "[Raster]") {
+    GIVEN("f <- framebuffer(5, 3)") {
+        Framebuffer f(5, 10);
+        WHEN("ppm <- f.export_ppm()") {
+            std::string ppm = f.export_ppm();
+            THEN(
+                R"--(lines 1-3 of ppm are 
+"""
+P3
+5 10
+255
+"""             )--") {
+                REQUIRE(ppm.substr(0, std::string("P3\n5 10\n255").size())
+                            .compare("P3\n5 10\n255") == 0);
+            }
+        }
+    }
+}
+
+SCENARIO("Constructing the Portable PixMap data", "[Raster]") {
+    GIVEN("f <- framebuffer(5, 3)") {
+        Framebuffer f(5, 3);
+        AND_GIVEN("c1 <- color(1.5, 0, 0)") {
+            Color c1(1.5, 0, 0);
+            AND_GIVEN("c2 <- color(0, 0.5, 0)") {
+                Color c2(0, 0.5, 0);
+                AND_GIVEN("c3 <- color(-0.5, 0, 1)") {
+                    Color c3(-0.5, 0, 1);
+                    WHEN("f.set(0, 0, c1)") {
+                        f.set(0, 0, c1);
+                        AND_WHEN("f.set(2, 1, c2)") {
+                            f.set(2, 1, c2);
+                            AND_WHEN("f.set(4, 2, c3)") {
+                                f.set(4, 2, c3);
+
+                                AND_WHEN("ppm <- f.export_ppm()") {
+                                    std::string ppm = f.export_ppm();
+                                    std::string expectedData("255 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 128 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 255\n");
+                                    THEN("lines 4-6 of ppm are\n"
+                                         << expectedData.c_str())
+                                    {
+                                        REQUIRE(ppm.substr(11, expectedData.size() + 2)
+                                                    .compare(expectedData) == 0);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
