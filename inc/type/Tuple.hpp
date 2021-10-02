@@ -5,6 +5,8 @@
 
 #include <math.h>
 
+#pragma once
+
 /**
  * Represents a 4-dimensional coordinate.
  * The parent of all tuple structures
