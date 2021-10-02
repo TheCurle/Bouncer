@@ -18,6 +18,20 @@ struct TupleContainer {
     double y;
     double z;
     double w;
+
+    // Overloaded equality operator, to account for the weirdness of the 4 dimensions.
+    bool operator==(const TupleContainer& other) const {
+        return safeCompare(other.x, x) && safeCompare(other.y, y) &&
+                 safeCompare(other.z, z) && safeCompare(other.w, w);
+    }
+    
+    // Compare two doubles with tolerance.
+    static bool safeCompare(double a, double b) {
+        return abs(a - b) < epsilon;
+    }
+
+    // The tolerance for comparisons.
+    static constexpr double epsilon = 0.00001;
 };
 
 /**
@@ -37,12 +51,6 @@ public:
     bool isPoint() { return w == 1; }
     // Returns true if this tuple represents a direction and magnitude vector.
     bool isVector() { return w == 0; }
-
-    // Overloaded equality operator, to account for the weirdness of the 4 dimensions.
-    bool operator==(const Tuple& other) const {
-        return safeCompare(other.x, x) && safeCompare(other.y, y) &&
-                 safeCompare(other.z, z) && safeCompare(other.w, w);
-    }
 
     // Overloaded addition operator. Have to add each element individually.
     Tuple operator+(const Tuple& other) {
@@ -70,14 +78,6 @@ public:
 
     // Default constructor for subclasses
     Tuple() { x = y = z = w = 0; }
-
-    // Compare two doubles with tolerance.
-    static bool safeCompare(double a, double b) {
-        return abs(a - b) < epsilon;
-    }
-
-    // The tolerance for comparisons.
-    static constexpr double epsilon = 0.00001;
 };
 
 
