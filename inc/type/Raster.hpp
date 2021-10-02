@@ -27,4 +27,19 @@ public:
 
     // Return the blue compoent
     double blue() { return z; }
+
+    // Color addition operator.
+    Color operator+(const Color& other) {
+        return Color(x + other.x, y + other.y, z + other.z);
+    }
+
+    // Color subtraction operator.
+    Color operator-(const Color& other) {
+        return Color(x - other.x, y - other.y, z - other.z);
+    }
+
+    // Color scalar multiplication operator.
+    Color operator*(const double& other) {
+        return Color(x * other, y * other, z * other);
+    }
 };
