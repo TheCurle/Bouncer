@@ -4,6 +4,7 @@
  ***************/
 
 #include <type/Tuple.hpp>
+#include <vector>
 
 #pragma once
 
@@ -43,7 +44,46 @@ public:
         return Color(x * other, y * other, z * other);
     }
 
+    // Shur product operator.
     Color operator*(const Color& other) {
         return Color(x * other.x, y * other.y, z * other.z);
     }
+};
+
+/**
+ * Represents a pixel array that can be drawn to at will.
+ * 
+ * Contains several export functions for writing to disk as various image formats.
+ */
+class Framebuffer {
+public:
+    size_t width;
+    size_t height;
+
+    // Value constructor.
+    Framebuffer(size_t w, size_t h) : width(w), height(h) {
+        // Assign the buffer array to a 2-dimensional array of white.
+        buffer.assign(height, std::vector<Color>(width, Color(0, 0, 0)));
+    }
+
+    // Get the Color of the specified pixel.
+    Color at(size_t x, size_t y) {
+        assert(x <= width);
+        assert(y <= height);
+
+        return buffer[y][x];
+    }
+
+    // Set the Color of the specified pixel.
+    void set(size_t x, size_t y, Color col) {
+        assert(x <= width);
+        assert(y <= height);
+
+        buffer[y][x] = col;
+    }
+
+
+private:
+    // Internal backing storage for the framebuffer's pixel grid.
+    std::vector<std::vector<Color>> buffer;
 };
