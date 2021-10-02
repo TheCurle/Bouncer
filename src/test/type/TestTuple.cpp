@@ -5,6 +5,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <type/Tuple.hpp>
+#include <type/Raster.hpp>
 
 SCENARIO("A tuple with w = 1 is a point.", "[Tuple]") {
 
@@ -305,6 +306,21 @@ SCENARIO("Cross product of two vectors", "[Tuple]") {
             THEN("a.cross(b) = vector(-1, 2, -1)") {
                 REQUIRE((a.cross(b) == Vector(-1, 2, -1)));
             }
+        }
+    }
+}
+
+SCENARIO("Colors are (red, green, blue) tuples.", "[Tuple]") {
+    GIVEN("c <- color(0.5, 0.4, 1.7") {
+        Color c(0.5, 0.4, 1.7);
+        THEN("c.red() = 0.5") {
+            REQUIRE(c.red() == 0.5);
+        }
+        AND_THEN("c.green() = 0.4") {
+            REQUIRE(c.green() == 0.4);
+        }
+        AND_THEN("c.blue() = 1.7") {
+            REQUIRE(c.blue() == 1.7);
         }
     }
 }
