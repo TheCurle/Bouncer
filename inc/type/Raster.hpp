@@ -42,4 +42,8 @@ public:
     Color operator*(const double& other) {
         return Color(x * other, y * other, z * other);
     }
+
+    Color operator*(const Color& other) {
+        return Color(x * other.x, y * other.y, z * other.z);
+    }
 };

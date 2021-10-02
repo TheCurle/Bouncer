@@ -357,3 +357,15 @@ SCENARIO("Multiplying a color by a scalar", "[Tuple]") {
         }
     }
 }
+
+SCENARIO("Multiplying a color by a color", "[Tuple]") {
+    GIVEN("c1 <- color(1, 0.2, 0.4)") {
+        Color c1(1, 0.2, 0.4);
+        AND_GIVEN("c2 <- color(0.9, 1, 0.1)") {
+            Color c2(0.9, 1, 0.1);
+            THEN("c1 * c2 = color(0.9, 0.2, 0.04)") {
+                REQUIRE(((c1 * c2) == Color(0.9, 0.2, 0.04)));
+            }
+        }
+    }
+}
