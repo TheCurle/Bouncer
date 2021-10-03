@@ -7,6 +7,7 @@
 #include <string>
 #include <type/Tuple.hpp>
 #include <type/Raster.hpp>
+#include <fstream>
 
 SCENARIO("Creating a Framebuffer", "[Raster]") {
     GIVEN("f <- framebuffer(10, 20)") {
@@ -91,6 +92,40 @@ SCENARIO("Constructing the Portable PixMap data", "[Raster]") {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+
+SCENARIO("Portable PixMap lines are never longer than 70 characters", "[Raster]") {
+    GIVEN("f <- framebuffer(10, 2)") {
+        Framebuffer f(10, 2);
+        AND_GIVEN("every pixel is set to color(1, 0.8, 0.6)") {
+            for(int i = 0; i < 10; i++) 
+                for(int j = 0; j < 2; j++) 
+                    f.set(i, j, Color(1, 0.8, 0.6));
+            
+            AND_WHEN("ppm <- f.export_ppm()") {
+                std::string ppm = f.export_ppm();
+                std::string expectedData("255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204\n153 255 204 153 255 204 153 255 204 153 255 204 153\n255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204\n153 255 204 153 255 204 153 255 204 153 255 204 153\n");
+                std::string ppmData = ppm.substr(12, expectedData.size() + 2);
+                
+                THEN("lines 4-7 of ppm are\n" << expectedData.c_str()) {
+                    REQUIRE(ppmData.compare(expectedData) == 0);
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Portable PixMap files end with a newline", "[Raster]") {
+    GIVEN("f <- framebuffer(10, 2)") {
+        Framebuffer f(10, 2);
+        WHEN("ppm <- f.export_ppm()") {
+            std::string ppm = f.export_ppm();
+            THEN("ppm ends with a newline") {
+                REQUIRE(ppm.at(ppm.size() - 1) == '\n');
             }
         }
     }
