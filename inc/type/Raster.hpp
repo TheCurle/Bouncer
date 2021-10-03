@@ -30,6 +30,14 @@ public:
     // Return the blue compoent
     double blue() { return z; }
 
+    // Fetch the specified [red, green, blue] index.
+    double value(size_t idx) {
+        return idx == 0 ? red() : 
+                idx == 1 ? green() :
+                 idx == 2 ? blue() :
+                    0;
+    }
+
     // Color addition operator.
     Color operator+(const Color& other) {
         return Color(x + other.x, y + other.y, z + other.z);
@@ -92,31 +100,37 @@ public:
         ppm.append(std::to_string(height)).append("\n");
         ppm.append(std::to_string(export_pixel_limit)).append("\n");
 
-        size_t lineLength = 0;
         for(size_t i = 0; i < height; i++) {
+            // Line length counter. Must never exceed 70.
+            size_t lineLength = 0;
             for(size_t j = 0; j < width; j++) {
+                // Retrieve the pixel we want
                 Color col = at(j, i);
-                std::string red(std::to_string(clamp((int) std::round(col.red() * export_pixel_limit))));
-                red.append(" ");
-                
-                std::string green(std::to_string(clamp((int) std::round(col.green() * export_pixel_limit))));
-                green.append(" ");
-                
-                std::string blue(std::to_string(clamp((int) std::round(col.blue() * export_pixel_limit))));
-                blue.append(" ");
 
-                size_t newSize = red.size() + green.size() + blue.size();
+                // For every color red, green, blue
+                for(size_t k = 0; k < 3; k++) {
+                    // Get the value
+                    std::string pixel(std::to_string(clamp((int) std::round(col.value(k) * export_pixel_limit))));
+                    lineLength += pixel.length() + 1;
 
-                lineLength += newSize;
-                if(lineLength >= 70) {
-                    ppm.append("\n/");
+                    // Make sure we don't run over length
+                    if (lineLength >= 70) {
+                        // If we do, remove the last character (which is always a space)
+                        ppm = ppm.substr(0, ppm.size() - 1);
+                        // Put a newline before this string
+                        pixel = std::string("\n").append(pixel);
+                        // Reset the line counter
+                        lineLength = 0;
+                    }
+
+                    pixel.append(" ");
+                    ppm.append(pixel);
                 }
-
-                ppm.append(red).append(green).append(blue);
             }
 
+            // Remove the trailing space.
             ppm = ppm.substr(0, ppm.size() - 1);
-            lineLength = 0;
+            // Move to the next line. Make sure the file always ends in newline, so no checks.
             ppm.append("\n");
         }
         return ppm;
