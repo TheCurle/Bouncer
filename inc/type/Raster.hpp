@@ -5,6 +5,7 @@
 
 #include <type/Tuple.hpp>
 #include <vector>
+#include <string>
 #include <algorithm>
 
 #pragma once
@@ -71,14 +72,14 @@ public:
 
     // Value constructor.
     Framebuffer(size_t w, size_t h) : width(w), height(h) {
-        // Assign the buffer array to a 2-dimensional array of white.
-        buffer.assign(w, std::vector<Color>(h, White));
+        // Assign the buffer array to a 2-dimensional array of black.
+        buffer.assign(w, std::vector<Color>(h, Black));
     }
 
     // Get the Color of the specified pixel.
     Color at(size_t x, size_t y) {
         if (x >= width || y >= height)
-            return White;
+            return Black;
 
         return buffer[x][y];
     }
@@ -146,8 +147,8 @@ private:
     // The maximum value of an exported pixel (currently only used for PPM export)
     size_t export_pixel_limit = 255;
 
-    // The default White color.
-    Color White = Color(0, 0, 0);
+    // The default Black color.
+    Color Black = Color(0, 0, 0);
 
     size_t clamp(int val) {
         if(val < 0)
