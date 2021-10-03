@@ -72,21 +72,23 @@ public:
     // Value constructor.
     Framebuffer(size_t w, size_t h) : width(w), height(h) {
         // Assign the buffer array to a 2-dimensional array of white.
-        buffer.assign(w, std::vector<Color>(h, Color(0, 0, 0)));
+        buffer.assign(w, std::vector<Color>(h, White));
     }
 
     // Get the Color of the specified pixel.
     Color at(size_t x, size_t y) {
-        assert(x <= width);
-        assert(y <= height);
+        if (x >= width || y >= height)
+            return White;
 
         return buffer[x][y];
     }
 
     // Set the Color of the specified pixel.
     void set(size_t x, size_t y, Color col) {
-        assert(x <= width);
-        assert(y <= height);
+        if (x >= width)
+            return;
+        if (y >= height)
+            return;
 
         buffer[x][y] = col;
     }
@@ -143,6 +145,9 @@ private:
 
     // The maximum value of an exported pixel (currently only used for PPM export)
     size_t export_pixel_limit = 255;
+
+    // The default White color.
+    Color White = Color(0, 0, 0);
 
     size_t clamp(int val) {
         if(val < 0)
