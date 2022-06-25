@@ -210,44 +210,14 @@ struct Matrix {
         return data[width][height];
     }
 
-    Tuple mul(Tuple& tup) {
 
-        double x1 = tup.x * data[0][0];
-        double x2 = tup.y * data[0][1];
-        double x3 = tup.z * data[0][2];
-        double x4 = tup.w * data[0][3];
-
-        double x = x1 + x2 + x3 + x4;
-
-        double y1 = tup.x * data[1][0];
-        double y2 = tup.y * data[1][1];
-        double y3 = tup.z * data[1][2];
-        double y4 = tup.w * data[1][3];
-
-        double y = y1 + y2 + y3 + y4;
-
-        double z1 = tup.x * data[2][0];
-        double z2 = tup.y * data[2][1];
-        double z3 = tup.z * data[2][2];
-        double z4 = tup.w * data[2][3];
-
-        double z = z1 + z2 + z3 + z4;
-
-        double w1 = tup.x * data[3][0];
-        double w2 = tup.y * data[3][1];
-        double w3 = tup.z * data[3][2];
-        double w4 = tup.w * data[3][3];
-
-        double w = w1 + w2 + w3 + w4;
-
-        return {x, y, z, w };
-    }
 };
 
 bool operator==(const Matrix& thisMatrix, const Matrix& otherMatrix);
 bool operator!=(const Matrix& thisMatrix, const Matrix& otherMatrix);
 Matrix operator*(const Matrix& thisMatrix, const Matrix& otherMatrix);
 Matrix operator/(Matrix thisMatrix, double dbl);
+Tuple operator*(Matrix mat, const Tuple& tup);
 std::ostream& operator<<(std::ostream& stream, const Matrix& matrix);
 
 //#define MATRIX_OPERATOR_OVERLOADS
@@ -286,6 +256,33 @@ Matrix operator*(const Matrix& thisMatrix, const Matrix& otherMatrix) {
     return result;
 }
 
+Tuple operator*(Matrix mat, const Tuple& tup) {
+    double x =
+            tup.x * mat[0][0] +
+            tup.y * mat[0][1] +
+            tup.z * mat[0][2] +
+            tup.w * mat[0][3];
+
+    double y =
+            tup.x * mat[1][0] +
+            tup.y * mat[1][1] +
+            tup.z * mat[1][2] +
+            tup.w * mat[1][3];
+
+    double z =
+            tup.x * mat[2][0] +
+            tup.y * mat[2][1] +
+            tup.z * mat[2][2] +
+            tup.w * mat[2][3];
+
+    double w =
+            tup.x * mat[3][0] +
+            tup.y * mat[3][1] +
+            tup.z * mat[3][2] +
+            tup.w * mat[3][3];
+
+    return {x, y, z, w };
+}
 
 // Matrix division by a double.. By-The-Books.
 Matrix operator/(const Matrix& thisMatrix, const double& dbl) {

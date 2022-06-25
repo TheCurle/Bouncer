@@ -262,7 +262,7 @@ SCENARIO("A matrix multiplied by a tuple") {
             THEN("A * B = { 18, 24, 33, 1 }") {
                 Tuple expected = {18, 24, 33, 1};
 
-                Tuple result = Tuple(A.mul(B));
+                Tuple result = Tuple(A * B);
 
                 REQUIRE(result == expected);
             }

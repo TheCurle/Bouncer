@@ -15,7 +15,7 @@ SCENARIO("Multiplying by a translation matrix") {
             Point p(-3, 4, 5);
 
             THEN("transform * p = point(2, 1, 7)") {
-                Point result = Point(transform.mul(p));
+                Point result = Point(transform * p);
                 REQUIRE(result == Point(2, 1, 7));
             }
         }
@@ -33,7 +33,7 @@ SCENARIO("Multiplying by the inverse of a translation matrix") {
                 Point p(-3, 4, 5);
 
                 THEN("inv * p = point(-8, 7, 3)") {
-                    Point result = Point(inv.mul(p));
+                    Point result = Point(inv* p);
 
                     REQUIRE(result == Point(-8, 7, 3));
                 }
@@ -50,7 +50,7 @@ SCENARIO("Translation does not affect vectors") {
             Vector v(-3, 4, 5);
 
             THEN("transform * v = v") {
-                REQUIRE(Vector(transform.mul(v)) == v);
+                REQUIRE(Vector(transform * v) == v);
             }
         }
     }
@@ -64,7 +64,7 @@ SCENARIO("A scaling matrix applied to a point") {
             Point p(-4, 6, 8);
 
             THEN("transform * p = point(-8, 18, 32)") {
-                Point result = Point(transform.mul(p));
+                Point result = Point(transform * p);
                 REQUIRE(result == Point(-8, 18, 32));
             }
         }
@@ -79,7 +79,7 @@ SCENARIO("Applying a scaling matrix to a vector") {
             Vector v(-4, 6, 8);
 
             THEN("transform * v = vector(-8, 18, 32)") {
-                REQUIRE(Vector(transform.mul(v)) == Vector(-8, 18, 32));
+                REQUIRE(Vector(transform * v) == Vector(-8, 18, 32));
             }
         }
     }
@@ -96,7 +96,7 @@ SCENARIO("Multiplying by the inverse of a scaling matrix") {
                 Point p(-4, 6, 8);
 
                 THEN("inv * p = point(-2, 2, 2)") {
-                    Point result = Point(inv.mul(p));
+                    Point result = Point(inv * p);
 
                     REQUIRE(result == Point(-2, 2, 2));
                 }
@@ -111,7 +111,7 @@ SCENARIO("Reflection is the same as scaling by a negative value") {
         AND_GIVEN("p: point(2, 3, 4)") {
             Point p(2, 3, 4);
             THEN("transform * p = Point(-2, 3, 4)") {
-                REQUIRE(Point(transform.mul(p)) == Point(-2, 3, 4));
+                REQUIRE(Point(transform * p) == Point(-2, 3, 4));
             }
         }
     }
@@ -126,11 +126,11 @@ SCENARIO("Rotating a point around the x axis") {
                 Matrix full_quarter = Matrix::rotation_x(M_PI / 2);
 
                 THEN("half_quarter * p = point(0, sqrt(2) / 2, sqrt(2) / 2)") {
-                    REQUIRE(Point(half_quarter.mul(p)) == Point(0, std::sqrt(2) / 2, std::sqrt(2) / 2));
+                    REQUIRE(Point(half_quarter * p) == Point(0, std::sqrt(2) / 2, std::sqrt(2) / 2));
                 }
 
                 AND_THEN("full_quarter * p = point(0, 0, 1)") {
-                    REQUIRE(Point(full_quarter.mul(p)) == Point(0, 0, 1));
+                    REQUIRE(Point(full_quarter * p) == Point(0, 0, 1));
                 }
             }
         }
@@ -146,7 +146,7 @@ SCENARIO("The inverse of an x-rotation rotates in the opposite direction") {
                 Matrix inv = Matrix::inverse(half_quarter);
 
                 THEN("inv * p = point(0, sqrt(2) / 2, -sqrt(2) / 2)") {
-                    REQUIRE(Point(inv.mul(p)) == Point(0, std::sqrt(2) / 2, -std::sqrt(2) / 2));
+                    REQUIRE(Point(inv * p) == Point(0, std::sqrt(2) / 2, -std::sqrt(2) / 2));
                 }
 
             }
@@ -163,11 +163,11 @@ SCENARIO("Rotating a point around the y axis") {
                 Matrix full_quarter = Matrix::rotation_y(M_PI / 2);
 
                 THEN("half_quarter * p = point(sqrt(2) / 2, 0, sqrt(2) / 2)") {
-                    REQUIRE(Point(half_quarter.mul(p)) == Point(std::sqrt(2) / 2, 0, std::sqrt(2) / 2));
+                    REQUIRE(Point(half_quarter * p) == Point(std::sqrt(2) / 2, 0, std::sqrt(2) / 2));
                 }
 
                 AND_THEN("full_quarter * p = point(1, 0, 0)") {
-                    REQUIRE(Point(full_quarter.mul(p)) == Point(1, 0, 0));
+                    REQUIRE(Point(full_quarter * p) == Point(1, 0, 0));
                 }
             }
         }
@@ -183,11 +183,11 @@ SCENARIO("Rotating a point around the z axis") {
                 Matrix full_quarter = Matrix::rotation_z(M_PI / 2);
 
                 THEN("half_quarter * p = point(-sqrt(2) / 2, sqrt(2) / 2), 0") {
-                    REQUIRE(Point(half_quarter.mul(p)) == Point(-std::sqrt(2) / 2, std::sqrt(2) / 2, 0));
+                    REQUIRE(Point(half_quarter * p) == Point(-std::sqrt(2) / 2, std::sqrt(2) / 2, 0));
                 }
 
                 AND_THEN("full_quarter * p = point(-1, 0, 0)") {
-                    REQUIRE(Point(full_quarter.mul(p)) == Point(-1, 0, 0));
+                    REQUIRE(Point(full_quarter * p) == Point(-1, 0, 0));
                 }
             }
         }
@@ -200,7 +200,7 @@ SCENARIO("A shearing transformation moves x in proportion to y") {
         AND_GIVEN("p: point(2, 3, 4)") {
             Point p(2, 3, 4);
             THEN("transform * p = point(5, 3, 4)") {
-                REQUIRE(Point(transform.mul(p)) == Point(5, 3, 4));
+                REQUIRE(Point(transform * p) == Point(5, 3, 4));
             }
         }
     }
@@ -212,7 +212,7 @@ SCENARIO("A shearing transformation moves x in proportion to z") {
         AND_GIVEN("p: point(2, 3, 4)") {
             Point p(2, 3, 4);
             THEN("transform * p = point(6, 3, 4)") {
-                REQUIRE(Point(transform.mul(p)) == Point(6, 3, 4));
+                REQUIRE(Point(transform * p) == Point(6, 3, 4));
             }
         }
     }
@@ -224,7 +224,7 @@ SCENARIO("A shearing transformation moves y in proportion to x") {
         AND_GIVEN("p: point(2, 3, 4)") {
             Point p(2, 3, 4);
             THEN("transform * p = point(2, 5, 4)") {
-                REQUIRE(Point(transform.mul(p)) == Point(2, 5, 4));
+                REQUIRE(Point(transform * p) == Point(2, 5, 4));
             }
         }
     }
@@ -236,7 +236,7 @@ SCENARIO("A shearing transformation moves y in proportion to z") {
         AND_GIVEN("p: point(2, 3, 4)") {
             Point p(2, 3, 4);
             THEN("transform * p = point(2, 7, 4)") {
-                REQUIRE(Point(transform.mul(p)) == Point(2, 7, 4));
+                REQUIRE(Point(transform * p) == Point(2, 7, 4));
             }
         }
     }
@@ -248,7 +248,7 @@ SCENARIO("A shearing transformation moves z in proportion to x") {
         AND_GIVEN("p: point(2, 3, 4)") {
             Point p(2, 3, 4);
             THEN("transform * p = point(2, 3, 6)") {
-                REQUIRE(Point(transform.mul(p)) == Point(2, 3, 6));
+                REQUIRE(Point(transform * p) == Point(2, 3, 6));
             }
         }
     }
@@ -260,7 +260,7 @@ SCENARIO("A shearing transformation moves z in proportion to y") {
         AND_GIVEN("p: point(2, 3, 4)") {
             Point p(2, 3, 4);
             THEN("transform * p = point(2, 3, 7)") {
-                REQUIRE(Point(transform.mul(p)) == Point(2, 3, 7));
+                REQUIRE(Point(transform * p) == Point(2, 3, 7));
             }
         }
     }
@@ -277,19 +277,19 @@ SCENARIO("Individual transformations applied in sequence") {
                     Matrix C = Matrix::translation(10, 5, 7);
 
                     WHEN("p2 = A * p") {
-                        Point p2 = Point(A.mul(p));
+                        Point p2 = Point(A * p);
                         THEN("p2 = point(1, -1, 0)") {
                             REQUIRE(p2 == Point(1, -1, 0));
                         }
 
                         AND_WHEN("p3 = B * p2") {
-                            Point p3 = Point(B.mul(p2));
+                            Point p3 = Point(B * p2);
                             THEN("p3 = point(5, -5, 0)") {
                                 REQUIRE(p3 == Point(5, -5, 0));
                             }
 
                             AND_WHEN("p4 = C * p3") {
-                                Point p4 = Point(C.mul(p3));
+                                Point p4 = Point(C * p3);
                                 THEN("p4 = point(15, 0, 7)") {
                                     REQUIRE(p4 == Point(15, 0, 7));
                                 }
@@ -317,7 +317,7 @@ SCENARIO("Chained transformations must be applied in reverse order") {
                         Matrix T = C * B * A;
 
                         THEN("T * p = point(15, 0, 7)") {
-                            REQUIRE(Point(T.mul(p)) == Point(15, 0, 7));
+                            REQUIRE(Point(T * p) == Point(15, 0, 7));
                         }
                     }
                 }
@@ -335,7 +335,7 @@ SCENARIO("Translating a point") {
         AND_GIVEN("m: translation(3, 4, 5)") {
             Matrix m = Matrix::translation(3, 4, 5);
             WHEN("p2  = m * p") {
-                Point p2 = Point(m.mul(p));
+                Point p2 = Point(m * p);
 
                 THEN("p2 = point(4, 6, 8)") {
                     REQUIRE(p2 == Point(4, 6, 8 ));
@@ -351,11 +351,7 @@ SCENARIO("Translating a vector") {
         AND_GIVEN("m: translation(3, 4, 5)") {
             Matrix m = Matrix::translation(3, 4, 5);
             WHEN("v2 = m * v") {
-
-                Vector v2 = Vector(m.mul(v));
-                // beeb
-
-                std::cout << "vector v2: { " << v2.x << ", " << v2.y << ", " << v2.z << ", " << v2.w << " }" << std::endl;
+                Vector v2 = Vector(m *v);
 
                 THEN("v2 = vector(0, 1, 0)") {
                     REQUIRE(v2 == Vector(0, 1, 0));

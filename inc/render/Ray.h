@@ -96,8 +96,8 @@ struct Ray {
 
     static Ray transform(Ray r, Matrix m) {
         Matrix inv = Matrix::inverse(m);
-        Point transformedOrigin = Point(m.mul(r.origin));
-        Vector transformedDir = Vector(m.mul(r.direction));
+        Point transformedOrigin = Point(m * r.origin);
+        Vector transformedDir = Vector(m * r.direction);
         return { transformedOrigin, transformedDir };
     }
 };
