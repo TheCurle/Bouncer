@@ -124,7 +124,7 @@ class Vector : public Tuple {
 
     // Tuple copy-constructor.
     explicit Vector(const Tuple& other) {
-        x=other.x; y=other.y; z=other.y; w=0;
+        x=other.x; y=other.y; z=other.z; w=0;
     }
 
     // Vector value constructor.
