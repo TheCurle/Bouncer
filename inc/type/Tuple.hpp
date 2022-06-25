@@ -54,7 +54,7 @@ public:
     }
 
     Tuple(Tuple& other) {
-        x = other.x; y = other.y; z = other.z; w = other.z;
+        x = other.x; y = other.y; z = other.z; w = other.w;
     }
 
     // Returns true if this tuple represents a location.
