@@ -403,3 +403,75 @@ SCENARIO("Scaling a ray") {
         }
     }
 }
+
+SCENARIO("A sphere has a default transformation") {
+    GIVEN("s: sphere()") {
+        Sphere s;
+        THEN("s.transform = identity_matrix") {
+            REQUIRE(s.transform == Matrix::identity());
+        }
+    }
+}
+
+SCENARIO("Changing a sphere's transformation") {
+    GIVEN("s: sphere()") {
+        Sphere s;
+        AND_GIVEN("t: translation(2, 3, 4)") {
+            Matrix t = Matrix::translation(2, 3, 4);
+            WHEN("s.setTransform(t)") {
+                s.transform = t;
+
+                THEN("s.transform = t") {
+                    REQUIRE(s.transform == t);
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Intersecting a scaled sphere with a ray") {
+    GIVEN("r: ray( point(0, 0, -5), vector(0, 0, 1) )") {
+        Ray r { {0, 0, -5}, { 0, 0, 1 } };
+        AND_GIVEN("s: sphere()") {
+            Sphere s;
+            WHEN("s.setTransform( scaling(2, 2, 2) )") {
+                s.transform = Matrix::scaling(2, 2, 2);
+                AND_WHEN("xs: intersect(s, r)") {
+                    Intersections xs = Ray::intersect(s, r);
+
+                    THEN("xs.size = 2") {
+                        REQUIRE(xs.size() == 2);
+                    }
+
+                    AND_THEN("xs[0].t = 3") {
+                        REQUIRE(xs[0].time == 3);
+                    }
+
+                    AND_THEN("xs[1].t = 7") {
+                        REQUIRE(xs[1].time == 7);
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Intersecting a translated sphere with a ray") {
+    GIVEN("r: ray( point(0, 0, -5), vector(0, 0, 1) )") {
+        Ray r { {0, 0, -5}, { 0, 0, 1 } };
+        AND_GIVEN("s: sphere()") {
+            Sphere s;
+            WHEN("s.setTransform( translation(5, 0, 0 )") {
+                s.transform = Matrix::translation(5, 0, 0);
+                AND_WHEN("xs: intersect(s, r)") {
+                    Intersections xs = Ray::intersect(s, r);
+
+                    THEN("xs.size = 0") {
+                        REQUIRE(xs.size() == 0);
+                    }
+                }
+            }
+        }
+    }
+}
+

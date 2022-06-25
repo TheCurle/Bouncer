@@ -11,13 +11,19 @@ using namespace std;
 
 struct Geo {
     int id;
+    Matrix transform;
 
     Geo() {
         static int ids = 0;
         id = ids++;
+
+        transform = Matrix::identity();
     }
 
-    Geo(int nid) { id = nid; }
+    Geo(int nid) {
+        id = nid;
+        transform = Matrix::identity();
+    }
 };
 
 struct Sphere : public Geo {

@@ -67,15 +67,18 @@ struct Ray {
     }
 
     // Calculate all of the points where the given ray intersects the given geometry
-    static Intersections intersect(Geo geo, Ray r) {
-        (void) geo;
+    static Intersections intersect(const Geo& geo, Ray r) {
+
+        // Transform the ray according to the object's properties
+        Ray r2 = Ray::transform(r, Matrix::inverse(geo.transform));
+
         // First calculate the discriminant of the intersection;
         // we need to avoid entering an infinite loop if the ray doesn't intersect.
 
-        Vector delta = r.origin - Point(0, 0, 0);
+        Vector delta = r2.origin - Point(0, 0, 0);
 
-        double a = r.direction * r.direction;
-        double b = 2 * (r.direction * delta);
+        double a = r2.direction * r2.direction;
+        double b = 2 * (r2.direction * delta);
         double c = (delta * delta) - 1;
 
         double discriminant = (b * b) - 4 * a * c;
@@ -95,7 +98,6 @@ struct Ray {
     }
 
     static Ray transform(Ray r, Matrix m) {
-        Matrix inv = Matrix::inverse(m);
         Point transformedOrigin = Point(m * r.origin);
         Vector transformedDir = Vector(m * r.direction);
         return { transformedOrigin, transformedDir };
