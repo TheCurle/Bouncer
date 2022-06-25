@@ -16,12 +16,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Werror -Wall -Wextra -O0 -fuse-ld=ll
 
 # Source sets
 file(GLOB renderer_src CONFIGURE_DEPENDS
-    "src/render/*.cpp"
+        "src/render/*.cpp"
 )
 
 file(GLOB test_src CONFIGURE_DEPENDS
-    "src/test/*.cpp"
-    "src/test/type/*.cpp"
+        "src/test/*.cpp"
+        "src/test/render/*.cpp"
+        "src/test/type/*.cpp"
 )
 
 include_directories("inc")

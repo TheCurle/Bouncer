@@ -3,7 +3,9 @@
  *     BOUNCER *
  ***************/
 
-#include <math.h>
+#include <cmath>
+#include <string>
+#include <sstream>
 
 #pragma once
 
@@ -43,8 +45,16 @@ struct TupleContainer {
 class Tuple : public TupleContainer {
 public:
     // Value constructor. Set all values implicitly.
-    Tuple(double a, double b, double c, double d) {
+    Tuple(double a, double b, double c, double d) : TupleContainer() {
         x = a; y = b; z = c; w = d;
+    }
+
+    explicit Tuple(std::vector<double> data) : TupleContainer() {
+        x = data[0]; y = data[1]; z = data[2]; w = data[3];
+    }
+
+    Tuple(Tuple& other) {
+        x = other.x; y = other.y; z = other.z; w = other.z;
     }
 
     // Returns true if this tuple represents a location.
@@ -54,21 +64,21 @@ public:
 
     // Overloaded addition operator. Have to add each element individually.
     Tuple operator+(const Tuple& other) {
-        return Tuple(other.x + x, other.y + y, other.z + z, other.w + w);
+        return {other.x + x, other.y + y, other.z + z, other.w + w};
     }
 
     // Overloaded multiplication operator. Have to multiply each element individually.
     Tuple operator*(const double& dub) {
-        return Tuple(x * dub, y * dub, z * dub, w * dub);
+        return {x * dub, y * dub, z * dub, w * dub};
     }
     
     // Overloaded division operator. Have to divide each element individually.
     Tuple operator/(const double& dub) {
-        return Tuple(x / dub, y / dub, z / dub, w / dub);
+        return {x / dub, y / dub, z / dub, w / dub};
     }
     // Overloaded negation operator. Have to negate each element individually.
     Tuple operator-() {
-        return Tuple(-x, -y, -z, -w);
+        return {-x, -y, -z, -w};
     }
 
     // Return the absolute magnitude of this vector from start-finish.
@@ -77,7 +87,7 @@ public:
     }
 
     // Default constructor for subclasses
-    Tuple() { x = y = z = w = 0; }
+    Tuple() : TupleContainer() { x = y = z = w = 0; }
 };
 
 
@@ -95,26 +105,25 @@ class Vector : public Tuple {
 
     // Vector subtraction overload.
     Vector operator-(const Vector& other) {
-        return Vector(x - other.x, y - other.y, z - other.z);
+        return {x - other.x, y - other.y, z - other.z};
     }
 
     // Vector dot-product overload.
     double operator*(const Vector& other) {
         return x * other.x +
-                 y * other.y + 
-                 z * other.z + 
-                 w * other.w;
-    } 
+                 y * other.y +
+                 z * other.z;
+    }
 
     // Calculate the cross-product of this and the passed vector.
     Vector cross(const Vector& other) {
-        return Vector(y * other.z - z * other.y,
+        return {y * other.z - z * other.y,
                 z * other.x - x * other.z,
-                x * other.y - y * other.x);
+                x * other.y - y * other.x};
     }
 
     // Tuple copy-constructor.
-    Vector(const Tuple& other) {
+    explicit Vector(const Tuple& other) {
         x=other.x; y=other.y; z=other.y; w=0;
     }
 
@@ -122,14 +131,19 @@ class Vector : public Tuple {
     Vector(double a, double b, double c) {
         x=a; y=b; z=c; w=0;
     }
-    
+
+    // Vector copy-constructor
+    Vector(Vector& other) : Tuple(other) {
+        x = other.x; y = other.y; z = other.z; w = 0;
+    }
+
     // Normalize this vector to a unit vector.
     Tuple normalize() {
         double mag = magnitude();
         if(mag < Tuple::epsilon)
-            return Tuple(0, 0, 0, 0);
+            return {0, 0, 0, 0};
 
-        return Tuple(x / mag, y / mag, z / mag, w);
+        return {x / mag, y / mag, z / mag, w};
     }
 };
 
@@ -148,13 +162,13 @@ class Point : public Tuple {
     // Point - Point subtraction overload. 
     // Returns a vector that leads from one point to the other.
     Vector operator-(const Point& other) const {
-        return Vector(x - other.x, y - other.y, z - other.z);
+        return {x - other.x, y - other.y, z - other.z};
     }
     
     // Point - Vector subtraction overload.
     // Returns the Point calculated by moving this Point by the given Vector.
     Point operator-(const Vector& other) const {
-        return Point(x - other.x, y - other.y, z - other.z);
+        return {x - other.x, y - other.y, z - other.z};
     }
 
     // Point value constructor.
@@ -163,7 +177,42 @@ class Point : public Tuple {
     }
 
     // Tuple copy-constructor.
-    Point(const Tuple& other) {
+    explicit Point(const Tuple& other) {
         x=other.x; y=other.y; z=other.z; w=1;
     }
+
+    Point(Point& other) : Tuple(other) {
+        x = other.x; y = other.y; z = other.z; w = 1;
+    }
 };
+
+// Specializations to allow Catch to print these types
+
+namespace Catch {
+    template < >
+    struct StringMaker<Point> {
+        static std::string convert(Point const &p) {
+            std::stringstream buf;
+            buf << "Point (" << p.x << ", " << p.y << ", " << p.z << ")";
+            return buf.str();
+        }
+    };
+
+    template < >
+    struct StringMaker<Vector> {
+        static std::string convert(Vector const &v) {
+            std::stringstream buf;
+            buf << "Vector (" << v.x << ", " << v.y << ", " << v.z << ")";
+            return buf.str();
+        }
+    };
+
+    template < >
+    struct StringMaker<Tuple> {
+        static std::string convert(Tuple const &t) {
+            std::stringstream buf;
+            buf << "Tuple (" << t.x << ", " << t.y << ", " << t.z << ", " << t.w << ")";
+            return buf.str();
+        }
+    };
+}
