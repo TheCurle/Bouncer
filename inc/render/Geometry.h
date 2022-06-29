@@ -5,6 +5,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <type/Matrix.h>
+#include "Light.h"
 
 #pragma once
 using namespace std;
@@ -12,17 +13,20 @@ using namespace std;
 struct Geo {
     int id;
     Matrix transform;
+    Material material;
 
     Geo() {
         static int ids = 0;
         id = ids++;
 
         transform = Matrix::identity();
+        material = Material();
     }
 
     Geo(int nid) {
         id = nid;
         transform = Matrix::identity();
+        material = Material();
     }
 
     Vector normalAt(const Point& p) {
