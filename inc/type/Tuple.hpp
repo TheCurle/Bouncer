@@ -3,9 +3,11 @@
  *     BOUNCER *
  ***************/
 
+#include <catch2/catch_all.hpp>
 #include <cmath>
 #include <string>
 #include <sstream>
+#include <vector>
 
 #pragma once
 
@@ -29,7 +31,7 @@ struct TupleContainer {
     
     // Compare two doubles with tolerance.
     static bool safeCompare(double a, double b) {
-        return abs(a - b) < epsilon;
+        return std::abs(a - b) < epsilon;
     }
 
     // The tolerance for comparisons.

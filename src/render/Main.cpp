@@ -7,46 +7,51 @@
 #include <type/Raster.hpp>
 #include <fstream>
 #include <cstdio>
+#define MATRIX_OPERATOR_OVERLOADS
+#define GEOMETRY_OPERATOR_OVERLOADS
+#include "render/Geometry.h"
+#include "render/Ray.h"
 
-class Environment {
-    public:
-
-    Environment(Vector grav, Vector wnd) : gravity(grav), wind(wnd) {}
-
-    Vector gravity;
-    Vector wind;
-};
-
-class Projectile { 
-    public:
-    Point position;
-    Vector velocity;
-
-    Projectile(Point pos, Vector vel) : position(pos), velocity(vel) {}
-
-    void tick(Environment env) {
-        position = position + velocity;
-        velocity = velocity + env.gravity + env.wind;
-    }
-};
+// The tolerance for comparisons.
+static constexpr double epsilon = 0.0001;
+// Compare two doubles with tolerance.
+bool safeCompare(double a, double b) {
+    return abs(a - b) < epsilon;
+}
 
 int main(int argc, char* argv[]) {
     (void) argc;
     (void) argv;
 
-    Projectile proj(Point(0, 1, 0), Vector(1, 1.8, 0).normalize() * 11.25);
-    Environment env(Vector(0, -0.1, 0), Vector(-0.01, 0, 0));
-    Framebuffer frame(900, 550);
-    Color ind(1, 1, 1);
+    Color ind(1, 0, 0);
 
-    size_t TickCount = 0;
-    while(proj.position.y > 0) {
-        proj.tick(env);
-        frame.set(proj.position.x, frame.height - proj.position.y, ind);
-        TickCount++;
+    Point origin(0, 0, -5);
+    int wallZ = 10;
+    double wallSize = 7;
+    int canvasSize = 100;
+    double worldPixelSize = wallSize / canvasSize;
+    double halfWall = wallSize / 2;
+
+    Framebuffer frame(canvasSize, canvasSize);
+    Sphere s;
+
+    for (int i = 0; i < canvasSize - 1; i++) {
+        double worldY = halfWall - worldPixelSize * i;
+
+        for (int j = 0; j < canvasSize - 1; j++) {
+            double worldX = halfWall - worldPixelSize * j;
+
+            Point pos(worldX, worldY, wallZ);
+            Ray r(origin, Vector((pos - origin).normalize()));
+
+            Intersections xs = Ray::intersect(s, r);
+
+            if (!xs.hit().isEmpty()) {
+                frame.set(j, i, ind);
+            }
+
+        }
     }
-
-    printf("Projectile took %zu ticks to hit the ground.\n", TickCount);
 
     std::ofstream out("pic.ppm");
     std::string text = frame.export_ppm();
