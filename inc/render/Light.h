@@ -9,6 +9,7 @@
 #include <type/Matrix.h>
 #include "type/Raster.hpp"
 
+
 // Represents a single point emitting light of a given brightness.
 struct PointLight {
     Point position;
@@ -33,3 +34,32 @@ struct Material {
                 shininess == other.shininess;
     }
 };
+
+// A holder for generic lighting calculations
+namespace Light {
+
+    // Phong Shading Lighting workhouse.
+    inline Color lighting(Material m, PointLight light, const Point& position, const Vector& eyev, Vector normalv) {
+        Color effectiveColor = m.color * light.intensity;
+        Vector lightV = Vector((light.position - position).normalize());
+
+        Color ambient = effectiveColor * m.ambient;
+        Color diffuse(0, 0, 0);
+        Color specular(0, 0, 0);
+
+        double lDotNorm = lightV * normalv;
+        if (lDotNorm > 0) {
+            diffuse = effectiveColor * m.diffuse * lDotNorm;
+
+            Vector reflectV = (-lightV).reflect(normalv);
+            double reflectDot = reflectV * eyev;
+
+            if (reflectDot > 0) {
+                double factor = std::pow(reflectDot, m.shininess);
+                specular = light.intensity * m.specular * factor;
+            }
+        }
+
+        return ambient + diffuse + specular;
+    }
+}

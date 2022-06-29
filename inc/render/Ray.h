@@ -8,6 +8,7 @@
 #include <render/Geometry.h>
 #include <list>
 #include <algorithm>
+#include <utility>
 
 #pragma once
 using namespace std;
@@ -18,13 +19,13 @@ struct Intersection {
     double time;
     Geo object;
 
-    Intersection(double time, Geo object) : time(time), object(object) {}
+    Intersection(double time, Geo object) : time(time), object(std::move(object)) {}
 
     bool operator==(const Intersection& other) const {
         return time == other.time && object == other.object;
     }
 
-    bool isEmpty() const {
+    [[nodiscard]] bool isEmpty() const {
         return object.id == -1;
     }
 };
@@ -34,7 +35,7 @@ struct Intersections {
     std::vector<Intersection> isections;
 
     Intersections(std::initializer_list<Intersection> init) : isections(init) {
-        sort(isections.begin(), isections.end(), [](Intersection a, Intersection b) {return a.time < b.time; });
+        sort(isections.begin(), isections.end(), [](const Intersection& a, const Intersection& b) {return a.time < b.time; });
     }
 
     [[nodiscard]] size_t size() const {
@@ -67,7 +68,7 @@ struct Ray {
     }
 
     // Calculate all of the points where the given ray intersects the given geometry
-    static Intersections intersect(const Geo& geo, Ray r) {
+    static Intersections intersect(const Geo& geo, const Ray& r) {
 
         // Transform the ray according to the object's properties
         Ray r2 = Ray::transform(r, Matrix::inverse(geo.transform));
@@ -97,7 +98,7 @@ struct Ray {
         return { intersection1, intersection2 };
     }
 
-    static Ray transform(Ray r, Matrix m) {
+    static Ray transform(const Ray& r, const Matrix& m) {
         Point transformedOrigin = Point(m * r.origin);
         Vector transformedDir = Vector(m * r.direction);
         return { transformedOrigin, transformedDir };

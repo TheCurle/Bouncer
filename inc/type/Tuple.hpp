@@ -110,6 +110,10 @@ class Vector : public Tuple {
         return {x - other.x, y - other.y, z - other.z};
     }
 
+    Vector operator-() {
+        return { -x, -y, -z };
+    }
+
     // Vector dot-product overload.
     double operator*(const Vector& other) {
         return x * other.x +
