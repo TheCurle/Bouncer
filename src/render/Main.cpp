@@ -35,6 +35,13 @@ int main(int argc, char* argv[]) {
     Framebuffer frame(canvasSize, canvasSize);
     Sphere s;
 
+    Material m;
+    m.color = { 1, 0.2, 1};
+
+    s.material = m;
+
+    PointLight light { { -10, 10, -10 }, { 1, 1, 1 }};
+
     for (int i = 0; i < canvasSize - 1; i++) {
         double worldY = halfWall - worldPixelSize * i;
 
@@ -45,11 +52,17 @@ int main(int argc, char* argv[]) {
             Ray r(origin, Vector((pos - origin).normalize()));
 
             Intersections xs = Ray::intersect(s, r);
+            Intersection hit = xs.hit();
 
-            if (!xs.hit().isEmpty()) {
-                frame.set(j, i, ind);
+            if (!hit.isEmpty()) {
+                Point hitPos = Ray::position(r, hit.time);
+                Vector hitNormal = hit.object.normalAt(hitPos);
+                Vector eyeDir = -r.direction;
+
+                Color canvasColor = Light::lighting(m, light, hitPos, eyeDir, hitNormal);
+
+                frame.set(j, i, canvasColor);
             }
-
         }
     }
 
