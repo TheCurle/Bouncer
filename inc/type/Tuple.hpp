@@ -117,6 +117,11 @@ class Vector : public Tuple {
                  z * other.z;
     }
 
+    // Multiply components by scalar
+    Vector operator*(const double& other) {
+        return { x * other, y * other, z * other };
+    }
+
     // Calculate the cross-product of this and the passed vector.
     Vector cross(const Vector& other) {
         return {y * other.z - z * other.y,
@@ -146,6 +151,11 @@ class Vector : public Tuple {
             return {0, 0, 0, 0};
 
         return {x / mag, y / mag, z / mag, w};
+    }
+
+    // Reflect this vector around the given normal.
+    Vector reflect(Vector normal) {
+        return *this - normal * 2 * (*this * normal);
     }
 };
 

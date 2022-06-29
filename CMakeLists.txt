@@ -22,6 +22,7 @@ file(GLOB renderer_src CONFIGURE_DEPENDS
 file(GLOB test_src CONFIGURE_DEPENDS
         "src/test/*.cpp"
         "src/test/render/*.cpp"
+        "src/test/geometry/*.cpp"
         "src/test/type/*.cpp"
 )
 
@@ -31,7 +32,7 @@ include_directories("inc")
 add_executable(bouncer ${renderer_src})
 set_target_properties(bouncer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
 
-add_executable(tests ${test_src} )
+add_executable(tests ${test_src})
 set_target_properties(tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
 

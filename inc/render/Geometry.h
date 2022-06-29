@@ -24,6 +24,14 @@ struct Geo {
         id = nid;
         transform = Matrix::identity();
     }
+
+    Vector normalAt(const Point& p) {
+        Point oP = Point(Matrix::inverse(transform) * p);
+        Vector oN = oP - Point(0, 0, 0);
+        Vector wN = Vector(Matrix::transpose(Matrix::inverse(transform)) * oN);
+        wN.w = 0;
+        return Vector(wN.normalize());
+    }
 };
 
 struct Sphere : public Geo {
