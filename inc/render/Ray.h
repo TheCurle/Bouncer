@@ -13,13 +13,26 @@
 #pragma once
 using namespace std;
 
+struct Ray;
 
-// Details on an individual ray-geometry intersection.
+// An expanded detail version of Intersection, used for rendering.
+struct IntersectionDetail {
+    double time;
+    Geo object;
+    Point point;
+    Vector eyev;
+    Vector normalv;
+    bool isInternal;
+};
+
+// An individual ray-geometry intersection. Used for collision detection.
 struct Intersection {
     double time;
     Geo object;
 
     Intersection(double time, Geo object) : time(time), object(std::move(object)) {}
+
+    Intersection(const Intersection& other) = default;
 
     bool operator==(const Intersection& other) const {
         return time == other.time && object == other.object;
@@ -28,6 +41,8 @@ struct Intersection {
     [[nodiscard]] bool isEmpty() const {
         return object.id == -1;
     }
+
+    static IntersectionDetail fillDetail(const Intersection& i, Ray r);
 };
 
 // A collection of Intersection objects
@@ -35,8 +50,15 @@ struct Intersections {
     std::vector<Intersection> isections;
 
     Intersections(std::initializer_list<Intersection> init) : isections(init) {
-        sort(isections.begin(), isections.end(), [](const Intersection& a, const Intersection& b) {return a.time < b.time; });
+        sort();
     }
+
+    Intersections sort() {
+        std::sort(isections.begin(), isections.end(), [](const Intersection& a, const Intersection& b) {return a.time < b.time; });
+        return *this;
+    }
+
+    Intersections() = default;
 
     [[nodiscard]] size_t size() const {
         return isections.size();
@@ -51,7 +73,15 @@ struct Intersections {
             if (i.time >= 0) return i;
         }
 
-        return { 0, { -1 }};
+        return { 0, Geo(-1) };
+    }
+
+    void addHit(const Intersection& isection) {
+        isections.emplace_back(isection);
+    }
+
+    void addAllHits(const Intersections& other) {
+        isections.insert(isections.end(), other.isections.begin(), other.isections.end());
     }
 };
 
@@ -104,3 +134,14 @@ struct Ray {
         return { transformedOrigin, transformedDir };
     }
 };
+
+inline IntersectionDetail Intersection::fillDetail(const Intersection& i, Ray r) {
+    Point hitPos = Ray::position(r, i.time);
+    Vector hitNormal = i.object.normalAt(hitPos);
+    Vector eyeDir = -r.direction;
+
+    bool inside = (hitNormal * eyeDir) < 0;
+    if (inside) hitNormal = -hitNormal;
+
+    return { i.time, i.object, hitPos, eyeDir, hitNormal, inside };
+}

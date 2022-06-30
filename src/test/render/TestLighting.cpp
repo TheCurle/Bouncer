@@ -7,18 +7,7 @@
 #include <type/Raster.hpp>
 #define LIGHT_OPERATOR_OVERLOADS
 #include <render/Light.h>
-#include <render/Geometry.h>
-
-SCENARIO("") {
-    GIVEN("m: material()") {
-        Material m;
-        AND_GIVEN("position: point(0, 0, 0)") {
-            Point position { 0, 0, 0 };
-
-
-        }
-    }
-}
+#include "view/World.h"
 
 SCENARIO("Lighting; Eye between the light and surface") {
     GIVEN("m: material()") {
@@ -136,6 +125,59 @@ SCENARIO("Lighting; light behind surface") {
 
                             THEN("result = color(0.1, 0.1, 0.1)") {
                                 REQUIRE(result == Color(0.1, 0.1, 0.1));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Shading an intersection with the world") {
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("r: ray( point(0, 0, -5), vector(0, 0, 1) )") {
+            Ray r { { 0, 0, -5 }, { 0, 0, 1 } };
+            AND_GIVEN("shape: first shape in w") {
+                Geo shape = w.objects[0];
+                AND_GIVEN("i: intersection(4, shape)") {
+                    Intersection i { 4, shape };
+                    WHEN("detail: fillDetail(i, r)") {
+                        IntersectionDetail detail = Intersection::fillDetail(i, r);
+                        AND_WHEN("c: shadeHit(w, detail)") {
+                            Color c = Light::shadeHit(w, detail);
+
+                            THEN("c = color( 0.38066, 0.47583, 0.2855 )") {
+                                REQUIRE(c == Color(0.38066, 0.47583, 0.2855));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Shading an internal intersection") {
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("w.light: point_light( point(0, 0.25, 0), color(1, 1, 1) )") {
+            w.lightSource = PointLight { { 0, 0.25, 0 }, { 1, 1, 1 } };
+            AND_GIVEN("r: ray( point(0, 0, 0), vector(0, 0, 1) )") {
+                Ray r { { 0, 0, 0 }, { 0, 0, 1 } };
+                AND_GIVEN("shape: second shape in w") {
+                    Geo shape = w.objects[1];
+                    AND_GIVEN("i: intersection(0.5, shape)") {
+                        Intersection i { 0.5, shape };
+                        WHEN("detail: fillDetail(i, r)") {
+                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            AND_WHEN("c: shadeHit(w, detail)") {
+                                Color c = Light::shadeHit(w, detail);
+
+                                THEN("c = color( 0.90498, 0.90498, 0.90498 )") {
+                                    REQUIRE(c == Color(0.90498, 0.90498, 0.90498 ));
+                                }
                             }
                         }
                     }

@@ -78,3 +78,88 @@ SCENARIO("Intersect sets the object") {
         }
     }
 }
+
+SCENARIO("Filling intersection detail") {
+    GIVEN("r: ray( point(0, 0, -5), vector(0, 0, 1) )") {
+        Ray r { { 0, 0, -5 }, { 0, 0, 1 } };
+        AND_GIVEN("shape: sphere()") {
+            Sphere s;
+            AND_GIVEN("i: intersection(4, shape)") {
+                Intersection i { 4, s };
+                WHEN("detail: prepare_computation(i, r)") {
+                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+
+                    THEN("detail.time = i.time") {
+                        REQUIRE(detail.time == i.time);
+                    }
+
+                    AND_THEN("detail.object = i.object") {
+                        REQUIRE(detail.object == i.object);
+                    }
+
+                    AND_THEN("detail.point = point(0, 0, -1)") {
+                        REQUIRE(detail.point == Point(0, 0, -1));
+                    }
+
+                    AND_THEN("detail.eyev = vector(0, 0, -1)") {
+                        REQUIRE(detail.eyev == Vector(0, 0, -1));
+                    }
+
+                    AND_THEN("detail.normalv = vector(0, 0, -1)") {
+                        REQUIRE(detail.normalv == Vector(0, 0, -1));
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Hit of an external intersection") {
+    GIVEN("r: ray( point(0, 0, -5), vector(0, 0, 1) )") {
+        Ray r {{0, 0, -5}, {0, 0, 1}};
+        AND_GIVEN("shape: sphere()") {
+            Sphere s;
+            AND_GIVEN("i: intersection(4, shape)") {
+                Intersection i {4, s};
+                WHEN("detail: prepare_computation(i, r)") {
+                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+
+                    THEN("detail.inside = false") {
+                        REQUIRE(detail.isInternal == false);
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Hit of an internal intersection") {
+    GIVEN("r: ray( point(0, 0, 0), vector(0, 0, 1) )") {
+        Ray r {{0, 0, 0}, {0, 0, 1}};
+        AND_GIVEN("shape: sphere()") {
+            Sphere s;
+            AND_GIVEN("i: intersection(1, shape)") {
+                Intersection i {1, s};
+                WHEN("detail: prepare_computation(i, r)") {
+                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+
+                    THEN("detail.point = point(0, 0, 1)") {
+                        REQUIRE(detail.point == Point(0, 0, 1));
+                    }
+
+                    AND_THEN("detail.eyev = vector(0, 0, -1)") {
+                        REQUIRE(detail.eyev == Vector(0, 0, -1));
+                    }
+
+                    AND_THEN("detail.inside = true") {
+                        REQUIRE(detail.isInternal == true);
+                    }
+
+                    AND_THEN("detail.normalv = vector(0, 0, -1)") {
+                        REQUIRE(detail.normalv == Vector(0, 0, -1));
+                    }
+                }
+            }
+        }
+    }
+}

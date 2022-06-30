@@ -24,6 +24,7 @@ file(GLOB test_src CONFIGURE_DEPENDS
         "src/test/render/*.cpp"
         "src/test/geometry/*.cpp"
         "src/test/type/*.cpp"
+        "src/test/view/*.cpp"
 )
 
 include_directories("inc")
