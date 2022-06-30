@@ -4,6 +4,7 @@
  ***************/
 
 #include <catch2/catch_test_macros.hpp>
+#include <utility>
 #include <type/Matrix.h>
 #include "Light.h"
 
@@ -23,13 +24,13 @@ struct Geo {
         material = Material();
     }
 
-    Geo(int nid) {
+    explicit Geo(int nid) {
         id = nid;
         transform = Matrix::identity();
         material = Material();
     }
 
-    Vector normalAt(const Point& p) {
+    [[nodiscard]] Vector normalAt(const Point& p) const {
         Point oP = Point(Matrix::inverse(transform) * p);
         Vector oN = oP - Point(0, 0, 0);
         Vector wN = Vector(Matrix::transpose(Matrix::inverse(transform)) * oN);
@@ -39,13 +40,46 @@ struct Geo {
 };
 
 struct Sphere : public Geo {
+    Sphere() = default;
+    Sphere(Sphere&) = default;
+    Sphere(Sphere&&) = default;
 
+    explicit Sphere(Material mat) {
+        material = mat;
+    }
+
+    explicit Sphere(Matrix trans) {
+        transform = std::move(trans);
+    }
 };
 
-bool operator==(Geo x, Geo y);
+bool operator==(const Geo& x, const Geo& y);
 
 #ifdef GEOMETRY_OPERATOR_OVERLOADS
-bool operator==(Geo x, Geo y) {
-    return x.id == y.id;
+bool operator==(const Geo& x, const Geo& y) {
+    return x.transform == y.transform && x.material == y.material;
 }
 #endif
+
+
+// Specializations to allow Catch to print these types
+
+namespace Catch {
+    template < >
+    struct StringMaker<Geo> {
+        static std::string convert(Geo const &p) {
+            std::stringstream buf;
+            buf << "Geo (" << p.id << ")";
+            return buf.str();
+        }
+    };
+
+    template < >
+    struct StringMaker<Sphere> {
+        static std::string convert(Sphere const &p) {
+            std::stringstream buf;
+            buf << "Sphere (" << p.id << ")";
+            return buf.str();
+        }
+    };
+}

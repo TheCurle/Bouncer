@@ -98,8 +98,8 @@ public:
  */
 class Vector : public Tuple {
     public:
-    
-    // Overloaded equality operator to safe-compare the components.
+
+// Overloaded equality operator to safe-compare the components.
     bool operator==(const Tuple& other) const {
         return safeCompare(other.x, x) && safeCompare(other.y, y) &&
                  safeCompare(other.z, z) && safeCompare(other.w, w);
@@ -144,8 +144,13 @@ class Vector : public Tuple {
     }
 
     // Vector copy-constructor
-    Vector(Vector& other) : Tuple(other) {
+    Vector(const Vector& other) : Tuple() {
         x = other.x; y = other.y; z = other.z; w = 0;
+    }
+
+    Vector& operator=(const Vector& other) {
+        x = other.x; y = other.y; z = other.z; w = 0;
+        return *this;
     }
 
     // Normalize this vector to a unit vector.
@@ -200,6 +205,11 @@ class Point : public Tuple {
     Point(Point& other) : Tuple(other) {
         x = other.x; y = other.y; z = other.z; w = 1;
     }
+
+    Point& operator=(const Point& other) {
+        x = other.x; y = other.y; z = other.z; w = 1;
+        return *this;
+    };
 };
 
 // Specializations to allow Catch to print these types

@@ -158,3 +158,15 @@ private:
         return val;
     }
 };
+
+
+namespace Catch {
+    template < >
+    struct StringMaker<Color> {
+        static std::string convert(Color const &p) {
+            std::stringstream buf;
+            buf << "Color (" << p.x << ", " << p.y << ", " << p.z << ")";
+            return buf.str();
+        }
+    };
+}

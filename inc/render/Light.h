@@ -9,11 +9,26 @@
 #include <type/Matrix.h>
 #include "type/Raster.hpp"
 
+struct World;
 
 // Represents a single point emitting light of a given brightness.
 struct PointLight {
     Point position;
     Color intensity;
+
+    PointLight(const Point &pos, Color intens) : position(pos), intensity(intens) {}
+    PointLight(const PointLight &light) : position(light.position), intensity(light.intensity) {}
+
+    PointLight& operator=(const PointLight& other) {
+        position = other.position;
+        intensity = other.intensity;
+
+        return *this;
+    }
+
+    bool operator==(const PointLight& other) const {
+        return position == other.position && intensity == other.intensity;
+    }
 };
 
 // Material encodes light response data.
@@ -25,6 +40,7 @@ struct Material {
     double shininess;
 
     Material() : color({ 1, 1, 1}), ambient(0.1), diffuse(0.9), specular(0.9), shininess(200.0) {}
+    Material(Color col, double amb, double diff, double spec, double shin) : color(col), ambient(amb), diffuse(diff), specular(spec), shininess(shin) {}
 
     bool operator==(const Material& other) const {
         return color == other.color &&

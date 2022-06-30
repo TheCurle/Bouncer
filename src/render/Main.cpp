@@ -23,8 +23,6 @@ int main(int argc, char* argv[]) {
     (void) argc;
     (void) argv;
 
-    Color ind(1, 0, 0);
-
     Point origin(0, 0, -5);
     int wallZ = 10;
     double wallSize = 7;
@@ -40,7 +38,7 @@ int main(int argc, char* argv[]) {
 
     s.material = m;
 
-    PointLight light { { -10, 10, -10 }, { 1, 1, 1 }};
+    PointLight light { {-10, 10, -10}, Color(0, 0, 0) };
 
     for (int i = 0; i < canvasSize - 1; i++) {
         double worldY = halfWall - worldPixelSize * i;
