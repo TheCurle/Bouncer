@@ -66,3 +66,45 @@ SCENARIO("A sphere may be assigned a material") {
         }
     }
 }
+
+SCENARIO("Lighting with a pattern") {
+    GIVEN("m: material()") {
+        Material m;
+
+        AND_GIVEN("m.pattern: stripe_pattern(color(1, 1, 1), color(0, 0, 0))") {
+            m.pattern = new Pattern::Stripe(Color::white(), Color::black());
+            AND_GIVEN("m.ambient: 1") {
+                m.ambient = 1;
+                AND_GIVEN("m.diffuse: 0") {
+                    m.diffuse = 0;
+                    AND_GIVEN("m.specular: 0") {
+                        m.specular = 0;
+                        AND_GIVEN("eyev: vector(0, 0, -1)") {
+                            Vector eyev { 0, 0, -1 };
+                            AND_GIVEN("normalv: vector(0, 0, -1)") {
+                                Vector normalv {0, 0, -1};
+                                AND_GIVEN("light: point_light( point(0, 0, -10), color(1, 1, 1) )") {
+                                    PointLight light { { 0, 0, -10 }, { 1, 1, 1 } };
+                                    WHEN("c1: lighting(m, light, point(0, 0, 0), eyev, normalv, false)") {
+                                        Color c1 = Light::lighting(m, light, Point(0, 0, 0), eyev, normalv, false);
+                                        WHEN("c2: lighting(m, light, point(1, 0, 0), eyev, normalv, false)") {
+                                            Color c2 = Light::lighting(m, light, Point(1, 0, 0), eyev, normalv, false);
+
+                                            THEN("c1 = color(1, 1, 1)") {
+                                                REQUIRE(c1 == Color::white());
+                                            }
+
+                                            AND_THEN("c2 = color(0, 0, 0)") {
+                                                REQUIRE(c2 == Color::black());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

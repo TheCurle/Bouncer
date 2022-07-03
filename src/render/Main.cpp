@@ -95,7 +95,6 @@ public:
         }
 
         if (PixelGameEngine::GetKey(olc::Key::ESCAPE).bPressed) {
-            raytraceThread.join();
             olc_Terminate();
         }
 
