@@ -22,6 +22,7 @@ struct IntersectionDetail {
     Point overPoint;
     Vector eyev;
     Vector normalv;
+    Vector reflectv;
     bool isInternal;
 };
 

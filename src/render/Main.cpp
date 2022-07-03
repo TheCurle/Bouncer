@@ -32,7 +32,7 @@ public:
 
             // Level Geometry
             Plane floor;
-            floor.material.pattern = new Pattern::Checker(Color::white(), { 1, 0, 0 });
+            floor.material.reflectivity = 0.6;
 
             // Objects
 
@@ -43,6 +43,7 @@ public:
             middle.material.pattern->transform = Matrix::scaling(0.33, 0.33, 0.33);
             middle.material.diffuse = 0.7;
             middle.material.specular = 0.3;
+            middle.material.reflectivity = 0.5;
 
             Sphere right;
             right.transform = Matrix::translation(1.5, 0.5, -0.5) * Matrix::scaling(0.5, 0.5, 0.5);
@@ -50,6 +51,7 @@ public:
             right.material.color = Color(0.5, 1, 0.1);
             right.material.diffuse = 0.7;
             right.material.specular = 0.3;
+            right.material.reflectivity = 0.5;
 
             Sphere left;
             left.transform = Matrix::translation(-1.5, 0.33, -0.75) * Matrix::scaling(0.33, 0.33, 0.33);
@@ -57,6 +59,7 @@ public:
             left.material.color = Color(1, 0.8, 1);
             left.material.diffuse = 0.7;
             left.material.specular = 0.3;
+            left.material.reflectivity = 0.5;
 
             w.lightSource = PointLight { { -10, 10, -10 }, { 1, 1, 1 } };
             w.objects = { &floor, &middle, &right, &left };

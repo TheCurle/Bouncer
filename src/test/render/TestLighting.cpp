@@ -21,7 +21,7 @@ SCENARIO("Lighting; Eye between the light and surface") {
                     AND_GIVEN("light: point_light(point(0, 0, -10), color(1, 1, 1))") {
                         PointLight light { {0, 0, -10 }, { 1, 1, 1 } };
                         WHEN("result: lighting(m, light, position, eyev, normalv)") {
-                            Color result = Light::lighting(m, light, position, eyev, normalv);
+                            Color result = Light::lighting(m, new Sphere(m), light, position, eyev, normalv);
 
                             THEN("result = color(1.9, 1.9, 1.9)") {
                                 REQUIRE(result == Color(1.9, 1.9, 1.9));
@@ -46,7 +46,7 @@ SCENARIO("Lighting; Eye between the light and surface, eye offset 45 degrees") {
                     AND_GIVEN("light: point_light(point(0, 0, -10), color(1, 1, 1))") {
                         PointLight light { {0, 0, -10 }, { 1, 1, 1 } };
                         WHEN("result: lighting(m, light, position, eyev, normalv)") {
-                            Color result = Light::lighting(m, light, position, eyev, normalv);
+                            Color result = Light::lighting(m, new Sphere(m), light, position, eyev, normalv);
 
                             THEN("result = color(1.0, 1.0, 1.0)") {
                                 REQUIRE(result == Color(1.0, 1.0, 1.0));
@@ -71,7 +71,7 @@ SCENARIO("Lighting; Eye opposite surface, light offset 45 degrees") {
                     AND_GIVEN("light: point_light(point(0, 10, -10), color(1, 1, 1))") {
                         PointLight light { {0, 10, -10 }, { 1, 1, 1 } };
                         WHEN("result: lighting(m, light, position, eyev, normalv)") {
-                            Color result = Light::lighting(m, light, position, eyev, normalv);
+                            Color result = Light::lighting(m, new Sphere(m), light, position, eyev, normalv);
 
                             THEN("result = color(0.7364, 0.7364, 0.7364)") {
                                 REQUIRE(result == Color(0.7364, 0.7364, 0.7364));
@@ -96,7 +96,7 @@ SCENARIO("Lighting; Eye in path of reflection") {
                     AND_GIVEN("light: point_light(point(0, 10, -10), color(1, 1, 1))") {
                         PointLight light { {0, 10, -10 }, { 1, 1, 1 } };
                         WHEN("result: lighting(m, light, position, eyev, normalv)") {
-                            Color result = Light::lighting(m, light, position, eyev, normalv);
+                            Color result = Light::lighting(m, new Sphere(m), light, position, eyev, normalv);
 
                             THEN("result = color(1.6364, 1.6364, 1.6364)") {
                                 REQUIRE(result == Color(1.6364, 1.6364, 1.6364));
@@ -121,7 +121,7 @@ SCENARIO("Lighting; light behind surface") {
                     AND_GIVEN("light: point_light(point(0, 0, 10), color(1, 1, 1))") {
                         PointLight light { {0, 0, 10 }, { 1, 1, 1 } };
                         WHEN("result: lighting(m, light, position, eyev, normalv)") {
-                            Color result = Light::lighting(m, light, position, eyev, normalv);
+                            Color result = Light::lighting(m, new Sphere(m), light, position, eyev, normalv);
 
                             THEN("result = color(0.1, 0.1, 0.1)") {
                                 REQUIRE(result == Color(0.1, 0.1, 0.1));
@@ -146,7 +146,7 @@ SCENARIO("Shading an intersection with the world") {
                     WHEN("detail: fillDetail(i, r)") {
                         IntersectionDetail detail = Intersection::fillDetail(i, r);
                         AND_WHEN("c: shadeHit(w, detail)") {
-                            Color c = Light::shadeHit(w, detail);
+                            Color c = Light::shadeHit(w, detail, 1);
 
                             THEN("c = color( 0.38066, 0.47583, 0.2855 )") {
                                 REQUIRE(c == Color(0.38066, 0.47583, 0.2855));
@@ -173,7 +173,7 @@ SCENARIO("Shading an internal intersection") {
                         WHEN("detail: fillDetail(i, r)") {
                             IntersectionDetail detail = Intersection::fillDetail(i, r);
                             AND_WHEN("c: shadeHit(w, detail)") {
-                                Color c = Light::shadeHit(w, detail);
+                                Color c = Light::shadeHit(w, detail, 1);
 
                                 THEN("c = color( 0.90498, 0.90498, 0.90498 )") {
                                     REQUIRE(c == Color(0.90498, 0.90498, 0.90498 ));
@@ -204,7 +204,7 @@ SCENARIO("Lighting a surface in a shadow") {
                         AND_GIVEN("in_shadow: true") {
                             bool inShadow = true;
                             WHEN("result: lighting(m, light, position, eyev, normalv, inShadow)") {
-                                Color result = Light::lighting(m, light, position, eyev, normalv, inShadow);
+                                Color result = Light::lighting(m, new Sphere(m), light, position, eyev, normalv, inShadow);
                                 THEN("result = color(0.1, 0.1, 0.1)") {
                                     REQUIRE(result == Color(0.1, 0.1, 0.1));
                                 }
@@ -286,7 +286,7 @@ SCENARIO("Shading a hit in the shadow of an object") {
                                     WHEN("detail: fillDetail(i, r)") {
                                         IntersectionDetail detail = Intersection::fillDetail(i, r);
                                         AND_WHEN("c: shade_hit(w, detail)") {
-                                            Color c = Light::shadeHit(w, detail);
+                                            Color c = Light::shadeHit(w, detail, 1);
 
                                             THEN("c: color(0.1, 0.1, 0.1)") {
                                                 REQUIRE(c == Color(0.1, 0.1, 0.1));
@@ -320,6 +320,160 @@ SCENARIO("The hit should offset the point, to avoid ray acne") {
 
                     AND_THEN("detail.point.z > detail.overPoint.z") {
                         REQUIRE(detail.point.z > detail.overPoint.z);
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Reflected color of a nonreflective material") {
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("r: ray( point(0, 0, 0), vector(0, 0, 1) )") {
+            Ray r { { 0, 0, 0 }, { 0, 0, 1} };
+            AND_GIVEN("shape: the second object in w") {
+                Geo* shape = w.objects[1];
+                AND_GIVEN("shape.material.ambient: 1") {
+                    shape->material.ambient = 1;
+                    AND_GIVEN("i: intersection(1, shape)") {
+                        Intersection i { 1, shape };
+                        WHEN("detail: fillDetail(i, r)") {
+                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            AND_WHEN("color: reflected_color(w, detail)") {
+                                Color color = Light::reflected(w, detail, 1);
+
+                                THEN("color = black") {
+                                    REQUIRE(color == Color::black());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Reflected color of a reflective surface") {
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("shape: a plane with material.reflectivity: 0.5 and transform: translation(0, -1, 0)") {
+            Plane shape;
+            shape.material.reflectivity = 0.5;
+            shape.transform = Matrix::translation(0, -1, 0);
+            AND_GIVEN("shape is added to w") {
+                w.objects.emplace_back(&shape);
+                AND_GIVEN("r: ray( point(0, 0, -3), vector(0, -sqrt(2) / 2, sqrt(2) / 2) )") {
+                    Ray r {{0, 0,                 -3},
+                           {0, -std::sqrt(2) / 2, std::sqrt(2) / 2}};
+                    AND_GIVEN("i: intersection(sqrt(2), shape)") {
+                        Intersection i {std::sqrt(2), &shape};
+                        WHEN("detail: fillDetail(i, r)") {
+                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            AND_WHEN("color: reflected_color(w, detail)") {
+                                Color color = Light::reflected(w, detail, 2);
+
+                                THEN("color = color(-0.19032, 0.2379, 0.14274)") {
+                                    REQUIRE(color == Color(-0.19032, 0.2379, 0.14274));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Blended color of a reflective surface") {
+
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("shape: a plane with material.reflectivity: 0.5 and transform: translation(0, -1, 0)") {
+            Plane shape;
+            shape.material.reflectivity = 0.5;
+            shape.transform = Matrix::translation(0, -1, 0);
+            AND_GIVEN("shape is added to w") {
+                w.objects.emplace_back(&shape);
+                AND_GIVEN("r: ray( point(0, 0, -3), vector(0, -sqrt(2) / 2, sqrt(2) / 2) )") {
+                    Ray r {{0, 0,                 -3},
+                           {0, -std::sqrt(2) / 2, std::sqrt(2) / 2}};
+                    AND_GIVEN("i: intersection(sqrt(2), shape)") {
+                        Intersection i {std::sqrt(2), &shape};
+                        WHEN("detail: fillDetail(i, r)") {
+                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            AND_WHEN("color: reflected_color(w, detail)") {
+                                Color color = Light::shadeHit(w, detail, 1);
+
+                                THEN("color = color(0.87677, 0.92436, 0.82918)") {
+                                    REQUIRE(color == Color(0.87677, 0.92436, 0.82918));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Infinitely recursive reflections") {
+    GIVEN("w: world()") {
+        World w;
+        AND_GIVEN("w.light: point_light( point(0, 0, 0), color(1, 1, 1) )") {
+            w.lightSource = { { 0, 0, 0 }, { 1, 1, 1 } };
+            AND_GIVEN("lower: plane() with reflectivity: 1 and transform: translation(0, -1, 0)") {
+                Plane lower;
+                lower.material.reflectivity = 1;
+                lower.transform = Matrix::translation(0, -1, 0);
+                AND_GIVEN("upper: plane() with reflectivity: 1 and transform: translation(0, 1, 0)") {
+                    Plane upper;
+                    upper.material.reflectivity = 1;
+                    upper.transform = Matrix::translation(0, 1, 0);
+                    AND_GIVEN("upper is added to w") {
+                        w.objects.emplace_back(&upper);
+                        AND_GIVEN("lower is added to w") {
+                            w.objects.emplace_back(&lower);
+                            AND_GIVEN("r: ray( point(0, 0, 0), vector(0, 1, 0) )") {
+                                Ray r { { 0, 0, 0 }, { 0, 1, 0 } };
+
+                                THEN("colorAt(w, r) should terminate") {
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Reflections at maximum depth") {
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("shape: a plane with material.reflectivity: 0.5 and transform: translation(0, -1, 0)") {
+            Plane shape;
+            shape.material.reflectivity = 0.5;
+            shape.transform = Matrix::translation(0, -1, 0);
+            AND_GIVEN("shape is added to w") {
+                w.objects.emplace_back(&shape);
+                AND_GIVEN("r: ray( point(0, 0, -3), vector(0, -sqrt(2) / 2, sqrt(2) / 2) )") {
+                    Ray r {{0, 0,                 -3},
+                           {0, -std::sqrt(2) / 2, std::sqrt(2) / 2}};
+                    AND_GIVEN("i: intersection(sqrt(2), shape)") {
+                        Intersection i {std::sqrt(2), &shape};
+                        WHEN("detail: fillDetail(i, r)") {
+                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            AND_WHEN("color: reflected_color(w, detail)") {
+                                Color color = Light::reflected(w, detail, 0);
+
+                                THEN("color = black)") {
+                                    REQUIRE(color == Color::black());
+                                }
+                            }
+                        }
                     }
                 }
             }

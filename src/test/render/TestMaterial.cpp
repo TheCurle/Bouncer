@@ -32,6 +32,10 @@ SCENARIO("The default material") {
         AND_THEN("m.shininess = 200") {
             REQUIRE(m.shininess == 200);
         }
+
+        AND_THEN("m.reflectivity = 0") {
+            REQUIRE(m.reflectivity == 0);
+        }
     }
 }
 
@@ -86,9 +90,9 @@ SCENARIO("Lighting with a pattern") {
                                 AND_GIVEN("light: point_light( point(0, 0, -10), color(1, 1, 1) )") {
                                     PointLight light { { 0, 0, -10 }, { 1, 1, 1 } };
                                     WHEN("c1: lighting(m, light, point(0, 0, 0), eyev, normalv, false)") {
-                                        Color c1 = Light::lighting(m, light, Point(0, 0, 0), eyev, normalv, false);
+                                        Color c1 = Light::lighting(m, new Sphere(m), light,  Point(0, 0, 0), eyev, normalv, false);
                                         WHEN("c2: lighting(m, light, point(1, 0, 0), eyev, normalv, false)") {
-                                            Color c2 = Light::lighting(m, light, Point(1, 0, 0), eyev, normalv, false);
+                                            Color c2 = Light::lighting(m, new Sphere(m), light, Point(1, 0, 0), eyev, normalv, false);
 
                                             THEN("c1 = color(1, 1, 1)") {
                                                 REQUIRE(c1 == Color::white());

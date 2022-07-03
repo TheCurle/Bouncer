@@ -14,8 +14,8 @@
 #pragma once
 
 namespace Light {
-    Color shadeHit(const World &world, const IntersectionDetail &hit);
-    Color at(World w, Ray r);
+    Color shadeHit(const World &world, const IntersectionDetail &hit, int countdown);
+    Color at(World w, Ray r, int countdown = 10);
 }
 
 // A holder for objects and light data.
@@ -31,7 +31,7 @@ struct World {
     static World defaultWorld() {
         return World(
                 {
-                    new Sphere(Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200)),
+                    new Sphere(Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200, 0)),
                     new Sphere(Matrix::scaling(0.5, 0.5, 0.5))
                 },
 
@@ -90,6 +90,16 @@ struct World {
 
 
 namespace Light {
+    inline Color reflected(World w, IntersectionDetail details, int countdown) {
+        if (details.object.material.reflectivity == 0) return Color::black();
+        if (countdown < 1) return Color::black();
+
+        Ray reflectRay { details.overPoint, details.reflectv };
+        Color color = Light::at(std::move(w), reflectRay, countdown - 1);
+
+        return color * details.object.material.reflectivity;
+    }
+
     inline bool isInShadow(World& world, Point& point) {
         Vector v = world.lightSource.position - point;
         double distance = v.magnitude();
@@ -102,11 +112,13 @@ namespace Light {
         return (!hit.isEmpty() && hit.time < distance);
     }
 
-    inline Color shadeHit(World& world, IntersectionDetail& hit) {
-        return lighting(hit.object.material, &hit.object, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
+    inline Color shadeHit(World& world, IntersectionDetail& hit, int countdown) {
+        Color rayTarget = lighting(hit.object.material, &hit.object, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
+        Color reflectedRay = Light::reflected(world, hit, countdown);
+        return rayTarget + reflectedRay;
     }
 
-    inline Color at(World w, Ray r) {
+    inline Color at(World w, Ray r, int countdown) {
         Intersections isections = w.intersect(r);
         Intersection hit = isections.hit();
 
@@ -114,7 +126,7 @@ namespace Light {
 
         IntersectionDetail detail = Intersection::fillDetail(hit, r);
 
-        return shadeHit(w, detail);
+        return shadeHit(w, detail, countdown);
     }
 
 }

@@ -40,9 +40,10 @@ struct Material {
     double diffuse;
     double specular;
     double shininess;
+    double reflectivity;
 
-    Material() : color({ 1, 1, 1}), pattern(nullptr), ambient(0.1), diffuse(0.9), specular(0.9), shininess(200.0) {}
-    Material(Color col, double amb, double diff, double spec, double shin) : color(col), pattern(nullptr), ambient(amb), diffuse(diff), specular(spec), shininess(shin) {}
+    Material() : color({ 1, 1, 1}), pattern(nullptr), ambient(0.1), diffuse(0.9), specular(0.9), shininess(200.0), reflectivity(0) {}
+    Material(Color col, double amb, double diff, double spec, double shin, double reflec) : color(col), pattern(nullptr), ambient(amb), diffuse(diff), specular(spec), shininess(shin), reflectivity(reflec) {}
 
     bool operator==(const Material& other) const {
         return color == other.color &&
@@ -86,4 +87,5 @@ namespace Light {
     inline Color lighting(Material m, Geo* object, const PointLight& light, const Point& position, const Vector& eyev, const Vector& normalv) {
         return lighting(m, object, light, position, eyev, normalv, false);
     }
+
 }

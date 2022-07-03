@@ -163,3 +163,21 @@ SCENARIO("Hit of an internal intersection") {
         }
     }
 }
+
+SCENARIO("Reflecting a vector") {
+    GIVEN("shape: plane()") {
+        Plane shape;
+        AND_GIVEN("r: ray( point(0, 1, -1), vector(0, -sqrt(2) / 2, sqrt(2) / 2) )") {
+            Ray r { { 0, 1, -1 }, { 0, -std::sqrt(2) / 2, std::sqrt(2) / 2 } };
+            AND_GIVEN("i: intersection(sqrt(2), shape)") {
+                Intersection i { std::sqrt(2), &shape };
+                WHEN("detail: fillDetail(i, r)") {
+                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+                    THEN("detail.reflectv = vector(0, sqrt(2) / 2, sqrt(2) / 2)") {
+                        REQUIRE(detail.reflectv == Vector(0, std::sqrt(2) / 2, std::sqrt(2) / 2));
+                    }
+                }
+            }
+        }
+    }
+}
