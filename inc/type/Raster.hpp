@@ -18,7 +18,7 @@
 class Color : public TupleContainer {
 public:
     // Value constructor
-    Color(double red, double green, double blue) {
+    Color(double red, double green, double blue) : TupleContainer() {
         x = red; y = green; z = blue; w = 2;
     }
 
@@ -41,22 +41,22 @@ public:
 
     // Color addition operator.
     Color operator+(const Color& other) {
-        return Color(x + other.x, y + other.y, z + other.z);
+        return {x + other.x, y + other.y, z + other.z};
     }
 
     // Color subtraction operator.
     Color operator-(const Color& other) {
-        return Color(x - other.x, y - other.y, z - other.z);
+        return {x - other.x, y - other.y, z - other.z};
     }
 
     // Color scalar multiplication operator.
     Color operator*(const double& other) {
-        return Color(x * other, y * other, z * other);
+        return {(x * other) > 1 ? 1 : (x * other), (y * other) > 1 ? 1 : (y * other), (z * other) > 1 ? 1 : (z * other)};
     }
 
     // Shur product operator.
     Color operator*(const Color& other) {
-        return Color(x * other.x, y * other.y, z * other.z);
+        return { (x * other.x) > 1 ? 1 : (x * other.x), (y * other.y) > 1 ? 1 : (y * other.y), (z * other.z) > 1 ? 1 : (z * other.z) };
     }
 };
 
@@ -70,13 +70,10 @@ public:
     size_t width;
     size_t height;
 
-    bool isFilled;
-
     // Value constructor.
     Framebuffer(size_t w, size_t h) : width(w), height(h) {
         // Assign the buffer array to a 2-dimensional array of black.
         buffer.assign(w, std::vector<Color>(h, Black));
-        isFilled = false;
     }
 
     // Get the Color of the specified pixel.
@@ -153,7 +150,7 @@ private:
     // The default Black color.
     Color Black = Color(0, 0, 0);
 
-    size_t clamp(int val) {
+    static size_t clamp(int val) {
         if(val < 0)
             val = 0;
         if(val > 255)
