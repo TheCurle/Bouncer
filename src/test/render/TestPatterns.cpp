@@ -41,18 +41,19 @@ SCENARIO("A stripe pattern is constant in y") {
 
 SCENARIO("A stripe pattern is constant in z") {
     GIVEN("pattern: stripe_pattern(white, black)") {
-        Pattern::Stripe pattern(Color::white(), Color::black());
+        Pattern::Pattern* pattern;
+        pattern = new Pattern::Stripe(Color::white(), Color::black());
 
         THEN("stripe_at(pattern, point(0, 0, 0)) = white") {
-            REQUIRE(pattern.at({ 0, 0, 0 }) == Color::white());
+            REQUIRE(pattern->at({ 0, 0, 0 }) == Color::white());
         }
 
         AND_THEN("stripe_at(pattern, point(0, 0, 1)) = white") {
-            REQUIRE(pattern.at({ 0, 0, 1 }) == Color::white());
+            REQUIRE(pattern->at({ 0, 0, 1 }) == Color::white());
         }
 
         AND_THEN("stripe_at(pattern, point(0, 0, 2)) = white") {
-            REQUIRE(pattern.at({ 0, 0, 2 }) == Color::white());
+            REQUIRE(pattern->at({ 0, 0, 2 }) == Color::white());
         }
     }
 }

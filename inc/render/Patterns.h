@@ -33,7 +33,7 @@ namespace Pattern {
         }
 
         Color at(const Point &p) override {
-            return std::fmod(p.x, (double) 2) == 0 ? a : b;
+            return (int) p.x % 2 == 0 ? a : b;
         }
     };
 }
