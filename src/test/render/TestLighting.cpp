@@ -264,3 +264,65 @@ SCENARIO("There is no shadow with an object behind the point") {
         }
     }
 }
+
+SCENARIO("Shading a hit in the shadow of an object") {
+    GIVEN("w: world()") {
+        World w;
+        AND_GIVEN("w.light: point_light( point(0, 0, -10), color(1, 1, 1) )") {
+            w.lightSource = PointLight { { 0, 0, -10 }, { 1, 1, 1 } };
+            AND_GIVEN("s1: sphere()") {
+                Sphere s1;
+                AND_GIVEN("s1 is added to w") {
+                    w.objects.emplace_back(s1);
+                    AND_GIVEN("s2: sphere() with transform: translation(0, 0, 10)") {
+                        Sphere s2;
+                        s2.transform = Matrix::translation(0, 0, 10);
+                        AND_GIVEN("s2 is added to w") {
+                            w.objects.emplace_back(s2);
+                            AND_GIVEN("r: ray( point(0, 0, 5), vector(0, 0, 1) )") {
+                                Ray r { { 0, 0, 5 }, { 0, 0, 1 } };
+                                AND_GIVEN("i: intersection(4, s2)") {
+                                    Intersection i { 4, s2 };
+                                    WHEN("detail: fillDetail(i, r)") {
+                                        IntersectionDetail detail = Intersection::fillDetail(i, r);
+                                        AND_WHEN("c: shade_hit(w, detail)") {
+                                            Color c = Light::shadeHit(w, detail);
+
+                                            THEN("c: color(0.1, 0.1, 0.1)") {
+                                                REQUIRE(c == Color(0.1, 0.1, 0.1));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("The hit should offset the point, to avoid ray acne") {
+    GIVEN("r: ray( point(0, 0, -5), vector(0, 0, 1) )") {
+        Ray r { { 0, 0, -5 }, { 0, 0, 1 } };
+        AND_GIVEN("shape: sphere() with transform: translation(0, 0, 1)") {
+            Sphere shape;
+            shape.transform = Matrix::translation(0, 0, 1);
+            AND_GIVEN("i: intersection(5, shape)") {
+                Intersection i { 5, shape };
+                WHEN("detail: fillDetail(i, r)") {
+                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+
+                    THEN("detail.overPoint.z < -EPSILON / 2") {
+                        REQUIRE(detail.overPoint.z < -0.001 / 2);
+                    }
+
+                    AND_THEN("detail.point.z > detail.overPoint.z") {
+                        REQUIRE(detail.point.z > detail.overPoint.z);
+                    }
+                }
+            }
+        }
+    }
+}
