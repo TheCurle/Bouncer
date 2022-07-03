@@ -134,7 +134,8 @@ SCENARIO("Rendering with a camera") {
                         AND_GIVEN("c.transform: viewTransform(from, to, up)") {
                             c.transform = World::viewMatrix(from, to, up);
                             WHEN("image: render(c, w)") {
-                                Framebuffer image = w.render(c);
+                                Framebuffer image(11, 11);
+                                w.render(c, image);
 
                                 THEN("pixel_at(image, 5, 5) = color(0.38066, 0.47583, 0.2855)") {
                                     REQUIRE(image.at(5, 5) == Color(0.38066, 0.47583, 0.2855));

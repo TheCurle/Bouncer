@@ -35,7 +35,7 @@ struct World {
                     Sphere(Matrix::scaling(0.5, 0.5, 0.5))
                 },
 
-                PointLight({ -10, 0, -10 }, { 1, 1, 1 } )
+                PointLight({ -10, 10, -10 }, { 1, 1, 1 } )
         );
     }
 
@@ -103,5 +103,17 @@ namespace Light {
         IntersectionDetail detail = Intersection::fillDetail(hit, r);
 
         return shadeHit(w, detail);
+    }
+
+    inline bool isInShadow(World& world, Point& point) {
+        Vector v = world.lightSource.position - point;
+        double distance = v.magnitude();
+        Vector direction = Vector(v.normalize());
+
+        Ray r { point, direction };
+        Intersections sections = world.intersect(r);
+
+        Intersection hit = sections.hit();
+        return (!hit.isEmpty() && hit.time < distance);
     }
 }

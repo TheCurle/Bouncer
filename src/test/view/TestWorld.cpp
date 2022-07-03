@@ -22,8 +22,8 @@ SCENARIO("Creating a world") {
 }
 
 SCENARIO("The default world") {
-    GIVEN("light: point_light( point(-10, 0, -10), color(1, 1, 1) )") {
-        PointLight light { { -10, 0, -10 }, { 1, 1, 1 }};
+    GIVEN("light: point_light( point(-10, 10, -10), color(1, 1, 1) )") {
+        PointLight light { { -10, 10, -10 }, { 1, 1, 1 }};
 
         AND_GIVEN(R"--("s1: sphere() with:
 | material.color    | (0.8, 1.0, 0.6)        |

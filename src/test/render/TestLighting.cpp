@@ -186,3 +186,81 @@ SCENARIO("Shading an internal intersection") {
         }
     }
 }
+
+SCENARIO("Lighting a surface in a shadow") {
+    GIVEN("m: material()") {
+        Material m;
+        AND_GIVEN("position: point(0, 0, 0)") {
+            Point position {0, 0, 0};
+            GIVEN("eyev: vector(0, 0, -1)") {
+                Vector eyev {0,
+                             0,
+                             -1};
+                AND_GIVEN("normalv: vector(0, 0, -1)") {
+                    Vector normalv {0, 0, -1};
+                    AND_GIVEN("light: point_light( point(0, 0, -10), color(1, 1, 1) )") {
+                        PointLight light {{0, 0, -10},
+                                          {1, 1, 1}};
+                        AND_GIVEN("in_shadow: true") {
+                            bool inShadow = true;
+                            WHEN("result: lighting(m, light, position, eyev, normalv, inShadow)") {
+                                Color result = Light::lighting(m, light, position, eyev, normalv, inShadow);
+                                THEN("result = color(0.1, 0.1, 0.1)") {
+                                    REQUIRE(result == Color(0.1, 0.1, 0.1));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("There is no shadow when point can see the light") {
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("p: point(0, 10, 0)") {
+            Point p { 0, 10, 0 };
+            THEN("isShadowed(w, p) = false") {
+                REQUIRE(Light::isInShadow(w, p) == false);
+            }
+        }
+    }
+}
+
+SCENARIO("There is a shadow with an object between the point and the light") {
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("p: point(10, -10, 10)") {
+            Point p { 10, -10, 10 };
+            THEN("isShadowed(w, p) = true") {
+                REQUIRE(Light::isInShadow(w, p) == true);
+            }
+        }
+    }
+}
+
+SCENARIO("There is no shadow with an object behind the light") {
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("p: point(-20, 20, -20)") {
+            Point p { -20, 20, -20 };
+            THEN("isShadowed(w, p) = false") {
+                REQUIRE(Light::isInShadow(w, p) == false);
+            }
+        }
+    }
+}
+
+SCENARIO("There is no shadow with an object behind the point") {
+    GIVEN("w: default_world()") {
+        World w = World::defaultWorld();
+        AND_GIVEN("p: point(-2, 2, -2)") {
+            Point p { -2, 2, -2 };
+            THEN("isShadowed(w, p) = false") {
+                REQUIRE(Light::isInShadow(w, p) == false);
+            }
+        }
+    }
+}

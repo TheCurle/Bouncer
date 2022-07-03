@@ -39,7 +39,7 @@ target_link_libraries(bouncer PRIVATE OpenMP::OpenMP_CXX ${OPENGL_LIBRARY} user3
 
 add_executable(tests ${test_src})
 set_target_properties(tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain OpenMP::OpenMP_CXX)
 
 
 # Catch tests
