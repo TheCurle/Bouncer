@@ -7,6 +7,7 @@ enable_testing()
 # if you're on linux.... good luck
 list(APPEND CMAKE_PREFIX_PATH "D:/catch2/lib/cmake/Catch2")
 find_package(Catch2 3 REQUIRED)
+find_package(OpenMP REQUIRED)
 
 # Compile flags
 set(CMAKE_CXX_STANDARD 17)
@@ -32,6 +33,7 @@ include_directories("inc")
 # Compile settings
 add_executable(bouncer ${renderer_src})
 set_target_properties(bouncer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
+target_link_libraries(bouncer PRIVATE OpenMP::OpenMP_CXX)
 
 add_executable(tests ${test_src})
 set_target_properties(tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
