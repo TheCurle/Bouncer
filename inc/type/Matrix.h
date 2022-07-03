@@ -17,7 +17,8 @@
 #pragma once
 
 struct Matrix;
-Matrix operator/(const Matrix thisMatrix, const double dbl);
+Matrix operator/(Matrix thisMatrix, double dbl);
+extern Matrix identityMatrix;
 
 bool safeCompare(double a, double b);
 
@@ -35,12 +36,7 @@ struct Matrix {
 
     // Retrieve the Identity matrix. Transforms and multiplications to this are effectively null.
     static Matrix identity() {
-        return Matrix {{
-            { 1, 0, 0, 0 },
-            { 0, 1, 0, 0 },
-            { 0, 0, 1, 0 },
-            { 0, 0, 0, 1 }
-        }};
+        return identityMatrix;
     }
 
     // Fetch a matrix that will translate points around by the given coordinates.
@@ -327,3 +323,10 @@ std::ostream& operator<<(std::ostream& stream, const Matrix& matrix) {
     return stream;
 }
 #endif
+
+inline Matrix identityMatrix = Matrix(std::vector<std::vector<double>> {{
+    { 1, 0, 0, 0 },
+    { 0, 1, 0, 0 },
+    { 0, 0, 1, 0 },
+    { 0, 0, 0, 1 }
+}});

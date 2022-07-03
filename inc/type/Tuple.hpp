@@ -35,7 +35,7 @@ struct TupleContainer {
     }
 
     // The tolerance for comparisons.
-    static constexpr double epsilon = 0.00001;
+    static constexpr double epsilon = 0.0001;
 };
 
 /**

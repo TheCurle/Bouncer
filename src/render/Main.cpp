@@ -73,7 +73,7 @@ public:
             left.material.specular = 0.3;
 
             w.lightSource = PointLight { { -10, 10, -10 }, { 1, 1, 1 } };
-            w.objects = { floor, rightWall, leftWall, middle, right, left };
+            w.objects = { &floor, &rightWall, &leftWall, &middle, &right, &left };
 
             Camera cam(framewidth, frameheight, M_PI / 3);
             cam.transform = World::viewMatrix({ 0, 1.5, -5 }, { 0, 1, 0 }, { 0, 1, 0 });

@@ -15,14 +15,14 @@ SCENARIO("An intersection encapsulates t and object") {
     GIVEN("s: sphere()") {
         Sphere s;
         WHEN("i: intersection(3.5, s)") {
-            Intersection i(3.5, s);
+            Intersection i(3.5, &s);
 
             THEN("i.time = 3.5") {
                 REQUIRE(i.time == 3.5);
             }
 
             AND_THEN("i.object = s") {
-                REQUIRE(i.object == s);
+                REQUIRE(*i.object == s);
             }
         }
     }
@@ -32,9 +32,9 @@ SCENARIO("Aggregating intersections") {
     GIVEN("s: sphere()") {
         Sphere s;
         AND_GIVEN("i1: intersection(1, s)") {
-            Intersection i1(1, s);
+            Intersection i1(1, &s);
             AND_GIVEN("i2: intersection(2, s)") {
-                Intersection i2(2, s);
+                Intersection i2(2, &s);
                 WHEN("xs: intersections(i1, i2)") {
                     Intersections xs {i1, i2};
 
@@ -61,18 +61,18 @@ SCENARIO("Intersect sets the object") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = Ray::intersect(s, r);
+                Intersections xs = s.intersect(r);
 
                 THEN("xs.size = 2") {
                     REQUIRE(xs.size() == 2);
                 }
 
                 AND_THEN("xs[0].object = s") {
-                    REQUIRE(xs[0].object == s);
+                    REQUIRE(*xs[0].object == s);
                 }
 
                 AND_THEN("xs[1].object = s") {
-                    REQUIRE(xs[1].object == s);
+                    REQUIRE(*xs[1].object == s);
                 }
             }
         }
@@ -85,7 +85,7 @@ SCENARIO("Filling intersection detail") {
         AND_GIVEN("shape: sphere()") {
             Sphere s;
             AND_GIVEN("i: intersection(4, shape)") {
-                Intersection i { 4, s };
+                Intersection i { 4, &s };
                 WHEN("detail: prepare_computation(i, r)") {
                     IntersectionDetail detail = Intersection::fillDetail(i, r);
 
@@ -94,7 +94,7 @@ SCENARIO("Filling intersection detail") {
                     }
 
                     AND_THEN("detail.object = i.object") {
-                        REQUIRE(detail.object == i.object);
+                        REQUIRE(detail.object == *i.object);
                     }
 
                     AND_THEN("detail.point = point(0, 0, -1)") {
@@ -120,7 +120,7 @@ SCENARIO("Hit of an external intersection") {
         AND_GIVEN("shape: sphere()") {
             Sphere s;
             AND_GIVEN("i: intersection(4, shape)") {
-                Intersection i {4, s};
+                Intersection i {4, &s};
                 WHEN("detail: prepare_computation(i, r)") {
                     IntersectionDetail detail = Intersection::fillDetail(i, r);
 
@@ -139,7 +139,7 @@ SCENARIO("Hit of an internal intersection") {
         AND_GIVEN("shape: sphere()") {
             Sphere s;
             AND_GIVEN("i: intersection(1, shape)") {
-                Intersection i {1, s};
+                Intersection i {1, &s};
                 WHEN("detail: prepare_computation(i, r)") {
                     IntersectionDetail detail = Intersection::fillDetail(i, r);
 

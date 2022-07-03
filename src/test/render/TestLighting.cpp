@@ -140,7 +140,7 @@ SCENARIO("Shading an intersection with the world") {
         AND_GIVEN("r: ray( point(0, 0, -5), vector(0, 0, 1) )") {
             Ray r { { 0, 0, -5 }, { 0, 0, 1 } };
             AND_GIVEN("shape: first shape in w") {
-                Geo shape = w.objects[0];
+                Geo* shape = w.objects[0];
                 AND_GIVEN("i: intersection(4, shape)") {
                     Intersection i { 4, shape };
                     WHEN("detail: fillDetail(i, r)") {
@@ -167,7 +167,7 @@ SCENARIO("Shading an internal intersection") {
             AND_GIVEN("r: ray( point(0, 0, 0), vector(0, 0, 1) )") {
                 Ray r { { 0, 0, 0 }, { 0, 0, 1 } };
                 AND_GIVEN("shape: second shape in w") {
-                    Geo shape = w.objects[1];
+                    Geo* shape = w.objects[1];
                     AND_GIVEN("i: intersection(0.5, shape)") {
                         Intersection i { 0.5, shape };
                         WHEN("detail: fillDetail(i, r)") {
@@ -273,16 +273,16 @@ SCENARIO("Shading a hit in the shadow of an object") {
             AND_GIVEN("s1: sphere()") {
                 Sphere s1;
                 AND_GIVEN("s1 is added to w") {
-                    w.objects.emplace_back(s1);
+                    w.objects.emplace_back(&s1);
                     AND_GIVEN("s2: sphere() with transform: translation(0, 0, 10)") {
                         Sphere s2;
                         s2.transform = Matrix::translation(0, 0, 10);
                         AND_GIVEN("s2 is added to w") {
-                            w.objects.emplace_back(s2);
+                            w.objects.emplace_back(&s2);
                             AND_GIVEN("r: ray( point(0, 0, 5), vector(0, 0, 1) )") {
                                 Ray r { { 0, 0, 5 }, { 0, 0, 1 } };
                                 AND_GIVEN("i: intersection(4, s2)") {
-                                    Intersection i { 4, s2 };
+                                    Intersection i { 4, &s2 };
                                     WHEN("detail: fillDetail(i, r)") {
                                         IntersectionDetail detail = Intersection::fillDetail(i, r);
                                         AND_WHEN("c: shade_hit(w, detail)") {
@@ -310,7 +310,7 @@ SCENARIO("The hit should offset the point, to avoid ray acne") {
             Sphere shape;
             shape.transform = Matrix::translation(0, 0, 1);
             AND_GIVEN("i: intersection(5, shape)") {
-                Intersection i { 5, shape };
+                Intersection i { 5, &shape };
                 WHEN("detail: fillDetail(i, r)") {
                     IntersectionDetail detail = Intersection::fillDetail(i, r);
 

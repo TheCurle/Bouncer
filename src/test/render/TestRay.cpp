@@ -5,6 +5,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <render/Ray.h>
+#include "render/Geometry.h"
 
 
 SCENARIO("Creating and querying a ray") {
@@ -56,7 +57,7 @@ SCENARIO("A ray intersects a sphere at two points") {
             Sphere s;
 
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = Ray::intersect(s, r);
+                Intersections xs = s.intersect(r);
 
                 THEN("xs.size = 2") {
                     REQUIRE(xs.size() == 2);
@@ -80,7 +81,7 @@ SCENARIO("A ray intersects a sphere at a tangent") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = Ray::intersect(s, r);
+                Intersections xs = s.intersect(r);
 
                 THEN("xs.size = 2") {
                     REQUIRE(xs.size() == 2);
@@ -104,7 +105,7 @@ SCENARIO("A ray misses a sphere") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = Ray::intersect(s, r);
+                Intersections xs = s.intersect(r);
 
                 THEN("xs.count = 0") {
                     REQUIRE(xs.size() == 0);
@@ -120,7 +121,7 @@ SCENARIO("A ray originates inside a sphere") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = Ray::intersect(s, r);
+                Intersections xs = s.intersect(r);
 
                 THEN("xs.count = 2") {
                     REQUIRE(xs.size() == 2);
@@ -144,7 +145,7 @@ SCENARIO("A sphere is behind a ray") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = Ray::intersect(s, r);
+                Intersections xs = s.intersect(r);
 
                 THEN("xs.count = 2") {
                     REQUIRE(xs.size() == 2);

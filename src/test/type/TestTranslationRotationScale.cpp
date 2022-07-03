@@ -6,6 +6,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <type/Matrix.h>
 #include <render/Ray.h>
+#include "render/Geometry.h"
 
 SCENARIO("Multiplying by a translation matrix") {
     GIVEN("transform: translation(5, -3, 2)") {
@@ -437,7 +438,7 @@ SCENARIO("Intersecting a scaled sphere with a ray") {
             WHEN("s.setTransform( scaling(2, 2, 2) )") {
                 s.transform = Matrix::scaling(2, 2, 2);
                 AND_WHEN("xs: intersect(s, r)") {
-                    Intersections xs = Ray::intersect(s, r);
+                    Intersections xs = s.intersect(r);
 
                     THEN("xs.size = 2") {
                         REQUIRE(xs.size() == 2);
@@ -464,7 +465,7 @@ SCENARIO("Intersecting a translated sphere with a ray") {
             WHEN("s.setTransform( translation(5, 0, 0 )") {
                 s.transform = Matrix::translation(5, 0, 0);
                 AND_WHEN("xs: intersect(s, r)") {
-                    Intersections xs = Ray::intersect(s, r);
+                    Intersections xs = s.intersect(r);
 
                     THEN("xs.size = 0") {
                         REQUIRE(xs.size() == 0);

@@ -21,18 +21,18 @@ namespace Light {
 // A holder for objects and light data.
 // Effectively the "render scene".
 struct World {
-    std::vector<Geo> objects;
+    std::vector<Geo*> objects;
     PointLight lightSource;
 
     World() : lightSource(PointLight({ 0, 0, 0 }, { 0, 0, 0 })) {}
 
-    World(std::vector<Geo> geo, const PointLight& light) : objects(std::move(geo)), lightSource(light) {}
+    World(std::vector<Geo*> geo, const PointLight& light) : objects(std::move(geo)), lightSource(light) {}
 
     static World defaultWorld() {
         return World(
                 {
-                    Sphere(Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200)),
-                    Sphere(Matrix::scaling(0.5, 0.5, 0.5))
+                    new Sphere(Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200)),
+                    new Sphere(Matrix::scaling(0.5, 0.5, 0.5))
                 },
 
                 PointLight({ -10, 10, -10 }, { 1, 1, 1 } )
@@ -58,11 +58,11 @@ struct World {
         return orientation * Matrix::translation(-start.x, -start.y, -start.z);
     }
 
-    Intersections intersect(const Ray& r) {
+    Intersections intersect(Ray& r) {
         Intersections xs;
 
-        for (const Geo& object : objects) {
-            Intersections intersect = Ray::intersect(object, r);
+        for (Geo*& object : objects) {
+            Intersections intersect = object->intersect(r);
             xs.addAllHits(intersect);
         }
 
@@ -110,7 +110,7 @@ namespace Light {
         Intersections isections = w.intersect(r);
         Intersection hit = isections.hit();
 
-        if (hit.time == 0 && hit.object.id == -1) return { 0, 0, 0 };
+        if (hit.time == 0 && hit.object == nullptr) return { 0, 0, 0 };
 
         IntersectionDetail detail = Intersection::fillDetail(hit, r);
 

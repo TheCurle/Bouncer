@@ -6,6 +6,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <type/Matrix.h>
 #include <render/Ray.h>
+#include "render/Geometry.h"
 
 SCENARIO("Normal on a sphere at a point on the X axis") {
     GIVEN("s: sphere()") {

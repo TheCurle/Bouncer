@@ -47,11 +47,11 @@ SCENARIO("The default world") {
                     }
 
                     AND_THEN("w contains s1") {
-                        REQUIRE(w.objects[0] == s1);
+                        REQUIRE(*w.objects[0] == s1);
                     }
 
                     AND_THEN("w contains s2") {
-                        REQUIRE(w.objects[1] == s2);
+                        REQUIRE(*w.objects[1] == s2);
                     }
                 }
             }
