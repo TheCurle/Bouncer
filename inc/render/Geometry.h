@@ -9,7 +9,6 @@
 #include "Light.h"
 
 #pragma once
-using namespace std;
 
 struct Geo {
     int id;

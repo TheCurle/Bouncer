@@ -11,7 +11,6 @@
 #include <utility>
 
 #pragma once
-using namespace std;
 
 struct Ray;
 

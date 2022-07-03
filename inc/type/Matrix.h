@@ -15,7 +15,6 @@
 #include <type/Tuple.hpp>
 
 #pragma once
-using namespace std;
 
 struct Matrix;
 Matrix operator/(const Matrix thisMatrix, const double dbl);
@@ -32,7 +31,7 @@ bool safeCompare(double a, double b);
 */
 
 struct Matrix {
-    vector<vector<double>> data;
+    std::vector<std::vector<double>> data;
 
     // Retrieve the Identity matrix. Transforms and multiplications to this are effectively null.
     static Matrix identity() {
@@ -127,7 +126,7 @@ struct Matrix {
         out.data = in.data;
 
         out.data.erase(std::next(out.data.begin(), row));
-        for (vector<double>& data : out.data) {
+        for (std::vector<double>& data : out.data) {
             data.erase(std::next(data.begin(), col));
         }
 
@@ -190,18 +189,18 @@ struct Matrix {
 
     // Value constructor. Accepts any value type that can accept a vector of vector.
     // Example: {{ {0, 2}, {1, 0} }}
-    explicit Matrix(vector<vector<double>> newData) {
+    explicit Matrix(std::vector<std::vector<double>> newData) {
         this->data = std::move(newData);
     }
 
     // Override the data of this Matrix with given values.
-    Matrix& operator=(vector<vector<double>> newData) {
+    Matrix& operator=(std::vector<std::vector<double>> newData) {
         this->data = std::move(newData);
         return *this;
     }
 
     // Index the data without needing a .data[] access.
-    vector<double> operator[](int index) {
+    std::vector<double> operator[](int index) {
         return data[index];
     }
 

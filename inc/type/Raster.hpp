@@ -70,10 +70,13 @@ public:
     size_t width;
     size_t height;
 
+    bool isFilled;
+
     // Value constructor.
     Framebuffer(size_t w, size_t h) : width(w), height(h) {
         // Assign the buffer array to a 2-dimensional array of black.
         buffer.assign(w, std::vector<Color>(h, Black));
+        isFilled = false;
     }
 
     // Get the Color of the specified pixel.

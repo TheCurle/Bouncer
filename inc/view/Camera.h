@@ -11,7 +11,6 @@
 #include "render/Light.h"
 
 #pragma once
-using namespace std;
 
 // Information on the origin of rays.
 struct Camera {

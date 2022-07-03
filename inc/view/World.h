@@ -12,7 +12,6 @@
 #include "Camera.h"
 
 #pragma once
-using namespace std;
 
 namespace Light {
     Color shadeHit(const World &world, const IntersectionDetail &hit);
@@ -70,11 +69,10 @@ struct World {
         return xs.sort();
     }
 
-    Framebuffer render(const Camera& cam) {
+    void render(const Camera& cam, Framebuffer& canvas) {
         auto startTime = std::chrono::system_clock::now();
-        Framebuffer canvas(cam.horizontalSize, cam.verticalSize);
 
-        #pragma omp parallel for
+        #pragma omp parallel for default(none) shared(canvas, cam)
         for (int y = 0; y < cam.verticalSize -1; y++) {
             for (int x = 0; x < cam.horizontalSize -1; x++) {
                 Ray r = cam.rayForPixel(x, y);
@@ -82,12 +80,13 @@ struct World {
             }
         }
 
+        canvas.isFilled = true;
+
         auto endTime = std::chrono::system_clock::now();
         std::cout << "Timing data:" << std::endl <<
                 " Pixels rendered: " << cam.horizontalSize * cam.verticalSize << std::endl <<
                 " Average time per pixel: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() / (cam.horizontalSize * cam.verticalSize) << "us" << std::endl <<
                 " Total render time: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << "us (" << std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() << "s)" << std::endl;
-        return canvas;
     }
 };
 
