@@ -31,23 +31,7 @@ public:
         raytraceThread = std::thread([&]() {
 
             // Level Geometry
-            Sphere floor;
-            floor.transform = Matrix::scaling(10, 0.01, 10);
-            floor.material = Material();
-            floor.material.color = Color(1, 0.9, 0.9);
-            floor.material.specular = 0;
-
-            Sphere leftWall;
-            leftWall.transform = Matrix::translation(0, 0, 5) *
-                                 Matrix::rotation_y(-M_PI / 4) * Matrix::rotation_x(M_PI / 2) *
-                                 Matrix::scaling(10, 0.01, 10);
-            leftWall.material = floor.material;
-
-            Sphere rightWall;
-            rightWall.transform = Matrix::translation(0, 0, 5) *
-                                  Matrix::rotation_y(M_PI / 4) * Matrix::rotation_x(M_PI / 2) *
-                                  Matrix::scaling(10, 0.01, 10);
-            rightWall.material = floor.material;
+            Plane floor;
 
             // Objects
 
@@ -73,7 +57,7 @@ public:
             left.material.specular = 0.3;
 
             w.lightSource = PointLight { { -10, 10, -10 }, { 1, 1, 1 } };
-            w.objects = { &floor, &rightWall, &leftWall, &middle, &right, &left };
+            w.objects = { &floor, &middle, &right, &left };
 
             Camera cam(framewidth, frameheight, M_PI / 3);
             cam.transform = World::viewMatrix({ 0, 1.5, -5 }, { 0, 1, 0 }, { 0, 1, 0 });
