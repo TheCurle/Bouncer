@@ -90,8 +90,20 @@ struct World {
 
 
 namespace Light {
-    inline Color shadeHit(const World& world, const IntersectionDetail& hit) {
-        return lighting(hit.object.material, world.lightSource, hit.point, hit.eyev, hit.normalv);
+    inline bool isInShadow(World& world, Point& point) {
+        Vector v = world.lightSource.position - point;
+        double distance = v.magnitude();
+        Vector direction = Vector(v.normalize());
+
+        Ray r { point, direction };
+        Intersections sections = world.intersect(r);
+
+        Intersection hit = sections.hit();
+        return (!hit.isEmpty() && hit.time < distance);
+    }
+
+    inline Color shadeHit(World& world, IntersectionDetail& hit) {
+        return lighting(hit.object.material, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
     }
 
     inline Color at(World w, Ray r) {
@@ -105,15 +117,4 @@ namespace Light {
         return shadeHit(w, detail);
     }
 
-    inline bool isInShadow(World& world, Point& point) {
-        Vector v = world.lightSource.position - point;
-        double distance = v.magnitude();
-        Vector direction = Vector(v.normalize());
-
-        Ray r { point, direction };
-        Intersections sections = world.intersect(r);
-
-        Intersection hit = sections.hit();
-        return (!hit.isEmpty() && hit.time < distance);
-    }
 }

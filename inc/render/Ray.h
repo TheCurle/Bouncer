@@ -19,6 +19,7 @@ struct IntersectionDetail {
     double time;
     Geo object;
     Point point;
+    Point overPoint;
     Vector eyev;
     Vector normalv;
     bool isInternal;
@@ -139,8 +140,10 @@ inline IntersectionDetail Intersection::fillDetail(const Intersection& i, Ray r)
     Vector hitNormal = i.object.normalAt(hitPos);
     Vector eyeDir = -r.direction;
 
+    Point bumpPoint = Point(hitPos + hitNormal * 0.001);
+
     bool inside = (hitNormal * eyeDir) < 0;
     if (inside) hitNormal = -hitNormal;
 
-    return { i.time, i.object, hitPos, eyeDir, hitNormal, inside };
+    return { i.time, i.object, hitPos, bumpPoint, eyeDir, hitNormal, inside };
 }
