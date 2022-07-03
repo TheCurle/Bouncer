@@ -24,6 +24,7 @@ namespace Light {
 struct World {
     std::vector<Geo> objects;
     PointLight lightSource;
+    std::vector<std::chrono::system_clock::time_point> timing {};
 
     World() : lightSource(PointLight({ 0, 0, 0 }, { 0, 0, 0 })) {}
 
@@ -71,6 +72,7 @@ struct World {
     }
 
     Framebuffer render(const Camera& cam) {
+        auto startTime = std::chrono::system_clock::now();
         Framebuffer canvas(cam.horizontalSize, cam.verticalSize);
 
         for (int y = 0; y < cam.verticalSize -1; y++) {
@@ -80,6 +82,9 @@ struct World {
             }
         }
 
+        auto endTime = std::chrono::system_clock::now();
+        std::cout << "Timing data:" << std::endl <<
+                " Total render time: " << std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() << "ns (" << std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() << "s)" << std::endl;
         return canvas;
     }
 };

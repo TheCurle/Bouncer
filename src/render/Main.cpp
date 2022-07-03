@@ -24,6 +24,8 @@ int main(int argc, char* argv[]) {
     (void) argc;
     (void) argv;
 
+    auto totalStartTime = std::chrono::system_clock::now();
+
     World w;
 
     // Level Geometry
@@ -80,7 +82,9 @@ int main(int argc, char* argv[]) {
     std::string text = frame.export_ppm();
     out.write(text.c_str(), text.size());
     out.close();
-    printf("Done\n");
+
+    auto totalEndTime = std::chrono::system_clock::now();
+    std::cout << " Total processing time: " << std::chrono::duration_cast<std::chrono::nanoseconds>(totalEndTime - totalStartTime).count() << "ns (" << std::chrono::duration_cast<std::chrono::seconds>(totalEndTime - totalStartTime).count() << "s)" << std::endl;
 
     return 0;
 }
