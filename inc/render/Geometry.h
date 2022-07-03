@@ -86,6 +86,25 @@ struct Sphere : public Geo {
     }
 };
 
+struct Plane : public Geo {
+
+    Plane() = default;
+
+    Vector normalAt(const Point &p) override {
+        (void) p;
+
+        static const Vector normal = {0, 1, 0};
+        return normal;
+    }
+
+    Intersections intersect(Ray &r) override {
+        if (std::abs(r.direction.y) < 0.001) return {};
+
+        double t = -r.origin.y / r.direction.y;
+        return { { t, this } };
+    }
+};
+
 bool operator==(const Geo& x, const Geo& y);
 
 #ifdef GEOMETRY_OPERATOR_OVERLOADS
