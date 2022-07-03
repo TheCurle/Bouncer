@@ -32,7 +32,7 @@ public:
 
             // Level Geometry
             Plane floor;
-            floor.material.pattern = new Pattern::Stripe(Color::white(), { 1, 0, 0 });
+            floor.material.pattern = new Pattern::Checker(Color::white(), { 1, 0, 0 });
 
             // Objects
 

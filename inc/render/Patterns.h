@@ -39,4 +39,15 @@ namespace Pattern {
             return (int) p.x % 2 == 0 ? a : b;
         }
     };
+
+    struct Checker : public Pattern {
+        Checker(Color primary, Color secondary) {
+            a = primary;
+            b = secondary;
+        }
+
+        Color at(const Point &p) override {
+            return ((int) p.x + (int) p.y + (int) p.z) % 2 == 0 ? a : b;
+        }
+    };
 }
