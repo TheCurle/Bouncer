@@ -9,9 +9,15 @@
 #include <render/Geometry.h>
 #include <render/Ray.h>
 #include "render/Light.h"
+#include "Camera.h"
 
 #pragma once
 using namespace std;
+
+namespace Light {
+    Color shadeHit(const World &world, const IntersectionDetail &hit);
+    Color at(World w, Ray r);
+}
 
 // A holder for objects and light data.
 // Effectively the "render scene".
@@ -62,6 +68,19 @@ struct World {
         }
 
         return xs.sort();
+    }
+
+    Framebuffer render(const Camera& cam) {
+        Framebuffer canvas(cam.horizontalSize, cam.verticalSize);
+
+        for (int y = 0; y < cam.verticalSize -1; y++) {
+            for (int x = 0; x < cam.horizontalSize -1; x++) {
+                Ray r = cam.rayForPixel(x, y);
+                canvas.set(x, y, Light::at(*this, r));
+            }
+        }
+
+        return canvas;
     }
 };
 
