@@ -13,20 +13,20 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
+int framewidth = 300;
+int frameheight = 150;
 
 // Override base class with your custom functionality
 class FramebufferView : public olc::PixelGameEngine
 {
     Framebuffer frame;
     World w;
-    std::chrono::system_clock::time_point totalStartTime;
     std::thread raytraceThread;
 public:
     FramebufferView() : frame(Framebuffer(1,1))
     {
         // Name your application
         sAppName = "Bouncer Live View";
-        totalStartTime = std::chrono::system_clock::now();
 
         raytraceThread = std::thread([&]() {
 
@@ -75,7 +75,7 @@ public:
             w.lightSource = PointLight { { -10, 10, -10 }, { 1, 1, 1 } };
             w.objects = { floor, rightWall, leftWall, middle, right, left };
 
-            Camera cam(1920, 1080, M_PI / 3);
+            Camera cam(framewidth, frameheight, M_PI / 3);
             cam.transform = World::viewMatrix({ 0, 1.5, -5 }, { 0, 1, 0 }, { 0, 1, 0 });
 
             frame = Framebuffer(cam.horizontalSize, cam.verticalSize);
@@ -100,18 +100,21 @@ public:
                 Draw(x, y, olc::Pixel(c.red() * 255, c.green() * 255, c.blue() * 255, 255));
             }
 
-        if (frame.isFilled) {
+        if (PixelGameEngine::GetKey(olc::Key::ENTER).bPressed) {
             std::ofstream out("pic2.ppm");
             std::string text = frame.export_ppm();
             out.write(text.c_str(), text.size());
             out.close();
 
-            auto totalEndTime = std::chrono::system_clock::now();
-            std::cout << " Total processing time: " << std::chrono::duration_cast<std::chrono::nanoseconds>(totalEndTime - totalStartTime).count() << "ns (" << std::chrono::duration_cast<std::chrono::seconds>(totalEndTime - totalStartTime).count() << "s)" << std::endl;
-
+            std::cout << "Image saved." << std::endl;
             raytraceThread.join();
-            frame.isFilled = false;
         }
+
+        if (PixelGameEngine::GetKey(olc::Key::ESCAPE).bPressed) {
+            raytraceThread.join();
+            olc_Terminate();
+        }
+
         return true;
     }
 };
@@ -128,7 +131,7 @@ int main(int argc, char* argv[]) {
     (void) argv;
 
     FramebufferView view;
-    if (view.Construct(1920, 1080, 1, 1)) {
+    if (view.Construct(framewidth, frameheight, 1, 1)) {
         view.Start();
     }
 

@@ -80,8 +80,6 @@ struct World {
             }
         }
 
-        canvas.isFilled = true;
-
         auto endTime = std::chrono::system_clock::now();
         std::cout << "Timing data:" << std::endl <<
                 " Pixels rendered: " << cam.horizontalSize * cam.verticalSize << std::endl <<
