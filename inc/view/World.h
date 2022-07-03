@@ -77,14 +77,19 @@ struct World {
 
         for (int y = 0; y < cam.verticalSize -1; y++) {
             for (int x = 0; x < cam.horizontalSize -1; x++) {
+                auto pixelStartTime = std::chrono::system_clock::now();
                 Ray r = cam.rayForPixel(x, y);
                 canvas.set(x, y, Light::at(*this, r));
+                auto pixelEndTime = std::chrono::system_clock::now();
+                timing.emplace_back(pixelStartTime - pixelEndTime);
             }
         }
 
         auto endTime = std::chrono::system_clock::now();
         std::cout << "Timing data:" << std::endl <<
-                " Total render time: " << std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() << "ns (" << std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() << "s)" << std::endl;
+                " Pixels rendered: " << timing.size() << std::endl <<
+                " Average time per pixel: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() / timing.size() << "us" << std::endl <<
+                " Total render time: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << "us (" << std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() << "s)" << std::endl;
         return canvas;
     }
 };
