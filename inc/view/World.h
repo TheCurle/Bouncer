@@ -103,7 +103,7 @@ namespace Light {
     }
 
     inline Color shadeHit(World& world, IntersectionDetail& hit) {
-        return lighting(hit.object.material, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
+        return lighting(hit.object.material, &hit.object, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
     }
 
     inline Color at(World w, Ray r) {

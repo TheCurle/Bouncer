@@ -32,14 +32,15 @@ public:
 
             // Level Geometry
             Plane floor;
-            floor.material.pattern = new Pattern::Stripe(Color::white(), Color::black());
+            floor.material.pattern = new Pattern::Stripe(Color::white(), { 1, 0, 0 });
 
             // Objects
 
             Sphere middle;
             middle.transform = Matrix::translation(-0.5, 1, 0.5);
             middle.material = Material();
-            middle.material.color = Color(0.1, 1, 0.5);
+            middle.material.pattern = new Pattern::Stripe({ 1, 0, 1}, { 0, 0, 1 });
+            middle.material.pattern->transform = Matrix::scaling(0.33, 0.33, 0.33);
             middle.material.diffuse = 0.7;
             middle.material.specular = 0.3;
 

@@ -148,3 +148,12 @@ inline IntersectionDetail Intersection::fillDetail(const Intersection& i, Ray r)
 
     return { i.time, *i.object, hitPos, bumpPoint, eyeDir, hitNormal, inside };
 }
+
+namespace Pattern {
+    inline Color colorAt(const Point& point, Geo* object) {
+        Point objectPoint = Point(Matrix::inverse(object->transform) * point);
+        Point patternPoint = Point(Matrix::inverse(object->material.pattern->transform) * objectPoint);
+
+        return object->material.pattern->at(patternPoint);
+    }
+}

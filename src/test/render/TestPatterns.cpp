@@ -92,3 +92,64 @@ SCENARIO("A stripe pattern alternates in x") {
 
     }
 }
+
+SCENARIO("Stripe with an object transformation") {
+    GIVEN("object: sphere()") {
+        Sphere object;
+        AND_GIVEN("object.transform: scaling(2, 2, 2)") {
+            object.transform = Matrix::scaling(2, 2, 2);
+            AND_GIVEN("pattern: stripe_pattern(white, black)") {
+                Pattern::Stripe pattern(Color::white(), Color::black());
+                object.material.pattern = &pattern;
+                WHEN("c: colorAt(point(1.5, 0, 0), object)") {
+                    Color c = Pattern::colorAt({ 1.5, 0, 0 }, &(Geo&)object);
+                    THEN("c = white") {
+                        REQUIRE(c == Color::white());
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Stripe with a pattern transformation") {
+    GIVEN("object: sphere()") {
+        Sphere object;
+        AND_GIVEN("pattern: stripe_pattern(white, black)") {
+            Pattern::Stripe pattern(Color::white(), Color::black());
+            AND_GIVEN("pattern.transform: scaling(2, 2, 2)") {
+                pattern.transform = Matrix::scaling(2, 2, 2);
+                object.material.pattern = &pattern;
+                WHEN("c: colorAt(point(1.5, 0, 0), object)") {
+                    Color c = Pattern::colorAt({ 1.5, 0, 0 }, &(Geo&)object);
+                    THEN("c = white") {
+                        REQUIRE(c == Color::white());
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+SCENARIO("Stripe with all transformations") {
+    GIVEN("object: sphere()") {
+        Sphere object;
+        AND_GIVEN("pattern: stripe_pattern(white, black)") {
+            Pattern::Stripe pattern(Color::white(), Color::black());
+            AND_GIVEN("object.transform: scaling(2, 2, 2)") {
+                object.transform = Matrix::scaling(2, 2, 2);
+                AND_GIVEN("pattern.transform: translation(0.5, 0, 0)") {
+                    pattern.transform = Matrix::scaling(0.5, 0, 0);
+                    object.material.pattern = &pattern;
+                    WHEN("c: colorAt(point(2.5, 0, 0), object)") {
+                        Color c = Pattern::colorAt({2.5, 0, 0}, &(Geo &) object);
+                        THEN("c = white") {
+                            REQUIRE(c == Color::white());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

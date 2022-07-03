@@ -7,18 +7,21 @@
 #include <utility>
 #include <type/Matrix.h>
 #include "Light.h"
-#include "Ray.h"
 
 #pragma once
+struct Geo;
 
 namespace Pattern {
+    Color colorAt(const Point& point, Geo* object);
+
     // Two-color pattern template.
     struct Pattern {
         Color a;
         Color b;
+        Matrix transform;
 
         // Default colors are black and white.
-        Pattern() : a(Color::white()), b(Color::black()) {}
+        Pattern() : a(Color::white()), b(Color::black()), transform(Matrix::identity()) {}
 
         virtual Color at(const Point& p) {
             (void) p;

@@ -57,8 +57,8 @@ struct Material {
 namespace Light {
 
     // Phong Shading Lighting workhouse.
-    inline Color lighting(Material m, PointLight light, const Point& position, const Vector& eyev, const Vector& normalv, bool inShadow) {
-        Color materialColor = m.pattern != nullptr ? m.pattern->at(position) : m.color;
+    inline Color lighting(Material m, Geo* object, PointLight light, const Point& position, const Vector& eyev, const Vector& normalv, bool inShadow) {
+        Color materialColor = m.pattern != nullptr ? Pattern::colorAt(position, object) : m.color;
 
         Color effectiveColor = materialColor * light.intensity;
         Vector lightV = Vector((light.position - position).normalize());
@@ -83,7 +83,7 @@ namespace Light {
         return ambient + diffuse + specular;
     }
 
-    inline Color lighting(Material m, const PointLight& light, const Point& position, const Vector& eyev, const Vector& normalv) {
-        return lighting(m, light, position, eyev, normalv, false);
+    inline Color lighting(Material m, Geo* object, const PointLight& light, const Point& position, const Vector& eyev, const Vector& normalv) {
+        return lighting(m, object, light, position, eyev, normalv, false);
     }
 }
