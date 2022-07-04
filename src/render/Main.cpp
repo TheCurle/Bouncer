@@ -3,7 +3,7 @@
  *     BOUNCER *
  ***************/
 
-#include <type/Tuple.hpp>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <type/Raster.hpp>
 #include <fstream>
 #define MATRIX_OPERATOR_OVERLOADS
@@ -64,17 +64,14 @@ public:
     {
         (void) fElapsedTime;
         // Called once per frame, draws random coloured pixels
-        for (int x = 0; x < frame.width; x++)
-            for (int y = 0; y < frame.height; y++) {
+        for (size_t x = 0; x < frame.width; x++)
+            for (size_t y = 0; y < frame.height; y++) {
                 Color c = frame.at(x, y);
-                Draw(x, y, olc::Pixel(c.red() * 255, c.green() * 255, c.blue() * 255, 255));
+                Draw(x, y, olc::Pixel(c.pack()));
             }
 
         if (PixelGameEngine::GetKey(olc::Key::ENTER).bPressed) {
-            std::ofstream out("pic2.ppm");
-            std::string text = frame.export_ppm();
-            out.write(text.c_str(), text.size());
-            out.close();
+            frame.export_png("pic2.png");
 
             std::cout << "Image saved." << std::endl;
             raytraceThread.join();

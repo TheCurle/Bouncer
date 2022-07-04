@@ -7,8 +7,17 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include "stb_image_write.h"
 
 #pragma once
+
+inline size_t clamp(int val) {
+    if(val < 0)
+        val = 0;
+    if(val > 255)
+        val = 255;
+    return val;
+}
 
 /**
  * Represents a single R, G, B color.
@@ -47,6 +56,13 @@ public:
                 idx == 1 ? green() :
                  idx == 2 ? blue() :
                     0;
+    }
+
+    uint32_t pack() {
+        uint8_t red = clamp((int) std::round(x * 255));
+        uint8_t green = clamp((int) std::round(y * 255));
+        uint8_t blue = clamp((int) std::round(z * 255));
+        return (uint32_t) (red | (green << 8) | (blue << 16) | (255 << 24));
     }
 
     // Color addition operator.
@@ -104,6 +120,18 @@ public:
         buffer[x][y] = col;
     }
 
+    void export_png(const std::string& fileName) {
+        uint32_t pixelBuf[width * height];
+        for (size_t i = 0; i < height; i++) {
+            for (size_t j = 0; j < width; j++) {
+                Color col = at(j, i);
+                pixelBuf[i * width + j] = col.pack();
+            }
+        }
+
+        stbi_write_png(fileName.c_str(), width, height, 4, pixelBuf, width * 4);
+    }
+
     // Export the Framebuffer to a Portable PixMap formatted string, ready for writing to disk.
     std::string export_ppm() {
         std::string ppm;
@@ -159,14 +187,6 @@ private:
 
     // The default Black color.
     Color Black = Color(0, 0, 0);
-
-    static size_t clamp(int val) {
-        if(val < 0)
-            val = 0;
-        if(val > 255)
-            val = 255;
-        return val;
-    }
 };
 
 
