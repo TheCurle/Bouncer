@@ -37,67 +37,72 @@ struct Matrix {
 
     // Retrieve the Identity matrix. Transforms and multiplications to this are effectively null.
     static Matrix identity() {
-        return identityMatrix;
+        return Matrix {{
+            { 1, 0, 0, 0 },
+            { 0, 1, 0, 0 },
+            { 0, 0, 1, 0 },
+            { 0, 0, 0, 1 }
+        }};
     }
 
     // Fetch a matrix that will translate points around by the given coordinates.
     static Matrix translation(double x, double y, double z) {
         return Matrix {{
-                               {1, 0, 0, x},
-                               {0, 1, 0, y},
-                               {0, 0, 1, z},
-                               {0, 0, 0, 1}
-                       }};
+            {1, 0, 0, x},
+            {0, 1, 0, y},
+            {0, 0, 1, z},
+            {0, 0, 0, 1}
+        }};
     }
 
     // Fetch a matrix that will scale points by the given factors.
     static Matrix scaling(double x, double y, double z) {
         return Matrix {{
-                               {x, 0, 0, 0},
-                               {0, y, 0, 0},
-                               {0, 0, z, 0},
-                               {0, 0, 0, 1}
-                       }};
+            {x, 0, 0, 0},
+            {0, y, 0, 0},
+            {0, 0, z, 0},
+            {0, 0, 0, 1}
+        }};
     }
 
     // Fetch a matrix that will scale points clockwise around the X axis by the given factor (interpreted in radians)
     static Matrix rotation_x(double factor) {
         return Matrix {{
-                               {1, 0, 0, 0},
-                               {0, std::cos(factor), -std::sin(factor), 0},
-                               {0, std::sin(factor), std::cos(factor), 0},
-                               {0, 0, 0, 1}
-                       }};
+            {1, 0, 0, 0},
+            {0, std::cos(factor), -std::sin(factor), 0},
+            {0, std::sin(factor), std::cos(factor), 0},
+            {0, 0, 0, 1}
+        }};
     }
 
     // Fetch a matrix that will scale points clockwise around the X axis by the given factor (interpreted in radians)
     static Matrix rotation_y(double factor) {
         return Matrix {{
-                               {std::cos(factor), 0, std::sin(factor), 0},
-                               {0, 1, 0, 0},
-                               {-std::sin(factor), 0, std::cos(factor), 0},
-                               {0, 0, 0, 1}
-                       }};
+            {std::cos(factor), 0, std::sin(factor), 0},
+            {0, 1, 0, 0},
+            {-std::sin(factor), 0, std::cos(factor), 0},
+            {0, 0, 0, 1}
+        }};
     }
 
     // Fetch a matrix that will scale points clockwise around the X axis by the given factor (interpreted in radians)
     static Matrix rotation_z(double factor) {
         return Matrix {{
-                               {std::cos(factor), -std::sin(factor), 0, 0},
-                               {std::sin(factor), std::cos(factor), 0, 0},
-                               {0, 0, 1, 0},
-                               {0, 0, 0, 1}
-                       }};
+            {std::cos(factor), -std::sin(factor), 0, 0},
+            {std::sin(factor), std::cos(factor), 0, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 1}
+        }};
     }
 
     // Fetch a matrix that will skew / shear points in the given magnitudes.
     static Matrix shearing(double xy, double xz, double yx, double yz, double zx, double zy) {
         return Matrix {{
-                               {1, xy, xz, 0},
-                               {yx, 1, yz, 0},
-                               {zx, zy, 1, 0},
-                               {0, 0, 0, 1}
-                       }};
+            {1, xy, xz, 0},
+            {yx, 1, yz, 0},
+            {zx, zy, 1, 0},
+            {0, 0, 0, 1}
+        }};
     }
 
     // Calculate the determinant of this matrix.
@@ -169,7 +174,7 @@ struct Matrix {
 
         for (size_t i = 0; i < in.size; ++i) {
             for (size_t j = 0; j < in.size; ++j) {
-                out.data[i * in.size + j] = in.data[j * in.size + i];
+                out.data[j * in.size + i] = in.data[i * in.size + j];
             }
         }
 
@@ -194,7 +199,7 @@ struct Matrix {
         data = std::make_unique<double[]>(size * size);
         for (size_t y = 0; y < size; y++) {
             for (size_t x = 0; x < size; x++) {
-                data[y * size + x] = newData[x][y];
+                data[y * size + x] = newData[y][x];
             }
         }
     }
@@ -216,14 +221,14 @@ struct Matrix {
         size = newData.size();
         for (size_t y = 0; y < size; y++) {
             for (size_t x = 0; x < size; x++) {
-                data[y * size + x] = newData[x][y];
+                data[y * size + x] = newData[y][x];
             }
         }
         return *this;
     }
 
     // A simpler way to retrieve the data at known coordinates.
-    double at(int width, int height) const {
+    inline double& at(int width, int height) const {
         return data[width * size + height];
     }
 };
@@ -231,8 +236,8 @@ struct Matrix {
 bool operator==(const Matrix& thisMatrix, const Matrix& otherMatrix);
 bool operator!=(const Matrix& thisMatrix, const Matrix& otherMatrix);
 Matrix operator*(const Matrix& thisMatrix, const Matrix& otherMatrix);
-Matrix operator/(Matrix thisMatrix, double dbl);
-Tuple operator*(Matrix mat, const Tuple& tup);
+Matrix operator/(Matrix& thisMatrix, double dbl);
+Tuple operator*(const Matrix& mat, const Tuple& tup);
 std::ostream& operator<<(std::ostream& stream, const Matrix& matrix);
 
 //#define MATRIX_OPERATOR_OVERLOADS
@@ -269,7 +274,7 @@ Matrix operator*(const Matrix& thisMatrix, const Matrix& otherMatrix) {
     return result;
 }
 
-Tuple operator*(Matrix mat, const Tuple& tup) {
+Tuple operator*(const Matrix& mat, const Tuple& tup) {
     double x =
             tup.x * mat.at(0, 0) +
             tup.y * mat.at(0, 1) +
@@ -341,10 +346,3 @@ std::ostream& operator<<(std::ostream& stream, const Matrix& matrix) {
     return stream;
 }
 #endif
-
-inline Matrix identityMatrix = Matrix(std::vector<std::vector<double>> {{
-    { 1, 0, 0, 0 },
-    { 0, 1, 0, 0 },
-    { 0, 0, 1, 0 },
-    { 0, 0, 0, 1 }
-}});
