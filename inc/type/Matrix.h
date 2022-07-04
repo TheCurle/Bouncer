@@ -121,13 +121,13 @@ struct Matrix {
         //    return data[width * size + height];
         //}
         size_t outCounter = 0;
-        for (size_t size = 0; size < in.size * in.size; size++, outCounter++) {
+        for (size_t size = 0; size < in.size * in.size; size++) {
             // If position lands on a column
             if ((size_t) size % in.size == col) continue;
             // If position lands on a row
             if ((size_t) size >= (in.size * row) && (size_t) size <= (in.size * (row + 1))) continue;
             // else add to the matrix
-            out.data[outCounter] = in.data[size];
+            out.data[outCounter++] = in.data[size];
         }
 
         return out;
