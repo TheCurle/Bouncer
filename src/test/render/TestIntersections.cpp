@@ -87,7 +87,8 @@ SCENARIO("Filling intersection detail") {
             AND_GIVEN("i: intersection(4, shape)") {
                 Intersection i { 4, &s };
                 WHEN("detail: prepare_computation(i, r)") {
-                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+                    Intersections xs { i };
+                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
 
                     THEN("detail.time = i.time") {
                         REQUIRE(detail.time == i.time);
@@ -122,7 +123,8 @@ SCENARIO("Hit of an external intersection") {
             AND_GIVEN("i: intersection(4, shape)") {
                 Intersection i {4, &s};
                 WHEN("detail: prepare_computation(i, r)") {
-                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+                    Intersections xs { i };
+                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
 
                     THEN("detail.inside = false") {
                         REQUIRE(detail.isInternal == false);
@@ -141,7 +143,8 @@ SCENARIO("Hit of an internal intersection") {
             AND_GIVEN("i: intersection(1, shape)") {
                 Intersection i {1, &s};
                 WHEN("detail: prepare_computation(i, r)") {
-                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+                    Intersections xs { i };
+                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
 
                     THEN("detail.point = point(0, 0, 1)") {
                         REQUIRE(detail.point == Point(0, 0, 1));
@@ -172,9 +175,37 @@ SCENARIO("Reflecting a vector") {
             AND_GIVEN("i: intersection(sqrt(2), shape)") {
                 Intersection i { std::sqrt(2), &shape };
                 WHEN("detail: fillDetail(i, r)") {
-                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+                    Intersections xs { i };
+                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
                     THEN("detail.reflectv = vector(0, sqrt(2) / 2, sqrt(2) / 2)") {
                         REQUIRE(detail.reflectv == Vector(0, std::sqrt(2) / 2, std::sqrt(2) / 2));
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Under point is offset below the surface") {
+    GIVEN("r: ray( point(0, 0, -5), vector(0, 0, 1) )") {
+        Ray r { { 0, 0, -5 }, { 0, 0, 1 } };
+        AND_GIVEN("shape: glass_sphere() with transform: translation(0, 0, 1)") {
+            Sphere shape = Sphere::glassSphere();
+            shape.transform = Matrix::translation(0, 0, 1);
+            AND_GIVEN("i: intersection(5, shape)") {
+                Intersection i { 5, &shape };
+                AND_GIVEN("xs: intersections(i)") {
+                    Intersections xs { i };
+                    WHEN("detail: fillDetail(i, r, xs)") {
+                        IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+
+                        THEN("detail.underPoint.z > epsilon / 2") {
+                            REQUIRE(detail.underPoint.z > 0.001 / 2);
+                        }
+
+                        AND_THEN("detail.point.z < detail.underPoint.z") {
+                            REQUIRE(detail.point.z < detail.underPoint.z);
+                        }
                     }
                 }
             }

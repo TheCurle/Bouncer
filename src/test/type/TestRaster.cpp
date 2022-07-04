@@ -5,10 +5,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <string>
-#include <type/Tuple.hpp>
 #include <type/Raster.hpp>
 #include <fstream>
-
 SCENARIO("Creating a Framebuffer", "[Raster]") {
     GIVEN("f <- framebuffer(10, 20)") {
         Framebuffer f(10, 20);

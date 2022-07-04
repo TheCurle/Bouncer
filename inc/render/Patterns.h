@@ -36,7 +36,7 @@ namespace Pattern {
         }
 
         Color at(const Point &p) override {
-            return (int) p.x % 2 == 0 ? a : b;
+            return std::abs((int) p.x) % 2 == 0 ? a : b;
         }
     };
 
@@ -48,6 +48,17 @@ namespace Pattern {
 
         Color at(const Point &p) override {
             return ((int) p.x + (int) p.y + (int) p.z) % 2 == 0 ? a : b;
+        }
+    };
+
+    struct Debug : public Pattern {
+        Debug() {
+            a = { 1, 0, 0 };
+            b = { 0, 0, 1 };
+        }
+
+        Color at(const Point &p) override {
+            return { p.x, p.y, p.z };
         }
     };
 }

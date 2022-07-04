@@ -144,7 +144,8 @@ SCENARIO("Shading an intersection with the world") {
                 AND_GIVEN("i: intersection(4, shape)") {
                     Intersection i { 4, shape };
                     WHEN("detail: fillDetail(i, r)") {
-                        IntersectionDetail detail = Intersection::fillDetail(i, r);
+                        Intersections xs { i };
+                        IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
                         AND_WHEN("c: shadeHit(w, detail)") {
                             Color c = Light::shadeHit(w, detail, 1);
 
@@ -171,7 +172,8 @@ SCENARIO("Shading an internal intersection") {
                     AND_GIVEN("i: intersection(0.5, shape)") {
                         Intersection i { 0.5, shape };
                         WHEN("detail: fillDetail(i, r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            Intersections xs { i };
+                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
                             AND_WHEN("c: shadeHit(w, detail)") {
                                 Color c = Light::shadeHit(w, detail, 1);
 
@@ -284,7 +286,8 @@ SCENARIO("Shading a hit in the shadow of an object") {
                                 AND_GIVEN("i: intersection(4, s2)") {
                                     Intersection i { 4, &s2 };
                                     WHEN("detail: fillDetail(i, r)") {
-                                        IntersectionDetail detail = Intersection::fillDetail(i, r);
+                                        Intersections xs { i };
+                                        IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
                                         AND_WHEN("c: shade_hit(w, detail)") {
                                             Color c = Light::shadeHit(w, detail, 1);
 
@@ -312,7 +315,8 @@ SCENARIO("The hit should offset the point, to avoid ray acne") {
             AND_GIVEN("i: intersection(5, shape)") {
                 Intersection i { 5, &shape };
                 WHEN("detail: fillDetail(i, r)") {
-                    IntersectionDetail detail = Intersection::fillDetail(i, r);
+                    Intersections xs { i };
+                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
 
                     THEN("detail.overPoint.z < -EPSILON / 2") {
                         REQUIRE(detail.overPoint.z < -0.001 / 2);
@@ -339,7 +343,8 @@ SCENARIO("Reflected color of a nonreflective material") {
                     AND_GIVEN("i: intersection(1, shape)") {
                         Intersection i { 1, shape };
                         WHEN("detail: fillDetail(i, r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            Intersections xs { i };
+                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
                             AND_WHEN("color: reflected_color(w, detail)") {
                                 Color color = Light::reflected(w, detail, 1);
 
@@ -370,7 +375,8 @@ SCENARIO("Reflected color of a reflective surface") {
                     AND_GIVEN("i: intersection(sqrt(2), shape)") {
                         Intersection i {std::sqrt(2), &shape};
                         WHEN("detail: fillDetail(i, r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            Intersections xs { i };
+                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
                             AND_WHEN("color: reflected_color(w, detail)") {
                                 Color color = Light::reflected(w, detail, 2);
 
@@ -402,7 +408,8 @@ SCENARIO("Blended color of a reflective surface") {
                     AND_GIVEN("i: intersection(sqrt(2), shape)") {
                         Intersection i {std::sqrt(2), &shape};
                         WHEN("detail: fillDetail(i, r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            Intersections xs { i };
+                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
                             AND_WHEN("color: reflected_color(w, detail)") {
                                 Color color = Light::shadeHit(w, detail, 1);
 
@@ -465,7 +472,8 @@ SCENARIO("Reflections at maximum depth") {
                     AND_GIVEN("i: intersection(sqrt(2), shape)") {
                         Intersection i {std::sqrt(2), &shape};
                         WHEN("detail: fillDetail(i, r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(i, r);
+                            Intersections xs { i };
+                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
                             AND_WHEN("color: reflected_color(w, detail)") {
                                 Color color = Light::reflected(w, detail, 0);
 

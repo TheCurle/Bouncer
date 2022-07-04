@@ -36,6 +36,14 @@ SCENARIO("The default material") {
         AND_THEN("m.reflectivity = 0") {
             REQUIRE(m.reflectivity == 0);
         }
+
+        AND_THEN("m.transparency = 0") {
+            REQUIRE(m.transparency == 0);
+        }
+
+        AND_THEN("m.refractiveIndex = 1") {
+            REQUIRE(m.refractiveIndex == 1);
+        }
     }
 }
 
@@ -109,6 +117,24 @@ SCENARIO("Lighting with a pattern") {
                     }
                 }
             }
+        }
+    }
+}
+
+SCENARIO("A glass sphere") {
+    GIVEN("s: glass_sphere()") {
+        Sphere s = Sphere::glassSphere();
+
+        THEN("s.transform = identity_matrix") {
+            REQUIRE(s.transform == Matrix::identity());
+        }
+
+        AND_THEN("s.material.transparency = 1") {
+            REQUIRE(s.material.transparency == 1);
+        }
+
+        AND_THEN("s.material.refractiveIndex = 1.5") {
+            REQUIRE(s.material.refractiveIndex == 1.5);
         }
     }
 }

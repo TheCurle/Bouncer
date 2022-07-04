@@ -31,7 +31,7 @@ SCENARIO("The default world") {
 | material.specular | 0.2                    |
         )--") {
             Sphere s1;
-            s1.material = Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200, 0);
+            s1.material = Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200, 0, 0, 1);
 
             AND_GIVEN(R"--("s2: sphere() with:
 | transform         | scaling(0.5, 0.5, 0.5) |

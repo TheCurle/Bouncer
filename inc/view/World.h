@@ -31,7 +31,7 @@ struct World {
     static World defaultWorld() {
         return World(
                 {
-                    new Sphere(Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200, 0)),
+                    new Sphere(Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200, 0, 0, 1)),
                     new Sphere(Matrix::scaling(0.5, 0.5, 0.5))
                 },
 
@@ -100,6 +100,28 @@ namespace Light {
         return color * details.object.material.reflectivity;
     }
 
+    inline Color refracted(World& w, IntersectionDetail details, int countdown) {
+        if (details.object.material.transparency == 0) return Color::black();
+        if (countdown < 1) return Color::black();
+
+        // Check for Total Internal Reflection; derived from Snell's Law
+        double ratio = details.refractiveIdxIncoming / details.refractiveIdxOutgoing;
+        double cosi = details.eyev * details.normalv;
+        double sin2t = ratio*ratio * (1 - cosi*cosi);
+
+        if(sin2t > 1)
+            return Color::black();
+
+        // Cast the refracted ray
+        double cost = std::sqrt(1 - sin2t);
+        Vector dir = details.normalv * (ratio * cosi - cost) - details.eyev * ratio;
+
+        Ray refract { details.underPoint, dir };
+        Color col = Light::at(w, refract, countdown - 1) * details.object.material.transparency;
+
+        return col;
+    }
+
     inline bool isInShadow(World& world, Point& point) {
         Vector v = world.lightSource.position - point;
         double distance = v.magnitude();
@@ -115,7 +137,8 @@ namespace Light {
     inline Color shadeHit(World& world, IntersectionDetail& hit, int countdown) {
         Color rayTarget = lighting(hit.object.material, &hit.object, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
         Color reflectedRay = Light::reflected(world, hit, countdown);
-        return rayTarget + reflectedRay;
+        Color refractedRay = Light::refracted(world, hit, countdown);
+        return rayTarget + reflectedRay + refractedRay;
     }
 
     inline Color at(World w, Ray r, int countdown) {
@@ -124,7 +147,7 @@ namespace Light {
 
         if (hit.time == 0 && hit.object == nullptr) return { 0, 0, 0 };
 
-        IntersectionDetail detail = Intersection::fillDetail(hit, r);
+        IntersectionDetail detail = Intersection::fillDetail(hit, r, isections);
 
         return shadeHit(w, detail, countdown);
     }

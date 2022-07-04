@@ -13,6 +13,7 @@
 
 struct Ray;
 struct Geo;
+struct Intersections;
 
 // An expanded detail version of Intersection, used for rendering.
 struct IntersectionDetail {
@@ -20,9 +21,12 @@ struct IntersectionDetail {
     Geo& object;
     Point point;
     Point overPoint;
+    Point underPoint;
     Vector eyev;
     Vector normalv;
     Vector reflectv;
+    double refractiveIdxIncoming;
+    double refractiveIdxOutgoing;
     bool isInternal;
 };
 
@@ -43,7 +47,7 @@ struct Intersection {
         return object == nullptr;
     }
 
-    static IntersectionDetail fillDetail(const Intersection& i, Ray r);
+    static IntersectionDetail fillDetail(const Intersection& i, Ray r, Intersections& sections);
 };
 
 // A collection of Intersection objects

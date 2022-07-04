@@ -40,6 +40,15 @@ struct Sphere : public Geo {
     Sphere(Sphere&) = default;
     Sphere(Sphere&&) = default;
 
+    static Sphere glassSphere() {
+        static Material glassMaterial;
+        glassMaterial.transparency = 1;
+        glassMaterial.refractiveIndex = 1.5;
+        static Sphere glassSphere(glassMaterial);
+
+        return glassSphere;
+    }
+
     explicit Sphere(Material mat) {
         material = mat;
     }
@@ -136,19 +145,40 @@ namespace Catch {
     };
 }
 
-inline IntersectionDetail Intersection::fillDetail(const Intersection& i, Ray r) {
+inline IntersectionDetail Intersection::fillDetail(const Intersection& i, Ray r, Intersections& isections) {
     Point hitPos = Ray::position(r, i.time);
     Vector hitNormal = i.object->normalAt(hitPos);
     Vector eyeDir = -r.direction;
-
     Vector reflectv = r.direction.reflect(hitNormal);
-
     Point bumpPoint = Point(hitPos + hitNormal * 0.001);
+    Point underPoint = Point(hitPos - hitNormal * 0.001);
+
+    double n1 = 1;
+    double n2 = 1;
+
+    std::vector<Geo*> containers;
+    for (size_t idx = 0; idx < isections.size(); idx++) {
+        if (isections[idx] == i)
+            if (!containers.empty())
+                n1 = containers.back()->material.refractiveIndex;
+
+        auto pos = std::find(containers.begin(), containers.end(), isections[idx].object);
+        if (pos != containers.end()) {
+            containers.erase(pos);
+        } else
+            containers.emplace_back(isections[idx].object);
+
+        if (isections[idx] == i) {
+            if (!containers.empty())
+                n2 = containers.back()->material.refractiveIndex;
+            break;
+        }
+    }
 
     bool inside = (hitNormal * eyeDir) < 0;
     if (inside) hitNormal = -hitNormal;
 
-    return { i.time, *i.object, hitPos, bumpPoint, eyeDir, hitNormal, reflectv, inside };
+    return { i.time, *i.object, hitPos, bumpPoint, underPoint, eyeDir, hitNormal, reflectv, n1, n2, inside };
 }
 
 namespace Pattern {
