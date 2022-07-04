@@ -144,7 +144,7 @@ namespace Light {
         Intersections isections = w.intersect(r);
         Intersection hit = isections.hit();
 
-        if (hit.time == 0 && hit.object == nullptr) return { 0, 0, 0 };
+        if (hit.time == 0 && hit.object == nullptr) return Color::black();
 
         IntersectionDetail detail = Intersection::fillDetail(hit, r, isections);
 

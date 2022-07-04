@@ -31,31 +31,31 @@ SCENARIO("Constructing and inspecting a 4x4 matrix") {
         }};
 
         THEN("M[0,0] = 1") {
-            REQUIRE(M[0][0] == 1);
+            REQUIRE(M.at(0, 0) == 1);
         }
 
         AND_THEN("M[0,3] = 4") {
-            REQUIRE(M[0][3] == 4);
+            REQUIRE(M.at(0, 3) == 4);
         }
 
         AND_THEN("M[1,0] = 5.5") {
-            REQUIRE(safeCompare(M[1][0], 5.5));
+            REQUIRE(safeCompare(M.at(1, 0), 5.5));
         }
 
         AND_THEN("M[1,2] = 7.5") {
-            REQUIRE(safeCompare(M[1][2], 7.5));
+            REQUIRE(safeCompare(M.at(1, 2), 7.5));
         }
 
         AND_THEN("M[2,2] = 11") {
-            REQUIRE(M[2][2] == 11);
+            REQUIRE(M.at(2, 2) == 11);
         }
 
         AND_THEN("M[3,0] = 13.5") {
-            REQUIRE(safeCompare(M[3][0], 13.5));
+            REQUIRE(safeCompare(M.at(3, 0), 13.5));
         }
 
         AND_THEN("M[3,2] = 15.5") {
-            REQUIRE(safeCompare(M[3][2], 15.5));
+            REQUIRE(safeCompare(M.at(3, 2), 15.5));
         }
     }
 }
@@ -72,19 +72,19 @@ SCENARIO("A 2x2 matrix ought to be representable") {
         }};
 
         THEN("M[0,0] = -3") {
-            REQUIRE(M[0][0] == -3);
+            REQUIRE(M.at(0, 0) == -3);
         }
 
         AND_THEN("M[0,1] = 5") {
-            REQUIRE(M[0][1] == 5);
+            REQUIRE(M.at(0, 1) == 5);
         }
 
         AND_THEN("M[1,0] = 1") {
-            REQUIRE(M[1][0] == 1);
+            REQUIRE(M.at(1, 0) == 1);
         }
 
         AND_THEN("M[1,1] = -2") {
-            REQUIRE(M[1][1] == -2);
+            REQUIRE(M.at(1, 1) == -2);
         }
     }
 }
@@ -103,15 +103,15 @@ SCENARIO("A 3x3 matrix ought to be representable") {
         }};
 
         THEN("M[0,0] = -3") {
-            REQUIRE(M[0][0] == -3);
+            REQUIRE(M.at(0, 0) == -3);
         }
 
         AND_THEN("M[1,1] = -2") {
-            REQUIRE(M[1][1] == -2);
+            REQUIRE(M.at(1, 1) == -2);
         }
 
         AND_THEN("M[2,2] = 1") {
-            REQUIRE(M[2][2] == 1);
+            REQUIRE(M.at(2, 2) == 1);
         }
     }
 }
