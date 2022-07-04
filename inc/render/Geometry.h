@@ -101,15 +101,15 @@ struct Plane : public Geo {
 
     Vector normalAt(const Point &p) override {
         (void) p;
-
         static const Vector normal = {0, 1, 0};
-        return normal;
+        return Vector(Matrix::inverse(transform) * normal);
     }
 
     Intersections intersect(Ray &r) override {
         if (std::abs(r.direction.y) < 0.001) return {};
+        Ray r2 = Ray::transform(r, Matrix::inverse(transform));
 
-        double t = -r.origin.y / r.direction.y;
+        double t = -r2.origin.y / r2.direction.y;
         return { { t, this } };
     }
 };

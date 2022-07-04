@@ -29,43 +29,24 @@ public:
         sAppName = "Bouncer Live View";
 
         raytraceThread = std::thread([&]() {
-
-            // Level Geometry
+            w = World::defaultWorld();
+            Plane wall;
+            wall.transform = Matrix::rotation_x(M_PI/2) * Matrix::translation(0, 0, -5);
+            wall.material.pattern = new Pattern::Checker(Color::white(), { 1, 0, 0 });
+            w.objects.emplace_back(&wall);
             Plane floor;
-            floor.material.reflectivity = 0.6;
-
-            // Objects
-
-            Sphere middle;
-            middle.transform = Matrix::translation(-0.5, 1, 0.5);
-            middle.material = Material();
-            middle.material.pattern = new Pattern::Stripe({ 1, 0, 1}, { 0, 0, 1 });
-            middle.material.pattern->transform = Matrix::scaling(0.33, 0.33, 0.33);
-            middle.material.diffuse = 0.7;
-            middle.material.specular = 0.3;
-            middle.material.reflectivity = 0.5;
-
-            Sphere right;
-            right.transform = Matrix::translation(1.5, 0.5, -0.5) * Matrix::scaling(0.5, 0.5, 0.5);
-            right.material = Material();
-            right.material.color = Color(0.5, 1, 0.1);
-            right.material.diffuse = 0.7;
-            right.material.specular = 0.3;
-            right.material.reflectivity = 0.5;
-
-            Sphere left;
-            left.transform = Matrix::translation(-1.5, 0.33, -0.75) * Matrix::scaling(0.33, 0.33, 0.33);
-            left.material = Material();
-            left.material.color = Color(1, 0.8, 1);
-            left.material.diffuse = 0.7;
-            left.material.specular = 0.3;
-            left.material.reflectivity = 0.5;
-
-            w.lightSource = PointLight { { -10, 10, -10 }, { 1, 1, 1 } };
-            w.objects = { &floor, &middle, &right, &left };
+            floor.transform = Matrix::translation(0, -1, 0);
+            floor.material.transparency = 0.5;
+            floor.material.refractiveIndex = 1.5;
+            w.objects.emplace_back(&floor);
+            Sphere ball;
+            ball.transform = Matrix::translation(0, -3.5, -0.5);
+            ball.material.color = { 1, 0, 0 };
+            ball.material.ambient = 0.5;
+            w.objects.emplace_back(&ball);
 
             Camera cam(framewidth, frameheight, M_PI / 3);
-            cam.transform = World::viewMatrix({ 0, 1.5, -5 }, { 0, 1, 0 }, { 0, 1, 0 });
+            cam.transform = World::viewMatrix({ 0, 0, -7 }, { 0, 0, 0 }, { 0, 1, 0 });
 
             frame = Framebuffer(cam.horizontalSize, cam.verticalSize);
 
@@ -119,7 +100,7 @@ int main(int argc, char* argv[]) {
     (void) argv;
 
     FramebufferView view;
-    if (view.Construct(framewidth, frameheight, 1, 1)) {
+    if (view.Construct(framewidth, frameheight, 1, 1, false, true)) {
         view.Start();
     }
 

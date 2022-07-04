@@ -225,6 +225,7 @@ SCENARIO("Shade hit with transparency") {
         AND_GIVEN("floor: plane() with transform: translation(0, -1, 0) and transparency: 0.5 and refractiveIndex: 1.5") {
             Plane floor;
             floor.transform = Matrix::translation(0, -1, 0);
+            floor.material.transparency = 0.5;
             floor.material.refractiveIndex = 1.5;
             AND_GIVEN("floor is added to w") {
                 w.objects.emplace_back(&floor);

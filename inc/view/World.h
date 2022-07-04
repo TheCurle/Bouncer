@@ -14,7 +14,6 @@
 #pragma once
 
 namespace Light {
-    Color shadeHit(const World &world, const IntersectionDetail &hit, int countdown);
     Color at(World w, Ray r, int countdown = 10);
 }
 
@@ -100,14 +99,14 @@ namespace Light {
         return color * details.object.material.reflectivity;
     }
 
-    inline Color refracted(World& w, IntersectionDetail details, int countdown) {
+    inline Color refracted(World w, IntersectionDetail details, int countdown) {
         if (details.object.material.transparency == 0) return Color::black();
         if (countdown < 1) return Color::black();
 
         // Check for Total Internal Reflection; derived from Snell's Law
         double ratio = details.refractiveIdxIncoming / details.refractiveIdxOutgoing;
         double cosi = details.eyev * details.normalv;
-        double sin2t = ratio*ratio * (1 - cosi*cosi);
+        double sin2t = (ratio*ratio) * (1 - (cosi*cosi));
 
         if(sin2t > 1)
             return Color::black();
@@ -117,9 +116,9 @@ namespace Light {
         Vector dir = details.normalv * (ratio * cosi - cost) - details.eyev * ratio;
 
         Ray refract { details.underPoint, dir };
-        Color col = Light::at(w, refract, countdown - 1) * details.object.material.transparency;
+        Color col = Light::at(std::move(w), refract, countdown - 1);
 
-        return col;
+        return col * details.object.material.transparency;
     }
 
     inline bool isInShadow(World& world, Point& point) {
@@ -138,7 +137,7 @@ namespace Light {
         Color rayTarget = lighting(hit.object.material, &hit.object, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
         Color reflectedRay = Light::reflected(world, hit, countdown);
         Color refractedRay = Light::refracted(world, hit, countdown);
-        return rayTarget + reflectedRay + refractedRay;
+        return refractedRay + rayTarget + reflectedRay;
     }
 
     inline Color at(World w, Ray r, int countdown) {
