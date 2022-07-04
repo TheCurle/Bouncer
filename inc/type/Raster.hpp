@@ -121,7 +121,7 @@ public:
     }
 
     void export_png(const std::string& fileName) {
-        uint32_t pixelBuf[width * height];
+        uint32_t* pixelBuf = new uint32_t[width * height];
         for (size_t i = 0; i < height; i++) {
             for (size_t j = 0; j < width; j++) {
                 Color col = at(j, i);

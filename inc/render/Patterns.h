@@ -36,7 +36,7 @@ namespace Pattern {
         }
 
         Color at(const Point &p) override {
-            return std::abs((int) p.x) % 2 == 0 ? a : b;
+            return (int) p.x % 2 == 0 ? a : b;
         }
     };
 
