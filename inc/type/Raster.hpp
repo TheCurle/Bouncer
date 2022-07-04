@@ -130,6 +130,8 @@ public:
         }
 
         stbi_write_png(fileName.c_str(), width, height, 4, pixelBuf, width * 4);
+
+        delete[] pixelBuf;
     }
 
     // Export the Framebuffer to a Portable PixMap formatted string, ready for writing to disk.

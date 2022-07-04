@@ -13,8 +13,8 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
-int framewidth = 300;
-int frameheight = 150;
+int framewidth = 1920;
+int frameheight = 1080;
 
 // Override base class with your custom functionality
 class FramebufferView : public olc::PixelGameEngine
@@ -29,21 +29,27 @@ public:
         sAppName = "Bouncer Live View";
 
         raytraceThread = std::thread([&]() {
-            w = World::defaultWorld();
+            w = World();
             Plane wall;
             wall.transform = Matrix::rotation_x(M_PI/2) * Matrix::translation(0, 0, -5);
             wall.material.pattern = new Pattern::Checker(Color::white(), { 1, 0, 0 });
+            wall.material.pattern->transform = Matrix::scaling(0.1, 0.1, 0.1);
             w.objects.emplace_back(&wall);
             Plane floor;
             floor.transform = Matrix::translation(0, -1, 0);
-            floor.material.transparency = 0.5;
-            floor.material.refractiveIndex = 1.5;
+            floor.material.reflectivity = 0.5;
             w.objects.emplace_back(&floor);
-            Sphere ball;
-            ball.transform = Matrix::translation(0, -3.5, -0.5);
-            ball.material.color = { 1, 0, 0 };
-            ball.material.ambient = 0.5;
+            Sphere ball = Sphere::glassSphere();
+            ball.material.refractiveIndex = 5;
+            Sphere air;
+            air.transform = Matrix::scaling(0.5, 0.5, 0.5);
+            air.material.transparency = 1;
+            air.material.refractiveIndex = 1;
+
             w.objects.emplace_back(&ball);
+            //w.objects.emplace_back(&air);
+
+            w.lightSource = PointLight { { -5, 10, -10 }, { 1, 1, 1 }};
 
             Camera cam(framewidth, frameheight, M_PI / 3);
             cam.transform = World::viewMatrix({ 0, 0, -7 }, { 0, 0, 0 }, { 0, 1, 0 });
