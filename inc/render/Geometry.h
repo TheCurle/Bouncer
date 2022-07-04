@@ -106,8 +106,8 @@ struct Plane : public Geo {
     }
 
     Intersections intersect(Ray &r) override {
-        if (std::abs(r.direction.y) < 0.001) return {};
         Ray r2 = Ray::transform(r, Matrix::inverse(transform));
+        if (std::abs(r2.direction.y) < 0.001) return {};
 
         double t = -r2.origin.y / r2.direction.y;
         return { { t, this } };
