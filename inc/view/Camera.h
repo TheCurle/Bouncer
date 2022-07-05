@@ -19,6 +19,7 @@ struct Camera {
     double pixelSize;
     double fieldOfView;
     Matrix transform;
+    Matrix inverseTransform;
 
     Camera(int hSize, int vSize, double fov) {
         horizontalSize = hSize;
@@ -40,6 +41,12 @@ struct Camera {
         pixelSize = (halfWidth * 2) / horizontalSize;
 
         transform = Matrix::identity();
+        inverseTransform = Matrix::identity();
+    }
+
+    void setTransform(const Matrix& mat) {
+        transform = mat;
+        inverseTransform = Matrix::fastInverse(mat);
     }
 
     [[nodiscard]] Ray rayForPixel(int x, int y) const {
@@ -49,8 +56,8 @@ struct Camera {
         double worldX = halfWidth - xOffset;
         double worldY = halfHeight - yOffset;
 
-        Point pixel = Point(Matrix::inverse(transform) * Point(worldX, worldY, -1));
-        Point origin = Point(Matrix::inverse(transform) * Point(0, 0, 0));
+        Point pixel = Point(inverseTransform * Point(worldX, worldY, -1));
+        Point origin = Point(inverseTransform * Point(0, 0, 0));
         Vector dir = Vector((pixel - origin).normalize());
 
         return Ray { origin, dir };

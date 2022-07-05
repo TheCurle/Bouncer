@@ -19,13 +19,19 @@ namespace Pattern {
         Color a;
         Color b;
         Matrix transform;
+        Matrix inverseTransform;
 
         // Default colors are black and white.
-        Pattern() : a(Color::white()), b(Color::black()), transform(Matrix::identity()) {}
+        Pattern() : a(Color::white()), b(Color::black()), transform(Matrix::identity()), inverseTransform(Matrix::identity()) {}
 
         virtual Color at(const Point& p) {
             (void) p;
             return a;
+        }
+
+        void setTransform(const Matrix& in) {
+            transform = in;
+            inverseTransform = Matrix::fastInverse(in);
         }
     };
 
