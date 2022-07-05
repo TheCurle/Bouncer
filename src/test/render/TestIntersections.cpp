@@ -193,7 +193,7 @@ SCENARIO("Under point is offset below the surface") {
         Ray r { { 0, 0, -5 }, { 0, 0, 1 } };
         AND_GIVEN("shape: glass_sphere() with transform: translation(0, 0, 1)") {
             Sphere shape = Sphere::glassSphere();
-            shape.transform = Matrix::translation(0, 0, 1);
+            shape.setMatrix(Matrix::translation(0, 0, 1));
             AND_GIVEN("i: intersection(5, shape)") {
                 Intersection i { 5, &shape };
                 AND_GIVEN("xs: intersections(i)") {

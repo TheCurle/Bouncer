@@ -97,7 +97,7 @@ SCENARIO("Stripe with an object transformation") {
     GIVEN("object: sphere()") {
         Sphere object;
         AND_GIVEN("object.transform: scaling(2, 2, 2)") {
-            object.transform = Matrix::scaling(2, 2, 2);
+            object.setMatrix(Matrix::scaling(2, 2, 2));
             AND_GIVEN("pattern: stripe_pattern(white, black)") {
                 Pattern::Stripe pattern(Color::white(), Color::black());
                 object.material.pattern = &pattern;
@@ -118,7 +118,7 @@ SCENARIO("Stripe with a pattern transformation") {
         AND_GIVEN("pattern: stripe_pattern(white, black)") {
             Pattern::Stripe pattern(Color::white(), Color::black());
             AND_GIVEN("pattern.transform: scaling(2, 2, 2)") {
-                pattern.transform = Matrix::scaling(2, 2, 2);
+                pattern.setTransform(Matrix::scaling(2, 2, 2));
                 object.material.pattern = &pattern;
                 WHEN("c: colorAt(point(1.5, 0, 0), object)") {
                     Color c = Pattern::colorAt({ 1.5, 0, 0 }, &(Geo&)object);

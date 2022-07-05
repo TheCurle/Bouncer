@@ -71,7 +71,7 @@ SCENARIO("Normal of a translated sphere") {
     GIVEN("s: sphere()") {
         Sphere s;
         AND_GIVEN("s.set_transform(translation(0, 1, 0))") {
-            s.transform = Matrix::translation(0, 1, 0);
+            s.setMatrix(Matrix::translation(0, 1, 0));
             WHEN("n: normal_at(s, point(0, 1.70711, -0.70711))") {
                 Vector n = s.normalAt({ 0, 1.70711, -0.70711 });
                 THEN("n = vector(0, 0.70711, -0.70711)") {
@@ -88,7 +88,7 @@ SCENARIO("Normal of a scaled and rotated sphere") {
         AND_GIVEN("m: scaling(1, 0.5, 1) * rotation_z(pi/5)") {
             Matrix m = Matrix::scaling(1, 0.5, 1) * Matrix::rotation_z(M_PI / 5);
             AND_GIVEN("s.set_transform(m)") {
-                s.transform = m;
+                s.setMatrix(m);
                 WHEN("n: normal_at(s, point(0, sqrt(2) / 2, -sqrt(2) / 2))") {
                     Vector n = s.normalAt({ 0, std::sqrt(2) / 2, -std::sqrt(2) / 2 });
                     THEN("n = vector(0, 0.97014, -0.24254)") {

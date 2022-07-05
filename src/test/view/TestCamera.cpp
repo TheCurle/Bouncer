@@ -104,7 +104,7 @@ SCENARIO("Casting a ray through a transformed camera") {
         Camera c(201, 101, M_PI / 2);
 
         WHEN("c.transform = rotation_y(pi / 4) * translation(0, -2, 5)") {
-            c.transform = Matrix::rotation_y(M_PI / 4) * Matrix::translation(0, -2, 5);
+            c.setTransform(Matrix::rotation_y(M_PI / 4) * Matrix::translation(0, -2, 5));
             AND_WHEN("r: ray_for_pixel(c, 100, 50)") {
                 Ray r = c.rayForPixel(100, 50);
 
@@ -132,7 +132,7 @@ SCENARIO("Rendering with a camera") {
                     AND_GIVEN("up: vector(0, 1, 0)") {
                         Vector up { 0, 1, 0 };
                         AND_GIVEN("c.transform: viewTransform(from, to, up)") {
-                            c.transform = World::viewMatrix(from, to, up);
+                            c.setTransform(World::viewMatrix(from, to, up));
                             WHEN("image: render(c, w)") {
                                 Framebuffer image(11, 11);
                                 w.render(c, image);

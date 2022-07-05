@@ -311,7 +311,7 @@ SCENARIO("The hit should offset the point, to avoid ray acne") {
         Ray r { { 0, 0, -5 }, { 0, 0, 1 } };
         AND_GIVEN("shape: sphere() with transform: translation(0, 0, 1)") {
             Sphere shape;
-            shape.transform = Matrix::translation(0, 0, 1);
+            shape.setMatrix(Matrix::translation(0, 0, 1));
             AND_GIVEN("i: intersection(5, shape)") {
                 Intersection i { 5, &shape };
                 WHEN("detail: fillDetail(i, r)") {
@@ -366,7 +366,7 @@ SCENARIO("Reflected color of a reflective surface") {
         AND_GIVEN("shape: a plane with material.reflectivity: 0.5 and transform: translation(0, -1, 0)") {
             Plane shape;
             shape.material.reflectivity = 0.5;
-            shape.transform = Matrix::translation(0, -1, 0);
+            shape.setMatrix(Matrix::translation(0, -1, 0));
             AND_GIVEN("shape is added to w") {
                 w.objects.emplace_back(&shape);
                 AND_GIVEN("r: ray( point(0, 0, -3), vector(0, -sqrt(2) / 2, sqrt(2) / 2) )") {
@@ -399,7 +399,7 @@ SCENARIO("Blended color of a reflective surface") {
         AND_GIVEN("shape: a plane with material.reflectivity: 0.5 and transform: translation(0, -1, 0)") {
             Plane shape;
             shape.material.reflectivity = 0.5;
-            shape.transform = Matrix::translation(0, -1, 0);
+            shape.setMatrix(Matrix::translation(0, -1, 0));
             AND_GIVEN("shape is added to w") {
                 w.objects.emplace_back(&shape);
                 AND_GIVEN("r: ray( point(0, 0, -3), vector(0, -sqrt(2) / 2, sqrt(2) / 2) )") {
