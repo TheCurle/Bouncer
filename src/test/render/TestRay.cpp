@@ -57,10 +57,12 @@ SCENARIO("A ray intersects a sphere at two points") {
             Sphere s;
 
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = s.intersect(r);
+                std::vector<Intersection> sect;
+                s.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
 
                 THEN("xs.size = 2") {
-                    REQUIRE(xs.size() == 2);
+                    REQUIRE(xs.size == 2);
                 }
 
                 AND_THEN("xs[0] = 4") {
@@ -81,10 +83,12 @@ SCENARIO("A ray intersects a sphere at a tangent") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = s.intersect(r);
+                std::vector<Intersection> sect;
+                s.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
 
                 THEN("xs.size = 2") {
-                    REQUIRE(xs.size() == 2);
+                    REQUIRE(xs.size == 2);
                 }
 
                 AND_THEN("xs[0] = 5") {
@@ -105,10 +109,12 @@ SCENARIO("A ray misses a sphere") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = s.intersect(r);
+                std::vector<Intersection> sect;
+                s.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
 
                 THEN("xs.count = 0") {
-                    REQUIRE(xs.size() == 0);
+                    REQUIRE(xs.size == 0);
                 }
             }
         }
@@ -121,10 +127,12 @@ SCENARIO("A ray originates inside a sphere") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = s.intersect(r);
+                std::vector<Intersection> sect;
+                s.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
 
                 THEN("xs.count = 2") {
-                    REQUIRE(xs.size() == 2);
+                    REQUIRE(xs.size == 2);
                 }
 
                 AND_THEN("xs[0] = -1") {
@@ -145,10 +153,12 @@ SCENARIO("A sphere is behind a ray") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = s.intersect(r);
+                std::vector<Intersection> sect;
+                s.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
 
                 THEN("xs.count = 2") {
-                    REQUIRE(xs.size() == 2);
+                    REQUIRE(xs.size == 2);
                 }
 
                 AND_THEN("xs[0] = -6") {

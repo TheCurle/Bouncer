@@ -39,7 +39,7 @@ SCENARIO("Aggregating intersections") {
                     Intersections xs {i1, i2};
 
                     THEN("xs.size = 2") {
-                        REQUIRE(xs.size() == 2);
+                        REQUIRE(xs.size == 2);
                     }
 
                     AND_THEN("xs[0].time = 1") {
@@ -61,10 +61,12 @@ SCENARIO("Intersect sets the object") {
         AND_GIVEN("s: sphere()") {
             Sphere s;
             WHEN("xs: intersect(s, r)") {
-                Intersections xs = s.intersect(r);
+                std::vector<Intersection> sect;
+                s.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
 
                 THEN("xs.size = 2") {
-                    REQUIRE(xs.size() == 2);
+                    REQUIRE(xs.size == 2);
                 }
 
                 AND_THEN("xs[0].object = s") {

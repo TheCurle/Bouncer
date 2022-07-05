@@ -42,9 +42,11 @@ SCENARIO("Intersecting parallel to the plane") {
         AND_GIVEN("r: ray( point(0, 10, 0), vector(0, 0, 1) )") {
             Ray r { { 0, 10, 0 }, { 0, 0, 1 } };
             WHEN("xs: intersect(p, r)") {
-                Intersections xs = p.intersect(r);
+                std::vector<Intersection> sect;
+                p.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
                 THEN("xs is empty") {
-                    REQUIRE(xs.size() == 0);
+                    REQUIRE(xs.size == 0);
                 }
             }
         }
@@ -57,9 +59,11 @@ SCENARIO("Intersecting coplanar to the plane") {
         AND_GIVEN("r: ray( point(0, 0, 0), vector(0, 0, 1) )") {
             Ray r { { 0, 0, 0 }, { 0, 0, 1 } };
             WHEN("xs: intersect(p, r)") {
-                Intersections xs = p.intersect(r);
+                std::vector<Intersection> sect;
+                p.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
                 THEN("xs is empty") {
-                    REQUIRE(xs.size() == 0);
+                    REQUIRE(xs.size == 0);
                 }
             }
         }
@@ -72,10 +76,12 @@ SCENARIO("A ray intersecting a plane from above") {
         AND_GIVEN("r: ray( point(0, 1, 0), vector(0, -1, 0) )") {
             Ray r { { 0, 1, 0 }, { 0, -1, 0 } };
             WHEN("xs: intersect(p, r)") {
-                Intersections xs = p.intersect(r);
+                std::vector<Intersection> sect;
+                p.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
 
                 THEN("xs.count = 1") {
-                    REQUIRE(xs.size() == 1);
+                    REQUIRE(xs.size == 1);
                 }
 
                 AND_THEN("xs[0].t = 1") {
@@ -96,10 +102,12 @@ SCENARIO("A ray intersecting a plane from below") {
         AND_GIVEN("r: ray( point(0, -1, 0), vector(0, 1, 0) )") {
             Ray r { { 0, -1, 0 }, { 0, 1, 0 } };
             WHEN("xs: intersect(p, r)") {
-                Intersections xs = p.intersect(r);
+                std::vector<Intersection> sect;
+                p.intersect(r, sect);
+                Intersections xs ( sect.begin(), sect.end() );
 
                 THEN("xs.count = 1") {
-                    REQUIRE(xs.size() == 1);
+                    REQUIRE(xs.size == 1);
                 }
 
                 AND_THEN("xs[0].t = 1") {

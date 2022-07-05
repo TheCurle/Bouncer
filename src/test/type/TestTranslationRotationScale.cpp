@@ -438,10 +438,12 @@ SCENARIO("Intersecting a scaled sphere with a ray") {
             WHEN("s.setTransform( scaling(2, 2, 2) )") {
                 s.transform = Matrix::scaling(2, 2, 2);
                 AND_WHEN("xs: intersect(s, r)") {
-                    Intersections xs = s.intersect(r);
+                    std::vector<Intersection> sect;
+                    s.intersect(r, sect);
+                    Intersections xs ( sect.begin(), sect.end() );
 
                     THEN("xs.size = 2") {
-                        REQUIRE(xs.size() == 2);
+                        REQUIRE(xs.size == 2);
                     }
 
                     AND_THEN("xs[0].t = 3") {
@@ -465,10 +467,12 @@ SCENARIO("Intersecting a translated sphere with a ray") {
             WHEN("s.setTransform( translation(5, 0, 0 )") {
                 s.transform = Matrix::translation(5, 0, 0);
                 AND_WHEN("xs: intersect(s, r)") {
-                    Intersections xs = s.intersect(r);
+                    std::vector<Intersection> sect;
+                    s.intersect(r, sect);
+                    Intersections xs ( sect.begin(), sect.end() );
 
                     THEN("xs.size = 0") {
-                        REQUIRE(xs.size() == 0);
+                        REQUIRE(xs.size == 0);
                     }
                 }
             }

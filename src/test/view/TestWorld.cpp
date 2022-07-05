@@ -68,7 +68,7 @@ SCENARIO("Intersecting a world with a ray") {
                 Intersections xs = w.intersect(r);
 
                 THEN("xs.count = 4") {
-                    REQUIRE(xs.size() == 4);
+                    REQUIRE(xs.size == 4);
                 }
 
                 AND_THEN("xs[0].t = 4") {
