@@ -130,7 +130,7 @@ struct Matrix {
             // If position lands on a column
             if ((size_t) size % in.size == col) continue;
             // If position lands on a row
-            if ((size_t) size >= (in.size * row) && (size_t) size <= (in.size * (row + 1))) continue;
+            if ((size_t) size >= (in.size * row) && (size_t) size < (in.size * (row + 1))) continue;
             // else add to the matrix
             out.data[outCounter++] = in.data[size];
         }
@@ -205,14 +205,14 @@ struct Matrix {
     }
 
     Matrix(const Matrix& matrix) : size(matrix.size), data(std::make_unique<double[]>(matrix.size * matrix.size)) {
-        std::copy(matrix.data.get(), matrix.data.get() + matrix.size, data.get());
+        std::copy(matrix.data.get(), matrix.data.get() + matrix.size * matrix.size, data.get());
     }
 
     Matrix& operator=(const Matrix& matrix) {
         size = matrix.size;
         data = std::make_unique<double[]>(matrix.size * matrix.size);
 
-        std::copy(matrix.data.get(), matrix.data.get() + matrix.size, data.get());
+        std::copy(matrix.data.get(), matrix.data.get() + matrix.size * matrix.size, data.get());
         return *this;
     }
 
