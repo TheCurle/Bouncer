@@ -14,6 +14,7 @@
 struct Geo {
     int id;
     Matrix transform;
+    Matrix inverseTransform;
     Material material;
 
     Geo() {
@@ -21,6 +22,7 @@ struct Geo {
         id = ids++;
 
         transform = Matrix::identity();
+        inverseTransform = Matrix::identity();
         material = Material();
     }
 
@@ -28,6 +30,11 @@ struct Geo {
         id = nid;
         transform = Matrix::identity();
         material = Material();
+    }
+
+    void setMatrix(const Matrix& mat) {
+        transform = mat;
+        inverseTransform = Matrix::inverse(mat);
     }
 
     virtual Vector normalAt(const Point& p) = 0;
@@ -59,7 +66,7 @@ struct Sphere : public Geo {
 
     Intersections intersect(Ray& r) override {
         // Transform the ray according to the object's properties
-        Ray r2 = Ray::transform(r, Matrix::inverse(transform));
+        Ray r2 = Ray::transform(r, inverseTransform);
 
         // First calculate the discriminant of the intersection;
         // we need to avoid entering an infinite loop if the ray doesn't intersect.
@@ -87,9 +94,9 @@ struct Sphere : public Geo {
     }
 
     Vector normalAt(const Point& p) override {
-        Point oP = Point(Matrix::inverse(transform) * p);
+        Point oP = Point(inverseTransform * p);
         Vector oN = oP - Point(0, 0, 0);
-        Vector wN = Vector(Matrix::transpose(Matrix::inverse(transform)) * oN);
+        Vector wN = Vector(Matrix::transpose(inverseTransform) * oN);
         wN.w = 0;
         return Vector(wN.normalize());
     }
@@ -102,11 +109,11 @@ struct Plane : public Geo {
     Vector normalAt(const Point &p) override {
         (void) p;
         static const Vector normal = {0, 1, 0};
-        return Vector(Matrix::inverse(transform) * normal);
+        return Vector(inverseTransform * normal);
     }
 
     Intersections intersect(Ray &r) override {
-        Ray r2 = Ray::transform(r, Matrix::inverse(transform));
+        Ray r2 = Ray::transform(r, inverseTransform);
         if (std::abs(r2.direction.y) < 0.001) return {};
 
         double t = -r2.origin.y / r2.direction.y;

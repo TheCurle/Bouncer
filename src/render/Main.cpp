@@ -13,8 +13,8 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
-int framewidth = 1920;
-int frameheight = 1080;
+int framewidth = 1280;
+int frameheight = 720;
 
 // Override base class with your custom functionality
 class FramebufferView : public olc::PixelGameEngine
@@ -31,18 +31,18 @@ public:
         raytraceThread = std::thread([&]() {
             w = World();
             Plane wall;
-            wall.transform = Matrix::rotation_x(M_PI/2) * Matrix::translation(0, 0, -5);
-            wall.material.pattern = new Pattern::Checker(Color::white(), { 1, 0, 0 });
-            wall.material.pattern->transform = Matrix::scaling(0.1, 0.1, 0.1);
+            wall.setMatrix(Matrix::rotation_x(M_PI/2) * Matrix::translation(0, 0, -5));
+            wall.material.pattern = new Pattern::Checker(Color::white(), Color::black());
+            wall.material.pattern->transform = Matrix::scaling(0.5, 0.5, 0.5);
             w.objects.emplace_back(&wall);
             Plane floor;
-            floor.transform = Matrix::translation(0, -1, 0);
+            floor.setMatrix(Matrix::translation(0, -1, 0));
             floor.material.reflectivity = 0.5;
             w.objects.emplace_back(&floor);
             Sphere ball = Sphere::glassSphere();
-            ball.material.refractiveIndex = 5;
+            ball.material.refractiveIndex = 0.5;
             Sphere air;
-            air.transform = Matrix::scaling(0.5, 0.5, 0.5);
+            air.setMatrix(Matrix::scaling(0.5, 0.5, 0.5));
             air.material.transparency = 1;
             air.material.refractiveIndex = 1;
 
