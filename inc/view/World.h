@@ -58,14 +58,13 @@ struct World {
     }
 
     Intersections intersect(Ray& r) {
-        Intersections xs;
+        std::vector<Intersection> isects;
 
         for (Geo*& object : objects) {
-            Intersections intersect = object->intersect(r);
-            xs.addAllHits(intersect);
+            object->intersect(r, isects);
         }
 
-        return xs.sort();
+        return { isects.begin(), isects.end() };
     }
 
     void render(const Camera& cam, Framebuffer& canvas) {

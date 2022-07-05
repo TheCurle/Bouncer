@@ -35,6 +35,11 @@ struct Intersection {
     double time;
     Geo* object;
 
+    Intersection() {
+        time = -1;
+        object = nullptr;
+    }
+
     Intersection(double time, Geo* object) : time(time), object(object) {}
 
     Intersection(const Intersection& other) = default;
@@ -52,21 +57,32 @@ struct Intersection {
 
 // A collection of Intersection objects
 struct Intersections {
-    std::vector<Intersection> isections;
+    size_t size;
+    std::unique_ptr<Intersection[]> isections;
 
-    Intersections(std::initializer_list<Intersection> init) : isections(init) {
+    template <class iter>
+    Intersections(const iter start, const iter end) {
+        size = std::distance(start, end);
+        isections = std::make_unique<Intersection[]>(size);
+        std::copy(start, end, isections.get());
+        sort();
+    }
+
+    Intersections(const std::initializer_list<Intersection>& init) {
+        size = init.size();
+        isections = std::make_unique<Intersection[]>(size);
+        std::copy(init.begin(), init.end(), isections.get());
         sort();
     }
 
     Intersections sort() {
-        std::sort(isections.begin(), isections.end(), [](const Intersection& a, const Intersection& b) {return a.time < b.time; });
+        std::sort(isections.get(), isections.get() + size, [](const Intersection& a, const Intersection& b) {return a.time < b.time; });
         return *this;
     }
 
     Intersections() = default;
-
-    [[nodiscard]] size_t size() const {
-        return isections.size();
+    Intersections(const Intersections& sections) : size(sections.size), isections(std::make_unique<Intersection[]>(sections.size)) {
+        std::copy(sections.isections.get(),sections.isections.get() + sections.size, isections.get());
     }
 
     Intersection operator[](size_t index) {
@@ -74,20 +90,13 @@ struct Intersections {
     }
 
     Intersection hit() {
-        for (const auto& i : isections) {
-            if (i.time >= 0) return i;
+        for (size_t i = 0; i < size; i++) {
+            if (isections[i].time >= 0) return isections[i];
         }
 
         return { 0, nullptr };
     }
 
-    void addHit(const Intersection& isection) {
-        isections.emplace_back(isection);
-    }
-
-    void addAllHits(const Intersections& other) {
-        isections.insert(isections.end(), other.isections.begin(), other.isections.end());
-    }
 };
 
 // The ray that gives Ray Tracing its' name

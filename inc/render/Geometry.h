@@ -39,7 +39,7 @@ struct Geo {
 
     virtual Vector normalAt(const Point& p) = 0;
 
-    virtual Intersections intersect(Ray& r) = 0;
+    virtual void intersect(Ray& r, std::vector<Intersection>& s) = 0;
 };
 
 struct Sphere : public Geo {
@@ -60,11 +60,12 @@ struct Sphere : public Geo {
         material = mat;
     }
 
-    explicit Sphere(Matrix trans) {
-        transform = std::move(trans);
+    explicit Sphere(const Matrix& trans) {
+        transform = trans;
+        inverseTransform = Matrix::fastInverse(trans);
     }
 
-    Intersections intersect(Ray& r) override {
+    void intersect(Ray& r, std::vector<Intersection>& s) override {
         // Transform the ray according to the object's properties
         Ray r2 = Ray::transform(r, inverseTransform);
 
@@ -82,7 +83,7 @@ struct Sphere : public Geo {
         // If the discriminant is negative, there is no intersection
 
         if (discriminant < 0) {
-            return {};
+            return;
         }
 
         // If the discriminant is 0 or positive, there is at least one intersection.
@@ -90,7 +91,8 @@ struct Sphere : public Geo {
         Intersection intersection1 = {(-b - std::sqrt(discriminant)) / (2 * a), this};
         Intersection intersection2 = {(-b + std::sqrt(discriminant)) / (2 * a), this};
 
-        return {intersection1, intersection2};
+        s.emplace_back(intersection1);
+        s.emplace_back(intersection2);
     }
 
     Vector normalAt(const Point& p) override {
@@ -112,12 +114,12 @@ struct Plane : public Geo {
         return Vector(inverseTransform * normal);
     }
 
-    Intersections intersect(Ray &r) override {
+    void intersect(Ray& r, std::vector<Intersection>& s) override {
         Ray r2 = Ray::transform(r, inverseTransform);
-        if (std::abs(r2.direction.y) < 0.001) return {};
+        if (std::abs(r2.direction.y) < 0.001) return;
 
         double t = -r2.origin.y / r2.direction.y;
-        return { { t, this } };
+        s.emplace_back(Intersection(t, this));
     }
 };
 
@@ -164,7 +166,7 @@ inline IntersectionDetail Intersection::fillDetail(const Intersection& i, Ray r,
     double n2 = 1;
 
     std::vector<Geo*> containers;
-    for (size_t idx = 0; idx < isections.size(); idx++) {
+    for (size_t idx = 0; idx < isections.size; idx++) {
         if (isections[idx] == i)
             if (!containers.empty())
                 n1 = containers.back()->material.refractiveIndex;
