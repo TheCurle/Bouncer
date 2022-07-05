@@ -18,7 +18,6 @@
 
 struct Matrix;
 Matrix operator/(Matrix thisMatrix, double dbl);
-extern Matrix identityMatrix;
 
 bool safeCompare(double a, double b);
 
@@ -153,6 +152,63 @@ struct Matrix {
         else
             return -minor;
     }
+
+    static void swapRows(const Matrix& in, int row1, int row2) {
+        for (size_t i = 0; i < in.size; ++i) {
+            double temp = in.data[row1 * in.size + i];
+            in.data[row1 * in.size + i] = in.data[row2 * in.size + i];
+            in.data[row2 * in.size + i] = temp;
+        }
+    }
+
+    static Matrix fastInverse(const Matrix& input_matrix ) {
+        int size = input_matrix.size;
+
+        Matrix ident = Matrix::identity();
+        for (int i = 0; i < size; i++) {
+            if (input_matrix.at(i, i) == 0) {
+                // swap nearest subsequent row s.t input_matrix[i][i] != 0 after swapping
+                for (int j = i + 1; j < size; j++) {
+                    if (input_matrix.at(j, i) != 0.0) {
+                        swapRows(input_matrix, i, j);
+                        break;
+                    }
+                    if (j == size - 1) {
+                        return ident;
+                    }
+                }
+            }
+            double scale = input_matrix.at(i, i);
+#pragma omp parallel for
+            for (int col = 0; col < size; col++) {
+                input_matrix.at(i, col) = input_matrix.at(i, col) / scale;
+                ident.at(i, col) = ident.at(i, col) / scale;
+            }
+            if (i < size - 1) {
+#pragma omp parallel for
+                for (int row = i + 1; row < size; row++) {
+                    double factor = input_matrix.at(row, i);
+                    for (int col = 0; col < size; col++) {
+                        input_matrix.at(row, col) -= factor * input_matrix.at(i, col);
+                        ident.at(row, col) -= factor * ident.at(i, col);
+                    }
+                }
+            }
+        }
+
+        for (int zeroing_col = size - 1; zeroing_col >= 1; zeroing_col--) {
+#pragma omp parallel for
+            for (int row = zeroing_col - 1; row >= 0; row--) {
+                double factor = input_matrix.at(row, zeroing_col);
+                for (int col = 0; col < size; col++) {
+                    input_matrix.at(row, col) -= factor * input_matrix.at(zeroing_col, col);
+                    ident.at(row, col) -= factor * ident.at(zeroing_col, col);
+                }
+            }
+        }
+        return ident;
+    }
+
 
     // Calculate the matrix that reverses the multiplication of the given matrix. Essentially "1/x" but for matrices.
     static Matrix inverse(Matrix in) {

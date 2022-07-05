@@ -34,7 +34,7 @@ struct Geo {
 
     void setMatrix(const Matrix& mat) {
         transform = mat;
-        inverseTransform = Matrix::inverse(mat);
+        inverseTransform = Matrix::fastInverse(mat);
     }
 
     virtual Vector normalAt(const Point& p) = 0;
@@ -190,8 +190,8 @@ inline IntersectionDetail Intersection::fillDetail(const Intersection& i, Ray r,
 
 namespace Pattern {
     inline Color colorAt(const Point& point, Geo* object) {
-        Point objectPoint = Point(Matrix::inverse(object->transform) * point);
-        Point patternPoint = Point(Matrix::inverse(object->material.pattern->transform) * objectPoint);
+        Point objectPoint = Point(object->inverseTransform * point);
+        Point patternPoint = Point(object->material.pattern->inverseTransform * objectPoint);
 
         return object->material.pattern->at(patternPoint);
     }
