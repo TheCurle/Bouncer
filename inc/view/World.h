@@ -82,7 +82,7 @@ struct World {
         auto endTime = std::chrono::system_clock::now();
         std::cout << "Timing data:" << std::endl <<
                 " Pixels rendered: " << cam.horizontalSize * cam.verticalSize << std::endl <<
-                " Average time per pixel: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() / (cam.horizontalSize * cam.verticalSize) << "us" << std::endl <<
+                " Average time per pixel: " << std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() / (cam.horizontalSize * cam.verticalSize) << "ns" << std::endl <<
                 " Total render time: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << "us (" << std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() << "s)" << std::endl;
     }
 };

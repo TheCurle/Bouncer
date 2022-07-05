@@ -33,7 +33,7 @@ public:
             Plane wall;
             wall.setMatrix(Matrix::rotation_x(M_PI/2) * Matrix::translation(0, 0, -5));
             wall.material.pattern = new Pattern::Checker(Color::white(), Color::black());
-            wall.material.pattern->transform = Matrix::scaling(0.5, 0.5, 0.5);
+            wall.material.pattern->setTransform(Matrix::scaling(0.5, 0.5, 0.5));
             w.objects.emplace_back(&wall);
             Plane floor;
             floor.setMatrix(Matrix::translation(0, -1, 0));
@@ -52,7 +52,7 @@ public:
             w.lightSource = PointLight { { -5, 10, -10 }, { 1, 1, 1 }};
 
             Camera cam(framewidth, frameheight, M_PI / 3);
-            cam.transform = World::viewMatrix({ 0, 0, -7 }, { 0, 0, 0 }, { 0, 1, 0 });
+            cam.setTransform(World::viewMatrix({ 0, 0, -7 }, { 0, 0, 0 }, { 0, 1, 0 }));
 
             frame = Framebuffer(cam.horizontalSize, cam.verticalSize);
 
