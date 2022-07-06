@@ -166,6 +166,7 @@ inline IntersectionDetail Intersection::fillDetail(const Intersection& i, Ray r,
     double n2 = 1;
 
     std::vector<Geo*> containers;
+    containers.reserve(isections.size);
     for (size_t idx = 0; idx < isections.size; idx++) {
         if (isections[idx] == i)
             if (!containers.empty())

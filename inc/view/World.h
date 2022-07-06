@@ -59,6 +59,7 @@ struct World {
 
     Intersections intersect(Ray& r) {
         std::vector<Intersection> isects;
+        isects.reserve(5);
 
         for (Geo*& object : objects) {
             object->intersect(r, isects);
@@ -74,7 +75,8 @@ struct World {
         for (int y = 0; y < cam.verticalSize -1; y++) {
             for (int x = 0; x < cam.horizontalSize -1; x++) {
                 Ray r = cam.rayForPixel(x, y);
-                canvas.set(x, y, Light::at(*this, r));
+                Color pix = Light::at(*this, r);
+                canvas.set(x, y, pix);
             }
         }
 

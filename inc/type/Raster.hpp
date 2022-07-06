@@ -99,96 +99,35 @@ public:
     // Value constructor.
     Framebuffer(size_t w, size_t h) : width(w), height(h) {
         // Assign the buffer array to a 2-dimensional array of black.
-        buffer.assign(w, std::vector<Color>(h, Black));
+        buffer = std::make_unique<uint32_t[]>(w * h);
+        memset(buffer.get(), 0, w * h);
     }
 
     // Get the Color of the specified pixel.
-    Color at(size_t x, size_t y) {
+    uint32_t at(size_t x, size_t y) {
         if (x >= width || y >= height)
-            return Black;
+            return 0;
 
-        return buffer[x][y];
+        return buffer[y * width + x];
     }
 
     // Set the Color of the specified pixel.
-    void set(size_t x, size_t y, Color col) {
+    void set(size_t x, size_t y, Color& col) {
         if (x >= width)
             return;
         if (y >= height)
             return;
 
-        buffer[x][y] = col;
+        buffer[y * width + x] = col.pack();
     }
 
     void export_png(const std::string& fileName) {
-        uint32_t* pixelBuf = new uint32_t[width * height];
-        for (size_t i = 0; i < height; i++) {
-            for (size_t j = 0; j < width; j++) {
-                Color col = at(j, i);
-                pixelBuf[i * width + j] = col.pack();
-            }
-        }
-
-        stbi_write_png(fileName.c_str(), width, height, 4, pixelBuf, width * 4);
-
-        delete[] pixelBuf;
+        stbi_write_png(fileName.c_str(), width, height, 4, buffer.get(), width * 4);
     }
-
-    // Export the Framebuffer to a Portable PixMap formatted string, ready for writing to disk.
-    std::string export_ppm() {
-        std::string ppm;
-        // PPM header. Version 3, width height, pixel limit.
-        ppm.append("P3\n");
-        ppm.append(std::to_string(width)).append(" ");
-        ppm.append(std::to_string(height)).append("\n");
-        ppm.append(std::to_string(export_pixel_limit)).append("\n");
-
-        for(size_t i = 0; i < height; i++) {
-            // Line length counter. Must never exceed 70.
-            size_t lineLength = 0;
-            for(size_t j = 0; j < width; j++) {
-                // Retrieve the pixel we want
-                Color col = at(j, i);
-
-                // For every color red, green, blue
-                for(size_t k = 0; k < 3; k++) {
-                    // Get the value
-                    std::string pixel(std::to_string(clamp((int) std::round(col.value(k) * export_pixel_limit))));
-                    lineLength += pixel.length() + 1;
-
-                    // Make sure we don't run over length
-                    if (lineLength >= 70) {
-                        // If we do, remove the last character (which is always a space)
-                        ppm = ppm.substr(0, ppm.size() - 1);
-                        // Put a newline before this string
-                        pixel = std::string("\n").append(pixel);
-                        // Reset the line counter
-                        lineLength = 0;
-                    }
-
-                    pixel.append(" ");
-                    ppm.append(pixel);
-                }
-            }
-
-            // Remove the trailing space.
-            ppm = ppm.substr(0, ppm.size() - 1);
-            // Move to the next line. Make sure the file always ends in newline, so no checks.
-            ppm.append("\n");
-        }
-        return ppm;
-    }   
-
 
 private:
     // Internal backing storage for the framebuffer's pixel grid.
-    std::vector<std::vector<Color>> buffer;
-
-    // The maximum value of an exported pixel (currently only used for PPM export)
-    size_t export_pixel_limit = 255;
-
-    // The default Black color.
-    Color Black = Color(0, 0, 0);
+    std::unique_ptr<uint32_t[]> buffer;
 };
 
 
