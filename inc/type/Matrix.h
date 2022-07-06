@@ -319,11 +319,9 @@ Matrix operator*(const Matrix& thisMatrix, const Matrix& otherMatrix) {
 
     for (size_t row = 0; row < thisMatrix.size; row++) {
         for (size_t column = 0; column < thisMatrix.size; column++) {
-            result.data[row * thisMatrix.size + column] =
-                    thisMatrix.at(row, 0) * otherMatrix.at(0, column) +
-                    thisMatrix.at(row, 1) * otherMatrix.at(1, column) +
-                    thisMatrix.at(row, 2) * otherMatrix.at(2, column) +
-                    thisMatrix.at(row, 3) * otherMatrix.at(3, column);
+            for(size_t idx = 0; idx < thisMatrix.size; idx++) {
+                result.at(row, idx) += thisMatrix.at(row, column) * otherMatrix.at(column, idx);
+            }
         }
     }
 
