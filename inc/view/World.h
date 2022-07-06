@@ -14,7 +14,7 @@
 #pragma once
 
 namespace Light {
-    Color at(World w, Ray r, int countdown = 10);
+    Color at(World& w, Ray r, int countdown = 10);
 }
 
 // A holder for objects and light data.
@@ -88,12 +88,29 @@ struct World {
 
 
 namespace Light {
+    inline double fresnelContribution(IntersectionDetail& detail) {
+        double cos = detail.eyev * detail.normalv;
+
+        if (detail.refractiveIdxIncoming > detail.refractiveIdxOutgoing) {
+            double ratio = detail.refractiveIdxIncoming / detail.refractiveIdxOutgoing;
+            double sin2t = ratio * ratio * ( 1 - cos * cos);
+            if (sin2t > 1) return 1;
+
+            double cost = std::sqrt(1 - sin2t);
+            cos = cost;
+        }
+
+        double r0 = std::pow((detail.refractiveIdxIncoming - detail.refractiveIdxOutgoing) / (detail.refractiveIdxIncoming + detail.refractiveIdxOutgoing), 2);
+        return std::pow(r0 + (1 - r0) * (1-cos), 5);
+
+    }
+
     inline Color reflected(World w, IntersectionDetail details, int countdown) {
         if (details.object.material.reflectivity == 0) return Color::black();
         if (countdown < 1) return Color::black();
 
         Ray reflectRay { details.overPoint, details.reflectv };
-        Color color = Light::at(std::move(w), reflectRay, countdown - 1);
+        Color color = Light::at(w, reflectRay, countdown - 1);
 
         return color * details.object.material.reflectivity;
     }
@@ -111,11 +128,11 @@ namespace Light {
             return Color::black();
 
         // Cast the refracted ray
-        double cost = std::sqrt(1 - sin2t);
+        double cost = std::sqrt((double) 1.0 - sin2t);
         Vector dir = details.normalv * (ratio * cosi - cost) - details.eyev * ratio;
 
         Ray refract { details.underPoint, dir };
-        Color col = Light::at(std::move(w), refract, countdown - 1);
+        Color col = Light::at(w, refract, countdown - 1);
 
         return col * details.object.material.transparency;
     }
@@ -136,14 +153,22 @@ namespace Light {
         Color rayTarget = lighting(hit.object.material, &hit.object, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
         Color reflectedRay = Light::reflected(world, hit, countdown);
         Color refractedRay = Light::refracted(world, hit, countdown);
-        return refractedRay + rayTarget + reflectedRay;
+
+        Material mat = hit.object.material;
+        if (mat.reflectivity > 0 && mat.transparency > 0) {
+            double reflectance = fresnelContribution(hit);
+            return rayTarget + (reflectedRay * reflectance) + (refractedRay * (1 - reflectance));
+        } else {
+            return refractedRay + rayTarget + reflectedRay;
+        }
+
     }
 
-    inline Color at(World w, Ray r, int countdown) {
+    inline Color at(World& w, Ray r, int countdown) {
         Intersections isections = w.intersect(r);
         Intersection hit = isections.hit();
 
-        if (hit.time == 0 && hit.object == nullptr) return Color::black();
+        if (hit.time == -1 && hit.object == nullptr) return Color::black();
 
         IntersectionDetail detail = Intersection::fillDetail(hit, r, isections);
 

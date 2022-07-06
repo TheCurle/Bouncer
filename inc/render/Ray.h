@@ -94,7 +94,7 @@ struct Intersections {
             if (isections[i].time >= 0) return isections[i];
         }
 
-        return { 0, nullptr };
+        return { -1, nullptr };
     }
 
 };
