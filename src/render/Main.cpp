@@ -29,16 +29,13 @@ public:
         sAppName = "Bouncer Live View";
 
         raytraceThread = std::thread([&]() {
-            w = World();
             Plane wall;
             wall.setMatrix(Matrix::rotation_x(M_PI/2) * Matrix::translation(0, 0, -5));
             wall.material.pattern = new Pattern::Checker(Color::white(), Color::black());
             wall.material.pattern->setTransform(Matrix::scaling(0.5, 0.5, 0.5));
-            w.objects.emplace_back(&wall);
             Plane floor;
             floor.setMatrix(Matrix::translation(0, -1, 0));
             floor.material.reflectivity = 0.5;
-            w.objects.emplace_back(&floor);
             Sphere ball = Sphere::glassSphere();
             ball.material.refractiveIndex = 0.5;
             Sphere air;
@@ -46,10 +43,10 @@ public:
             air.material.transparency = 1;
             air.material.refractiveIndex = 1;
 
-            w.objects.emplace_back(&ball);
-            //w.objects.emplace_back(&air);
-
-            w.lightSource = PointLight { { -5, 10, -10 }, { 1, 1, 1 }};
+            w = World(
+                    { &wall, &floor, &ball },
+                    { { -5, 10, -10 }, { 1, 1, 1 } }
+                    );
 
             Camera cam(framewidth, frameheight, M_PI / 3);
             cam.setTransform(World::viewMatrix({ 0, 0, -7 }, { 0, 0, 0 }, { 0, 1, 0 }));

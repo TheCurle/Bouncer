@@ -20,12 +20,15 @@ namespace Light {
 // A holder for objects and light data.
 // Effectively the "render scene".
 struct World {
-    std::vector<Geo*> objects;
+    std::unique_ptr<Geo*[]> objects;
+    size_t numObjs;
     PointLight lightSource;
 
     World() : lightSource(PointLight({ 0, 0, 0 }, { 0, 0, 0 })) {}
 
-    World(std::vector<Geo*> geo, const PointLight& light) : objects(std::move(geo)), lightSource(light) {}
+    World(std::initializer_list<Geo*> geo, const PointLight& light) : objects(std::make_unique<Geo*[]>(geo.size())), numObjs(geo.size()), lightSource(light) {
+        std::copy(geo.begin(), geo.end(), objects.get());
+    }
 
     static World defaultWorld() {
         return World(
@@ -61,8 +64,8 @@ struct World {
         std::vector<Intersection> isects;
         isects.reserve(5);
 
-        for (Geo*& object : objects) {
-            object->intersect(r, isects);
+        for (size_t i = 0; i < numObjs; i++) {
+            objects[i]->intersect(r, isects);
         }
 
         return { isects.begin(), isects.end() };
@@ -107,7 +110,7 @@ namespace Light {
 
     }
 
-    inline Color reflected(World w, IntersectionDetail details, int countdown) {
+    inline Color reflected(World& w, IntersectionDetail details, int countdown) {
         if (details.object.material.reflectivity == 0) return Color::black();
         if (countdown < 1) return Color::black();
 
@@ -117,7 +120,7 @@ namespace Light {
         return color * details.object.material.reflectivity;
     }
 
-    inline Color refracted(World w, IntersectionDetail details, int countdown) {
+    inline Color refracted(World& w, IntersectionDetail details, int countdown) {
         if (details.object.material.transparency == 0) return Color::black();
         if (countdown < 1) return Color::black();
 
