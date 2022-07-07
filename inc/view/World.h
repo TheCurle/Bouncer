@@ -14,7 +14,7 @@
 #pragma once
 
 namespace Light {
-    Color at(World& w, Ray r, int countdown = 10);
+    Color at(World& w, RT::Ray r, int countdown = 10);
 }
 
 // A holder for objects and light data.
@@ -60,8 +60,8 @@ struct World {
         return orientation * Matrix::translation(-start.x, -start.y, -start.z);
     }
 
-    Intersections intersect(Ray& r) {
-        std::vector<Intersection> isects;
+    RT::Intersections intersect(RT::Ray& r) {
+        std::vector<RT::Intersection> isects;
         isects.reserve(5);
 
         for (size_t i = 0; i < numObjs; i++) {
@@ -71,13 +71,13 @@ struct World {
         return { isects.begin(), isects.end() };
     }
 
-    void render(const Camera& cam, Framebuffer& canvas) {
+    void renderRT(const Camera& cam, Framebuffer& canvas, int fromX, int fromY, int toX, int toY) {
         auto startTime = std::chrono::system_clock::now();
 
-        #pragma omp parallel for default(none) shared(canvas, cam)
-        for (int y = 0; y < cam.verticalSize -1; y++) {
-            for (int x = 0; x < cam.horizontalSize -1; x++) {
-                Ray r = cam.rayForPixel(x, y);
+        #pragma omp parallel for default(none) shared(canvas, cam, fromX, fromY, toX, toY)
+        for (int y = fromY; y < toY; y++) {
+            for (int x = fromX; x < toX; x++) {
+                RT::Ray r = cam.rayForPixel(x, y);
                 Color pix = Light::at(*this, r);
                 canvas.set(x, y, pix);
             }
@@ -93,7 +93,7 @@ struct World {
 
 
 namespace Light {
-    inline double fresnelContribution(IntersectionDetail& detail) {
+    inline double fresnelContribution(RT::IntersectionDetail& detail) {
         double cos = detail.eyev * detail.normalv;
 
         if (detail.refractiveIdxIncoming > detail.refractiveIdxOutgoing) {
@@ -110,17 +110,17 @@ namespace Light {
 
     }
 
-    inline Color reflected(World& w, IntersectionDetail details, int countdown) {
+    inline Color reflected(World& w, RT::IntersectionDetail details, int countdown) {
         if (details.object.material.reflectivity == 0) return Color::black();
         if (countdown < 1) return Color::black();
 
-        Ray reflectRay { details.overPoint, details.reflectv };
+        RT::Ray reflectRay { details.overPoint, details.reflectv };
         Color color = Light::at(w, reflectRay, countdown - 1);
 
         return color * details.object.material.reflectivity;
     }
 
-    inline Color refracted(World& w, IntersectionDetail details, int countdown) {
+    inline Color refracted(World& w, RT::IntersectionDetail details, int countdown) {
         if (details.object.material.transparency == 0) return Color::black();
         if (countdown < 1) return Color::black();
 
@@ -136,7 +136,7 @@ namespace Light {
         double cost = std::sqrt((double) 1.0 - sin2t);
         Vector dir = details.normalv * (ratio * cosi - cost) - details.eyev * ratio;
 
-        Ray refract { details.underPoint, dir };
+        RT::Ray refract { details.underPoint, dir };
         Color col = Light::at(w, refract, countdown - 1);
 
         return col * details.object.material.transparency;
@@ -147,14 +147,14 @@ namespace Light {
         double distance = v.magnitude();
         Vector direction = Vector(v.normalize());
 
-        Ray r { point, direction };
-        Intersections sections = world.intersect(r);
+        RT::Ray r { point, direction };
+        RT::Intersections sections = world.intersect(r);
 
-        Intersection hit = sections.hit();
+        RT::Intersection hit = sections.hit();
         return (!hit.isEmpty() && hit.time < distance);
     }
 
-    inline Color shadeHit(World& world, IntersectionDetail& hit, int countdown) {
+    inline Color shadeHit(World& world, RT::IntersectionDetail& hit, int countdown) {
         Color rayTarget = lighting(hit.object.material, &hit.object, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
         Color reflectedRay = Light::reflected(world, hit, countdown);
         Color refractedRay = Light::refracted(world, hit, countdown);
@@ -169,13 +169,13 @@ namespace Light {
 
     }
 
-    inline Color at(World& w, Ray r, int countdown) {
-        Intersections isections = w.intersect(r);
-        Intersection hit = isections.hit();
+    inline Color at(World& w, RT::Ray r, int countdown) {
+        RT::Intersections isections = w.intersect(r);
+        RT::Intersection hit = isections.hit();
 
         if (hit.time == -1 && hit.object == nullptr) return Color::black();
 
-        IntersectionDetail detail = Intersection::fillDetail(hit, r, isections);
+        RT::IntersectionDetail detail = RT::Intersection::fillDetail(hit, r, isections);
 
         return shadeHit(w, detail, countdown);
     }

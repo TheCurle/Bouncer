@@ -49,7 +49,7 @@ struct Camera {
         inverseTransform = Matrix::fastInverse(mat);
     }
 
-    [[nodiscard]] Ray rayForPixel(int x, int y) const {
+    [[nodiscard]] RT::Ray rayForPixel(int x, int y) const {
         double xOffset = (x + 0.5) * pixelSize;
         double yOffset = (y + 0.5) * pixelSize;
 
@@ -60,6 +60,6 @@ struct Camera {
         Point origin = Point(inverseTransform * Point(0, 0, 0));
         Vector dir = Vector((pixel - origin).normalize());
 
-        return Ray { origin, dir };
+        return RT::Ray { origin, dir };
     }
 };

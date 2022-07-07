@@ -39,7 +39,7 @@ struct Geo {
 
     virtual Vector normalAt(const Point& p) = 0;
 
-    virtual void intersect(Ray& r, std::vector<Intersection>& s) = 0;
+    virtual void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) = 0;
 };
 
 struct Sphere : public Geo {
@@ -65,9 +65,9 @@ struct Sphere : public Geo {
         inverseTransform = Matrix::fastInverse(trans);
     }
 
-    void intersect(Ray& r, std::vector<Intersection>& s) override {
+    void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) override {
         // Transform the ray according to the object's properties
-        Ray r2 = Ray::transform(r, inverseTransform);
+        RT::Ray r2 = RT::Ray::transform(r, inverseTransform);
 
         // First calculate the discriminant of the intersection;
         // we need to avoid entering an infinite loop if the ray doesn't intersect.
@@ -88,8 +88,8 @@ struct Sphere : public Geo {
 
         // If the discriminant is 0 or positive, there is at least one intersection.
 
-        Intersection intersection1 = {(-b - std::sqrt(discriminant)) / (2 * a), this};
-        Intersection intersection2 = {(-b + std::sqrt(discriminant)) / (2 * a), this};
+        RT::Intersection intersection1 = {(-b - std::sqrt(discriminant)) / (2 * a), this};
+        RT::Intersection intersection2 = {(-b + std::sqrt(discriminant)) / (2 * a), this};
 
         s.emplace_back(intersection1);
         s.emplace_back(intersection2);
@@ -114,14 +114,14 @@ struct Plane : public Geo {
         return Vector(inverseTransform * normal);
     }
 
-    void intersect(Ray& r, std::vector<Intersection>& s) override {
-        Ray r2 = Ray::transform(r, inverseTransform);
+    void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) override {
+        RT::Ray r2 = RT::Ray::transform(r, inverseTransform);
         if (std::abs(r2.direction.y) < 0.001) return;
 
         double t = -r2.origin.y / r2.direction.y;
 
         // TODO: hotspot. 0.527s / 4.728s spent here; 11% of execution time.
-        s.emplace_back(Intersection(t, this));
+        s.emplace_back(RT::Intersection(t, this));
     }
 };
 
@@ -156,7 +156,7 @@ namespace Catch {
     };
 }
 
-inline IntersectionDetail Intersection::fillDetail(const Intersection& i, Ray r, Intersections& isections) {
+inline RT::IntersectionDetail RT::Intersection::fillDetail(const Intersection& i, Ray r, Intersections& isections) {
     Point hitPos = Ray::position(r, i.time);
     Vector hitNormal = i.object->normalAt(hitPos);
     Vector eyeDir = -r.direction;

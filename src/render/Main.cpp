@@ -53,7 +53,7 @@ public:
 
             frame = Framebuffer(cam.horizontalSize, cam.verticalSize);
 
-            w.render(cam, frame);
+            w.renderRT(cam, frame, 0, 0, framewidth, frameheight);
         });
     }
 
