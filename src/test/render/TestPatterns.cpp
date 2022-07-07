@@ -78,16 +78,16 @@ SCENARIO("A stripe pattern alternates in x") {
             REQUIRE(pattern.at({ 1.9, 0, 0 }) == Color::black());
         }
 
-        AND_THEN("stripe_at(pattern, point(-0.1, 0, 0)) = black") {
-            REQUIRE(pattern.at({ -0.1, 0, 0 }) == Color::black());
+        AND_THEN("stripe_at(pattern, point(-0.2, 0, 0)) = black") {
+            REQUIRE(pattern.at({ -0.2, 0, 0 }) == Color::black());
         }
 
-        AND_THEN("stripe_at(pattern, point(-1, 0, 0)) = black") {
-            REQUIRE(pattern.at({ -1, 0, 0 }) == Color::black());
+        AND_THEN("stripe_at(pattern, point(-1, 0, 0)) = white") {
+            REQUIRE(pattern.at({ -1, 0, 0 }) == Color::white());
         }
 
-        AND_THEN("stripe_at(pattern, point(-1.1, 0, 0)) = black") {
-            REQUIRE(pattern.at({ -1.1, 0, 0 }) == Color::black());
+        AND_THEN("stripe_at(pattern, point(-1.1, 0, 0)) = white") {
+            REQUIRE(pattern.at({ -1.1, 0, 0 }) == Color::white());
         }
 
     }

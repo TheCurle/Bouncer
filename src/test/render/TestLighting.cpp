@@ -380,8 +380,8 @@ SCENARIO("Reflected color of a reflective surface") {
                             AND_WHEN("color: reflected_color(w, detail)") {
                                 Color color = Light::reflected(w, detail, 2);
 
-                                THEN("color = color(-0.19032, 0.2379, 0.14274)") {
-                                    REQUIRE(color == Color(-0.19032, 0.2379, 0.14274));
+                                THEN("color = color(0.19049, 0.2381, 0.14286)") {
+                                    REQUIRE(color == Color(0.19049, 0.2381, 0.14286 ));
                                 }
                             }
                         }

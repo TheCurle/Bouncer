@@ -6,7 +6,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <string>
 #include <core/Raster.hpp>
-#include <fstream>
 
 SCENARIO("Creating a Framebuffer", "[Raster]") {
     GIVEN("f <- framebuffer(10, 20)") {
@@ -19,9 +18,9 @@ SCENARIO("Creating a Framebuffer", "[Raster]") {
             REQUIRE(f.height == 20);
         }
         AND_THEN("every pixel of f is color(0, 0, 0)") {
-            REQUIRE(f.at(0, 0) == Color::black().pack());
-            REQUIRE(f.at(2, 3) == Color::black().pack());
-            REQUIRE(f.at(9, 19) == Color::black().pack());
+            REQUIRE(f.at(0, 0) == 0);
+            REQUIRE(f.at(2, 3) == 0);
+            REQUIRE(f.at(9, 19) == 0);
         }
     }
 }
