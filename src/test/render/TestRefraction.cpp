@@ -207,8 +207,8 @@ SCENARIO("Refracted color under normal conditions") {
                                     IntersectionDetail detail = Intersection::fillDetail(xs[2], r, xs);
                                     AND_WHEN("c: refractedColor(w, detail, 5)") {
                                         Color c = Light::refracted(w, detail, 5);
-                                        THEN("c = color(0, 0.99888, 0.04725") {
-                                            REQUIRE(c == Color(0, 0.99888, 0.04725));
+                                        THEN("c = color(0, 0.99787, 0.04747)") {
+                                            REQUIRE(c == Color(0, 0.99787, 0.04747));
                                         }
                                     }
                                 }

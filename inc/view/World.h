@@ -126,7 +126,9 @@ namespace Light {
 
         // Check for Total Internal Reflection; derived from Snell's Law
         double ratio = details.refractiveIdxIncoming / details.refractiveIdxOutgoing;
+        // cos_i = cosine of the angle between the incoming ray and the surface.
         double cosi = details.eyev * details.normalv;
+        // sin^2_t =
         double sin2t = (ratio*ratio) * (1 - (cosi*cosi));
 
         if(sin2t > 1)

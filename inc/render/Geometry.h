@@ -192,6 +192,12 @@ inline RT::IntersectionDetail RT::Intersection::fillDetail(const Intersection& i
     Vector hitNormal = i.object->normalAt(hitPos);
     Vector eyeDir = -r.direction;
     Vector reflectv = r.direction.reflect(hitNormal);
+
+    bool inside = (hitNormal * eyeDir) < 0;
+    if (inside) {
+        hitNormal = -hitNormal;
+    }
+
     Point bumpPoint = Point(hitPos + hitNormal * 0.001);
     Point underPoint = Point(hitPos - hitNormal * 0.001);
 
@@ -218,8 +224,6 @@ inline RT::IntersectionDetail RT::Intersection::fillDetail(const Intersection& i
         }
     }
 
-    bool inside = (hitNormal * eyeDir) < 0;
-    if (inside) hitNormal = -hitNormal;
 
     return { i.time, *i.object, hitPos, bumpPoint, underPoint, eyeDir, hitNormal, reflectv, n1, n2, inside };
 }

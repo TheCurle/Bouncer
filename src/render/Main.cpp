@@ -37,7 +37,7 @@ public:
             floor.setMatrix(Matrix::translation(0, -1, 0));
             floor.material.reflectivity = 0.5;
             Sphere ball = Sphere::glassSphere();
-            ball.material.refractiveIndex = 0.5;
+            ball.setMatrix(Matrix::translation(0, 0, -2));
             Sphere air;
             air.setMatrix(Matrix::scaling(0.5, 0.5, 0.5));
             air.material.transparency = 1;
