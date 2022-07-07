@@ -119,6 +119,8 @@ struct Plane : public Geo {
         if (std::abs(r2.direction.y) < 0.001) return;
 
         double t = -r2.origin.y / r2.direction.y;
+
+        // TODO: hotspot. 0.527s / 4.728s spent here; 11% of execution time.
         s.emplace_back(Intersection(t, this));
     }
 };
