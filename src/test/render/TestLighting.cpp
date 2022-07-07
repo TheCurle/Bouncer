@@ -4,10 +4,12 @@
  ***************/
 
 #include <catch2/catch_test_macros.hpp>
-#include <type/Raster.hpp>
+#include <core/Raster.hpp>
 #define LIGHT_OPERATOR_OVERLOADS
 #include <render/Light.h>
-#include "view/World.h"
+#include <view/World.h>
+
+using namespace RT;
 
 SCENARIO("Lighting; Eye between the light and surface") {
     GIVEN("m: material()") {
@@ -269,18 +271,16 @@ SCENARIO("There is no shadow with an object behind the point") {
 
 SCENARIO("Shading a hit in the shadow of an object") {
     GIVEN("w: world()") {
-        World w;
         AND_GIVEN("w.light: point_light( point(0, 0, -10), color(1, 1, 1) )") {
-            w.lightSource = PointLight { { 0, 0, -10 }, { 1, 1, 1 } };
+            PointLight light { { 0, 0, -10 }, { 1, 1, 1 } };
             AND_GIVEN("s1: sphere()") {
                 Sphere s1;
                 AND_GIVEN("s1 is added to w") {
-                    w.objects.emplace_back(&s1);
                     AND_GIVEN("s2: sphere() with transform: translation(0, 0, 10)") {
                         Sphere s2;
                         s2.transform = Matrix::translation(0, 0, 10);
                         AND_GIVEN("s2 is added to w") {
-                            w.objects.emplace_back(&s2);
+                            World w { { &s1, &s2 }, light };
                             AND_GIVEN("r: ray( point(0, 0, 5), vector(0, 0, 1) )") {
                                 Ray r { { 0, 0, 5 }, { 0, 0, 1 } };
                                 AND_GIVEN("i: intersection(4, s2)") {
@@ -368,7 +368,7 @@ SCENARIO("Reflected color of a reflective surface") {
             shape.material.reflectivity = 0.5;
             shape.setMatrix(Matrix::translation(0, -1, 0));
             AND_GIVEN("shape is added to w") {
-                w.objects.emplace_back(&shape);
+                w.addObjects({ &shape });
                 AND_GIVEN("r: ray( point(0, 0, -3), vector(0, -sqrt(2) / 2, sqrt(2) / 2) )") {
                     Ray r {{0, 0,                 -3},
                            {0, -std::sqrt(2) / 2, std::sqrt(2) / 2}};
@@ -401,7 +401,7 @@ SCENARIO("Blended color of a reflective surface") {
             shape.material.reflectivity = 0.5;
             shape.setMatrix(Matrix::translation(0, -1, 0));
             AND_GIVEN("shape is added to w") {
-                w.objects.emplace_back(&shape);
+                w.addObjects({ &shape });
                 AND_GIVEN("r: ray( point(0, 0, -3), vector(0, -sqrt(2) / 2, sqrt(2) / 2) )") {
                     Ray r {{0, 0,                 -3},
                            {0, -std::sqrt(2) / 2, std::sqrt(2) / 2}};
@@ -439,9 +439,8 @@ SCENARIO("Infinitely recursive reflections") {
                     upper.material.reflectivity = 1;
                     upper.transform = Matrix::translation(0, 1, 0);
                     AND_GIVEN("upper is added to w") {
-                        w.objects.emplace_back(&upper);
                         AND_GIVEN("lower is added to w") {
-                            w.objects.emplace_back(&lower);
+                            w.addObjects({ &lower, &upper });
                             AND_GIVEN("r: ray( point(0, 0, 0), vector(0, 1, 0) )") {
                                 Ray r { { 0, 0, 0 }, { 0, 1, 0 } };
 
@@ -465,7 +464,7 @@ SCENARIO("Reflections at maximum depth") {
             shape.material.reflectivity = 0.5;
             shape.transform = Matrix::translation(0, -1, 0);
             AND_GIVEN("shape is added to w") {
-                w.objects.emplace_back(&shape);
+                w.addObjects({ &shape });
                 AND_GIVEN("r: ray( point(0, 0, -3), vector(0, -sqrt(2) / 2, sqrt(2) / 2) )") {
                     Ray r {{0, 0,                 -3},
                            {0, -std::sqrt(2) / 2, std::sqrt(2) / 2}};

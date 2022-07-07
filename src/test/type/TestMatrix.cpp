@@ -5,7 +5,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #define MATRIX_OPERATOR_OVERLOADS
-#include <type/Matrix.h>
+#include <core/Matrix.h>
 #include <iostream>
 
 // The tolerance for comparisons.

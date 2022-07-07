@@ -4,8 +4,8 @@
  ***************/
 
 #include <catch2/catch_test_macros.hpp>
-#include "render/Geometry.h"
-#include "render/Patterns.h"
+#include <render/Geometry.h>
+#include <render/Patterns.h>
 
 SCENARIO("Creating a stripe pattern") {
     GIVEN("pattern: stripe_pattern(white, black)") {

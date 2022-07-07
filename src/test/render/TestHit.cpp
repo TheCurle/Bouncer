@@ -5,7 +5,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <render/Ray.h>
-#include "render/Geometry.h"
+#include <render/Geometry.h>
+
+using namespace RT;
 
 SCENARIO("Hit when all intersections have positive t") {
     GIVEN("s: sphere()") {

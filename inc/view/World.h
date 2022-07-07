@@ -30,6 +30,15 @@ struct World {
         std::copy(geo.begin(), geo.end(), objects.get());
     }
 
+    void addObjects(std::initializer_list<Geo*> init) {
+        auto geos = std::make_unique<Geo*[]>(numObjs + init.size());
+        std::copy(objects.get(), objects.get() + numObjs, geos.get());
+        std::copy(init.begin(), init.end(), geos.get() + numObjs);
+        numObjs += init.size();
+        objects.release();
+        objects = std::move(geos);
+    }
+
     static World defaultWorld() {
         return World(
                 {

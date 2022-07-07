@@ -4,9 +4,11 @@
  ***************/
 
 #include <catch2/catch_test_macros.hpp>
-#include <type/Matrix.h>
+#include <core/Matrix.h>
 #include <render/Ray.h>
-#include "render/Geometry.h"
+#include <render/Geometry.h>
+
+using namespace RT;
 
 SCENARIO("The normal of a plane is constant everywhere") {
     GIVEN("p: plane()") {

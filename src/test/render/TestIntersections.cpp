@@ -11,6 +11,8 @@
 
 #include <render/Ray.h>
 
+using namespace RT;
+
 SCENARIO("An intersection encapsulates t and object") {
     GIVEN("s: sphere()") {
         Sphere s;

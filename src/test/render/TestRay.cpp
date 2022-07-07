@@ -5,8 +5,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <render/Ray.h>
-#include "render/Geometry.h"
+#include <render/Geometry.h>
 
+using namespace RT;
 
 SCENARIO("Creating and querying a ray") {
     GIVEN("origin: point(1, 2, 3)"){

@@ -5,8 +5,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <render/Light.h>
-#include "render/Geometry.h"
-#include "view/World.h"
+#include <render/Geometry.h>
+#include <view/World.h>
+
+using namespace RT;
 
 SCENARIO("Finding n1 and n2 at various intersections") {
     GIVEN("a: glass_sphere() with transform: scaling(2, 2, 2) and material.refractiveIndex: 1.5") {
@@ -228,14 +230,13 @@ SCENARIO("Shade hit with transparency") {
             floor.material.transparency = 0.5;
             floor.material.refractiveIndex = 1.5;
             AND_GIVEN("floor is added to w") {
-                w.objects.emplace_back(&floor);
                 AND_GIVEN("ball: sphere() with color: (1, 0, 0) and ambient: 0.5 and transform: translation(0, -3.5, -0.5)") {
                     Sphere ball;
                     ball.transform = Matrix::translation(0, -3.5, -0.5);
                     ball.material.color = { 1, 0, 0 };
                     ball.material.ambient = 0.5;
                     AND_GIVEN("ball is added to w") {
-                        w.objects.emplace_back(&ball);
+                        w.addObjects( { &floor, &ball } );
                         AND_GIVEN("r: ray( point(0, 0, -3), vector(0, -sqrt(2)/2, sqrt(2)/2) )") {
                             Ray r { { 0, 0, -3 }, { 0, -std::sqrt(2) / 2, std::sqrt(2) / 2 } };
                             AND_GIVEN("xs: intersections(sqrt(2):floor)") {

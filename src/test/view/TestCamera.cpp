@@ -6,7 +6,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include <render/Light.h>
 #include <view/World.h>
-#include "view/Camera.h"
+#include <view/Camera.h>
+
+using namespace RT;
 
 static bool roundCompare(double a, double b) {
     return std::abs( (std::round(a * 100) / 100) - b) < 0.01;
@@ -132,13 +134,13 @@ SCENARIO("Rendering with a camera") {
                     AND_GIVEN("up: vector(0, 1, 0)") {
                         Vector up { 0, 1, 0 };
                         AND_GIVEN("c.transform: viewTransform(from, to, up)") {
-                            c.setTransform(World::viewMatrix(from, to, up));
+                            c.setTransform(Camera::viewMatrix(from, to, up));
                             WHEN("image: render(c, w)") {
                                 Framebuffer image(11, 11);
-                                w.render(c, image);
+                                w.renderRT(c, image, 0, 0, 11, 11);
 
                                 THEN("pixel_at(image, 5, 5) = color(0.38066, 0.47583, 0.2855)") {
-                                    REQUIRE(image.at(5, 5) == Color(0.38066, 0.47583, 0.2855));
+                                    REQUIRE(image.at(5, 5) == Color(0.38066, 0.47583, 0.2855).pack());
                                 }
                             }
                         }

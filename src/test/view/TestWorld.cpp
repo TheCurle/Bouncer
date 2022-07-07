@@ -7,12 +7,14 @@
 #include <render/Light.h>
 #include <view/World.h>
 
+using namespace RT;
+
 SCENARIO("Creating a world") {
     GIVEN("w: world()") {
         World w;
 
         THEN("w contains no objects") {
-            REQUIRE(w.objects.empty());
+            REQUIRE(w.numObjs == 0);
         }
 
         AND_THEN("w contains no light source") {
@@ -131,7 +133,7 @@ SCENARIO("Transformation matrix for default orientation") {
             AND_GIVEN("up: vector(0, 1, 0)") {
                 Vector up { 0, 1, 0 };
                 WHEN("t: view_transformation(from, to, up)") {
-                    Matrix t = World::viewMatrix(from, to, up);
+                    Matrix t = Camera::viewMatrix(from, to, up);
 
                     THEN("t = identity_matrix") {
                         REQUIRE(t == Matrix::identity());
@@ -150,7 +152,7 @@ SCENARIO("Transformation matrix looking backwards") {
             AND_GIVEN("up: vector(0, 1, 0)") {
                 Vector up { 0, 1, 0 };
                 WHEN("t: view_transformation(from, to, up)") {
-                    Matrix t = World::viewMatrix(from, to, up);
+                    Matrix t = Camera::viewMatrix(from, to, up);
 
                     THEN("t = scaling(-1, 1, -1") {
                         REQUIRE(t == Matrix::scaling(-1, 1, -1));
@@ -169,7 +171,7 @@ SCENARIO("View transformation moves the world") {
             AND_GIVEN("up: vector(0, 1, 0)") {
                 Vector up { 0, 1, 0 };
                 WHEN("t: view_transformation(from, to, up)") {
-                    Matrix t = World::viewMatrix(from, to, up);
+                    Matrix t = Camera::viewMatrix(from, to, up);
 
                     THEN("t = translation(0, 0, -8)") {
                         REQUIRE(t == Matrix::translation(0, 0, -8));

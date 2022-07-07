@@ -4,8 +4,8 @@
  ***************/
 
 #include <catch2/catch_test_macros.hpp>
-#include <type/Tuple.hpp>
-#include <type/Raster.hpp>
+#include <core/Tuple.hpp>
+#include <core/Raster.hpp>
 
 SCENARIO("A tuple with w = 1 is a point.", "[Tuple]") {
 
