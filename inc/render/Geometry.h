@@ -67,6 +67,7 @@ struct Sphere : public Geo {
 
     static Sphere glassSphere() {
         static Material glassMaterial;
+        glassMaterial.diffuse = 0;
         glassMaterial.transparency = 1;
         glassMaterial.refractiveIndex = 1.5;
         static Sphere glassSphere(glassMaterial);

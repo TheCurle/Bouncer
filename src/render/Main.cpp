@@ -39,12 +39,13 @@ public:
             Sphere ball = Sphere::glassSphere();
             ball.setMatrix(Matrix::translation(0, 0, -2));
             Sphere air;
-            air.setMatrix(Matrix::scaling(0.5, 0.5, 0.5));
+            air.setMatrix(Matrix::translation(0, 0, -2) * Matrix::scaling(0.5, 0.5, 0.5) );
             air.material.transparency = 1;
+            air.material.diffuse = 0;
             air.material.refractiveIndex = 1;
 
             w = World(
-                    { &wall, &floor, &ball },
+                    { &wall, &floor, &ball, &air },
                     { { -5, 10, -10 }, { 1, 1, 1 } }
                     );
 
