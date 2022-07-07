@@ -59,6 +59,18 @@ struct Material {
 // A holder for generic lighting calculations
 namespace Light {
 
+    /*
+     * To keep in line with the One Definition Rule, the following functions are defined in the World.h header file.
+     * This is because they require working with the World struct which has dependencies back to this file.
+     *
+     * double fresnelContribution(RT::IntersectionDetail& detail)
+     * Color reflected(World& w, RT::IntersectionDetail details, int countdown)
+     * Color refracted(World& w, RT::IntersectionDetail details, int countdown)
+     * bool isInShadow(World& world, Point& point)
+     * Color shadeHit(World& world, RT::IntersectionDetail& hit, int countdown)
+     * Color at(World& w, RT::Ray r, int countdown)
+     */
+
     // Phong Shading Lighting workhouse.
     inline Color lighting(Material m, Geo* object, PointLight light, const Point& position, const Vector& eyev, const Vector& normalv, bool inShadow) {
         Color materialColor = m.pattern != nullptr ? Pattern::colorAt(position, object) : m.color;

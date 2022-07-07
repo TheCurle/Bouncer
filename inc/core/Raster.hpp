@@ -58,6 +58,7 @@ public:
                     0;
     }
 
+    // Pack this struct into an RGBA int.
     uint32_t pack() {
         uint8_t red = clamp((int) std::round(x * 255));
         uint8_t green = clamp((int) std::round(y * 255));

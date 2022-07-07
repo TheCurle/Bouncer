@@ -22,15 +22,16 @@ Matrix operator/(Matrix thisMatrix, double dbl);
 bool safeCompare(double a, double b);
 
 /**
- * Represents a 2-dimensional matrix of arbitrary size.
+ * Represents an arbitrary-dimensional matrix of arbitrary size.
  *
- * Set the size during constructor OR with the method call, not both.
- * Setting the size twice is invalid and will throw.
+ * Size is set during construction or assignment.
+ * Copy assignment and move assignment are both valid.
  *
- * 0-width in either dimension is also invalid and will throw.
+ * Uses a single backing array to store its' data.
 */
 
 struct Matrix {
+    // The dimension of the matrix. Only square matrices can be represented this way.
     size_t size;
     std::unique_ptr<double[]> data;
 
@@ -104,11 +105,14 @@ struct Matrix {
         }};
     }
 
-    // Calculate the determinant of this matrix.
+    // Calculate the determinant of this matrix, via the Laplace Expansion.
+    // Used to check whether the matrix is invertible.
     static double determinant(Matrix in) {
+        // We can only directly check a 2x2 matrix.
         if (in.size == 2) {
             return ((in.at(0, 0) * in.at(1, 1)) - (in.at(0, 1) * in.at(1, 0)));
         } else {
+            // The Laplace Expansion provides a recursive algorithm for calculating the determinants of larger matrices.
             double total = 0;
             for (size_t i = 0; i < in.size; i++) {
                 total += in.at(0, i) * Matrix::cofactor(in, 0, i);
@@ -121,14 +125,11 @@ struct Matrix {
     static Matrix sub(const Matrix &in, size_t row, size_t col) {
         Matrix out(in.size - 1, in.size - 1);
 
-        //double at(int width, int height) {
-        //    return data[width * size + height];
-        //}
         size_t outCounter = 0;
         for (size_t size = 0; size < in.size * in.size; size++) {
-            // If position lands on a column
+            // If position lands on the passed column, skip
             if ((size_t) size % in.size == col) continue;
-            // If position lands on a row
+            // If position lands on the passed row, skip
             if ((size_t) size >= (in.size * row) && (size_t) size < (in.size * (row + 1))) continue;
             // else add to the matrix
             out.data[outCounter++] = in.data[size];
@@ -138,12 +139,14 @@ struct Matrix {
     }
 
     // Calculate the determinant of the submatrix with the given column and row removed.
+    // Part of the implementation of the Laplace Expansion for the determinant of arbitrary size matrices.
     static double minor(const Matrix &in, size_t row, size_t col) {
         Matrix subMatrix = Matrix::sub(in, row, col);
         return Matrix::determinant(subMatrix);
     }
 
     // Calculate the minor, invert positivity if row + col is odd.
+    // Part of the implementation of the Laplace Expansion for the determinant of arbitrary size matrices.
     static double cofactor(const Matrix &in, size_t row, size_t col) {
         double minor = Matrix::minor(in, row, col);
 
@@ -153,6 +156,8 @@ struct Matrix {
             return -minor;
     }
 
+    // A simple data swapping routine that operates on rows of a linear array.
+    // Operates in-place.
     static void swapRows(const Matrix& in, int row1, int row2) {
         for (size_t i = 0; i < in.size; ++i) {
             double temp = in.data[row1 * in.size + i];
@@ -161,6 +166,8 @@ struct Matrix {
         }
     }
 
+    // A fast, highly parallel function to calculate the inverse of a matrix.
+    // See inverse below for a more visual explanation of what is going on here.
     static Matrix fastInverse(const Matrix& input_matrix ) {
         int size = input_matrix.size;
 
@@ -213,8 +220,15 @@ struct Matrix {
     // Calculate the matrix that reverses the multiplication of the given matrix. Essentially "1/x" but for matrices.
     static Matrix inverse(Matrix in) {
         const double determinant = Matrix::determinant(in);
-
         Matrix cofactors(in.size, in.size);
+
+        // The algorithm boils down to:
+        // 1. Create a matrix filled with the cofactors of each position of the current matrix.
+        // 2. Divide each cofactor by the determinant of the matrix.
+        // 3. Transpose the matrix (replace each row with each column.
+
+        // This loop will do it all in one go; notice that the width and height is different in each access.
+        // This will cause problems if the determinant is 0 for whatever reason, though.
         for (size_t height = 0; height < in.size; height++) {
             for (size_t width = 0; width < in.size; width++) {
                 cofactors.data[width * in.size + height] = Matrix::cofactor(in, height, width) / determinant;
@@ -237,7 +251,6 @@ struct Matrix {
         return out;
     }
 
-    // No-args constructor. Set the size later.
     Matrix() = default;
     ~Matrix() = default;
 

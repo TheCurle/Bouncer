@@ -41,25 +41,9 @@ struct World {
         );
     }
 
-    static Matrix viewMatrix(const Point& start, const Point& end, Vector up) {
-        Vector forward = end - start;
-        forward = Vector(forward.normalize());
-
-        Vector left = forward.cross(Vector(up.normalize()));
-        Vector trueUp = left.cross(forward);
-
-        Matrix orientation {
-                {
-                    { left.x, left.y, left.z, 0 },
-                    { trueUp.x, trueUp.y, trueUp.z, 0 },
-                    { -forward.x, -forward.y, -forward.z, 0 },
-                    { 0, 0, 0, 1 }
-                }
-        };
-
-        return orientation * Matrix::translation(-start.x, -start.y, -start.z);
-    }
-
+    // Get a list of intersections that the given ray will have.
+    // Iterates every object in the world and checks whether the ray will intersect.
+    // TODO: this is a vicious hotspot, how can we remove the Vector from this?
     RT::Intersections intersect(RT::Ray& r) {
         std::vector<RT::Intersection> isects;
         isects.reserve(5);
@@ -71,6 +55,7 @@ struct World {
         return { isects.begin(), isects.end() };
     }
 
+    // Render this world using Ray Tracing, onto the given canvas.
     void renderRT(const Camera& cam, Framebuffer& canvas, int fromX, int fromY, int toX, int toY) {
         auto startTime = std::chrono::system_clock::now();
 
@@ -83,8 +68,9 @@ struct World {
             }
         }
 
+        // Some performance detail.
         auto endTime = std::chrono::system_clock::now();
-        std::cout << "Timing data:" << std::endl <<
+        std::cout << "RT Timing data:" << std::endl <<
                 " Pixels rendered: " << cam.horizontalSize * cam.verticalSize << std::endl <<
                 " Average time per pixel: " << std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() / (cam.horizontalSize * cam.verticalSize) << "ns" << std::endl <<
                 " Total render time: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << "us (" << std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count() << "s)" << std::endl;
@@ -92,7 +78,10 @@ struct World {
 };
 
 
+
 namespace Light {
+    // Using the Schlick approximation of the Fresnel effect.
+    // The returned double is the ratio between reflection and refraction in the final ray.
     inline double fresnelContribution(RT::IntersectionDetail& detail) {
         double cos = detail.eyev * detail.normalv;
 
@@ -110,6 +99,7 @@ namespace Light {
 
     }
 
+    // Generate and calculate the color of a reflection from the given point.
     inline Color reflected(World& w, RT::IntersectionDetail details, int countdown) {
         if (details.object.material.reflectivity == 0) return Color::black();
         if (countdown < 1) return Color::black();
@@ -120,6 +110,7 @@ namespace Light {
         return color * details.object.material.reflectivity;
     }
 
+    // Generate and calculate the color of a refraction from the given point.
     inline Color refracted(World& w, RT::IntersectionDetail details, int countdown) {
         if (details.object.material.transparency == 0) return Color::black();
         if (countdown < 1) return Color::black();
@@ -142,6 +133,7 @@ namespace Light {
         return col * details.object.material.transparency;
     }
 
+    // Trace a ray from the point to the nearest light source, and determine whether there is something blocking it.
     inline bool isInShadow(World& world, Point& point) {
         Vector v = world.lightSource.position - point;
         double distance = v.magnitude();
@@ -154,6 +146,7 @@ namespace Light {
         return (!hit.isEmpty() && hit.time < distance);
     }
 
+    // Calculate the final color of an interection by summing up the Phong lighting, the reflections, and refractions of a point.
     inline Color shadeHit(World& world, RT::IntersectionDetail& hit, int countdown) {
         Color rayTarget = lighting(hit.object.material, &hit.object, world.lightSource, hit.overPoint, hit.eyev, hit.normalv, Light::isInShadow(world, hit.overPoint));
         Color reflectedRay = Light::reflected(world, hit, countdown);
@@ -166,9 +159,9 @@ namespace Light {
         } else {
             return refractedRay + rayTarget + reflectedRay;
         }
-
     }
 
+    // Calculate the color at the intersection between the ray and the world.
     inline Color at(World& w, RT::Ray r, int countdown) {
         RT::Intersections isections = w.intersect(r);
         RT::Intersection hit = isections.hit();

@@ -17,7 +17,8 @@ namespace RT {
     struct Ray;
     struct Intersections;
 
-// An expanded detail version of Intersection, used for rendering.
+    // An expanded detail version of Intersection, used for rendering.
+    // Only constructed in Intersection::fillDetail.
     struct IntersectionDetail {
         double time;
         Geo &object;
@@ -32,7 +33,7 @@ namespace RT {
         bool isInternal;
     };
 
-// An individual ray-geometry intersection. Used for collision detection.
+    // An individual ray-geometry intersection. Used for collision detection.
     struct Intersection {
         double time;
         Geo* object;
@@ -54,10 +55,11 @@ namespace RT {
             return object == nullptr;
         }
 
+        // Due to the One Definition Rule, this function is defined in Geometry.h
         static IntersectionDetail fillDetail(const Intersection &i, Ray r, Intersections &sections);
     };
 
-// A collection of Intersection objects
+    // A collection of Intersection objects.
     struct Intersections {
         size_t size;
         std::unique_ptr<Intersection[]> isections;
@@ -77,6 +79,7 @@ namespace RT {
             sort();
         }
 
+        // Intersections are sorted to make determining the hit easier.
         Intersections sort() {
             std::sort(isections.get(), isections.get() + size,
                       [](const Intersection &a, const Intersection &b) { return a.time < b.time; });
@@ -94,6 +97,8 @@ namespace RT {
             return isections[index];
         }
 
+        // Return the lowest non-negative intersection in the list.
+        // This is made easier by the sorting on construction.
         Intersection hit() {
             for (size_t i = 0; i < size; i++) {
                 if (isections[i].time >= 0) return isections[i];
@@ -104,7 +109,8 @@ namespace RT {
 
     };
 
-// The ray that gives Ray Tracing its' name
+    // The ray that gives Ray Tracing its' name.
+    // Has an origin and a direction, and that's about it.
     struct Ray {
         Point origin;
         Vector direction;
@@ -122,5 +128,4 @@ namespace RT {
             return {transformedOrigin, transformedDir};
         }
     };
-
-};
+}

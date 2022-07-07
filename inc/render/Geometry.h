@@ -11,10 +11,20 @@
 
 #pragma once
 
+/**
+ * Represents a generic object that can be rendered.
+ * Objects are determined to be identical if they have identical transformations and materials.
+ *
+ * The collision and normal logic is abstract, to be implemented in subclasses.
+ */
 struct Geo {
+    // The integer ID of this object
     int id;
+    // Transformation of this object; determines how it is moved and rotated relative to the world origin.
     Matrix transform;
+    // Inverse transformation; determines how the world must be moved and rotated relative to the object.
     Matrix inverseTransform;
+    // Render material detail. Determines how it is rendered and the effect of various lighting calculations.
     Material material;
 
     Geo() {
@@ -37,11 +47,19 @@ struct Geo {
         inverseTransform = Matrix::fastInverse(mat);
     }
 
+    // Get the normal vector at the given point on the object.
     virtual Vector normalAt(const Point& p) = 0;
 
+    // For raytracing; append all intersections with the given ray to the given vector.
     virtual void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) = 0;
 };
 
+/**
+ * A sphere.
+ * By default, a unit sphere (of radius 1) centered on the origin (0, 0, 0).
+ *
+ * Apply transformations to move it.
+ */
 struct Sphere : public Geo {
     Sphere() = default;
     Sphere(Sphere&) = default;
@@ -78,15 +96,20 @@ struct Sphere : public Geo {
         double b = 2 * (r2.direction * delta);
         double c = (delta * delta) - 1;
 
+        // a, b and c have left us with a quadratic formula to solve.
+        // We either have 0, 1 or 2 solutions.
+        // Calculate the discriminant b^2 - 4ac to determine how many solutions there are.
         double discriminant = (b * b) - 4 * a * c;
 
         // If the discriminant is negative, there is no intersection
-
         if (discriminant < 0) {
             return;
         }
 
         // If the discriminant is 0 or positive, there is at least one intersection.
+        // We can now solve the quadratic (-b +/- sqrt(b^2 - 4ac)) / 2a to get our solutions.
+        // If the ray is tangent to the sphere, both will return the same value.
+        // This keeps the ordering of intersections.
 
         RT::Intersection intersection1 = {(-b - std::sqrt(discriminant)) / (2 * a), this};
         RT::Intersection intersection2 = {(-b + std::sqrt(discriminant)) / (2 * a), this};
@@ -95,25 +118,33 @@ struct Sphere : public Geo {
         s.emplace_back(intersection2);
     }
 
+    // The normal of a sphere is the opposite of the vector leading from the point to the origin.
+    // We subtract the point from the origin to get the vector, then transpose the inverse matrix to account for scaling and skewing of the sphere.
+    // Normalizing this vector will return the normal of the sphere at that point.
     Vector normalAt(const Point& p) override {
         Point oP = Point(inverseTransform * p);
         Vector oN = oP - Point(0, 0, 0);
         Vector wN = Vector(Matrix::transpose(inverseTransform) * oN);
-        wN.w = 0;
         return Vector(wN.normalize());
     }
 };
 
+/**
+ * A plane; infinitely flat, infinitely large.
+ */
 struct Plane : public Geo {
 
     Plane() = default;
 
+    // The normal of a plane is always upward.
+    // We can rotate and translate it according to the transformation, but this should not change.
     Vector normalAt(const Point &p) override {
         (void) p;
         static const Vector normal = {0, 1, 0};
         return Vector(inverseTransform * normal);
     }
 
+    // Intersecting the ray with a plane is simple; translate the ray, check whether it's parallel, and append the intersection.
     void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) override {
         RT::Ray r2 = RT::Ray::transform(r, inverseTransform);
         if (std::abs(r2.direction.y) < 0.001) return;
