@@ -5,8 +5,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <utility>
-#include <type/Matrix.h>
-#include "Light.h"
+#include <core/Matrix.h>
+#include <render/Light.h>
 
 #pragma once
 struct Geo;

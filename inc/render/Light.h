@@ -6,9 +6,9 @@
 #pragma once
 
 #include <catch2/catch_test_macros.hpp>
-#include <type/Matrix.h>
-#include "type/Raster.hpp"
-#include "Patterns.h"
+#include <core/Matrix.h>
+#include <core/Raster.hpp>
+#include <render/Patterns.h>
 
 struct World;
 

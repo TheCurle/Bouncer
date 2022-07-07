@@ -4,7 +4,7 @@
  ***************/
 
 #include <catch2/catch_test_macros.hpp>
-#include <type/Matrix.h>
+#include <core/Matrix.h>
 #include <list>
 #include <algorithm>
 #include <utility>

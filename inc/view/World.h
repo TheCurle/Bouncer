@@ -5,11 +5,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <utility>
-#include <type/Matrix.h>
+#include <core/Matrix.h>
 #include <render/Geometry.h>
 #include <render/Ray.h>
-#include "render/Light.h"
-#include "Camera.h"
+#include <render/Light.h>
+#include <view/Camera.h>
 
 #pragma once
 

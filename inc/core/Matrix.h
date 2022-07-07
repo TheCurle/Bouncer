@@ -12,7 +12,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <type/Tuple.hpp>
+#include <core/Tuple.hpp>
 
 #pragma once
 
@@ -248,7 +248,7 @@ struct Matrix {
         data = std::make_unique<double[]>(width * height);
     }
 
-    // Value constructor. Accepts any value type that can accept a vector of vector.
+    // Value constructor. Accepts any value core that can accept a vector of vector.
     // Example: {{ {0, 2}, {1, 0} }}
     explicit Matrix(std::vector<std::vector<double>> newData) {
         size = newData.size();

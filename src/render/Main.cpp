@@ -4,7 +4,7 @@
  ***************/
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <type/Raster.hpp>
+#include <core/Raster.hpp>
 #include <fstream>
 #define MATRIX_OPERATOR_OVERLOADS
 #define GEOMETRY_OPERATOR_OVERLOADS

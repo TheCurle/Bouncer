@@ -5,9 +5,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <utility>
-#include <type/Matrix.h>
-#include "Light.h"
-#include "Ray.h"
+#include <core/Matrix.h>
+#include <render/Light.h>
+#include <render/Ray.h>
 
 #pragma once
 

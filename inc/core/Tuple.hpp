@@ -39,7 +39,7 @@ struct TupleContainer {
 };
 
 /**
- * Represents a manipulable type.
+ * Represents a manipulable core.
  * Suitable for vectors, whether position or velocity.
  * 
  * Provides many operator overloads for utility.
