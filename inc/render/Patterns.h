@@ -58,10 +58,10 @@ namespace Pattern {
         }
 
         Color at(const Point &p) override {
-            return (p.x < 0 ? (int) p.x + 1 : (int) p.x +
-                        p.y < 0 ? (int) p.y + 1 : (int) p.y +
-                        p.z < 0 ? (int) p.z + 1 : (int) p.z)
-                                                             % 2 == 0 ? a : b;
+            return ((p.x < 0 ? (int) p.x + 1 : (int) p.x) +
+                    (p.y < 0 ? (int) p.y + 1 : (int) p.y) +
+                    (p.z < 0 ? (int) p.z + 1 : (int) p.z))
+                   % 2 == 0 ? a : b;
         }
     };
 

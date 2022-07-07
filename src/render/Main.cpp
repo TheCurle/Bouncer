@@ -49,7 +49,7 @@ public:
                     );
 
             Camera cam(framewidth, frameheight, M_PI / 3);
-            cam.setTransform(World::viewMatrix({ 0, 0, -7 }, { 0, 0, 0 }, { 0, 1, 0 }));
+            cam.setTransform(Camera::viewMatrix({ 0, 0, -7 }, { 0, 0, 0 }, { 0, 1, 0 }));
 
             frame = Framebuffer(cam.horizontalSize, cam.verticalSize);
 
