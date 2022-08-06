@@ -3,9 +3,10 @@
  *     BOUNCER *
  ***************/
 
+#define GEO_RT
 #include <catch2/catch_test_macros.hpp>
 #include <core/Matrix.h>
-#include <render/Ray.h>
+#include "render/RT/Ray.h"
 #include <render/Geometry.h>
 
 using namespace RT;

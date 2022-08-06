@@ -6,9 +6,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <utility>
 #include <core/Matrix.h>
-#include <render/Geometry.h>
-#include <render/Ray.h>
-#include <render/Light.h>
 
 #pragma once
 
@@ -46,21 +43,6 @@ struct Camera {
     void setTransform(const Matrix& mat) {
         transform = mat;
         inverseTransform = Matrix::fastInverse(mat);
-    }
-
-    // Create a an RT Ray that will render the given pixel on the screen.
-    [[nodiscard]] RT::Ray rayForPixel(int x, int y) const {
-        double xOffset = (x + 0.5) * pixelSize;
-        double yOffset = (y + 0.5) * pixelSize;
-
-        double worldX = halfWidth - xOffset;
-        double worldY = halfHeight - yOffset;
-
-        Point pixel = Point(inverseTransform * Point(worldX, worldY, -1));
-        Point origin = Point(inverseTransform * Point(0, 0, 0));
-        Vector dir = Vector((pixel - origin).normalize());
-
-        return RT::Ray { origin, dir };
     }
 
     // Generate a view matrix that will place and orient the camera appropriately.

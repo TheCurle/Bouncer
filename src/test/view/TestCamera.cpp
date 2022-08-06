@@ -3,10 +3,12 @@
  *     BOUNCER *
  ***************/
 
+#define GEO_RT
 #include <catch2/catch_test_macros.hpp>
 #include <render/Light.h>
 #include <view/World.h>
 #include <view/Camera.h>
+#include "render/RT/RTWorld.h"
 
 using namespace RT;
 
@@ -71,7 +73,7 @@ SCENARIO("Casting a ray through the camera") {
     GIVEN("c: camera(201, 101, pi / 2)") {
         Camera c(201, 101, M_PI / 2);
         WHEN("r: ray_for_pixel(c, 100, 50)") {
-            Ray r = c.rayForPixel(100, 50);
+            Ray r = RT::rayForPixel(c, 100, 50);
 
             THEN("r.origin = point(0, 0, 0)") {
                 REQUIRE(r.origin == Point(0, 0, 0));
@@ -88,7 +90,7 @@ SCENARIO("Casting a ray through the corner of the camera") {
     GIVEN("c: camera(201, 101, pi / 2)") {
         Camera c(201, 101, M_PI / 2);
         WHEN("r: ray_for_pixel(c, 0, 0)") {
-            Ray r = c.rayForPixel(0, 0);
+            Ray r = RT::rayForPixel(c, 0, 0);
 
             THEN("r.origin = point(0, 0, 0)") {
                 REQUIRE(r.origin == Point(0, 0, 0));
@@ -108,7 +110,7 @@ SCENARIO("Casting a ray through a transformed camera") {
         WHEN("c.transform = rotation_y(pi / 4) * translation(0, -2, 5)") {
             c.setTransform(Matrix::rotation_y(M_PI / 4) * Matrix::translation(0, -2, 5));
             AND_WHEN("r: ray_for_pixel(c, 100, 50)") {
-                Ray r = c.rayForPixel(100, 50);
+                Ray r = RT::rayForPixel(c, 100, 50);
 
                 THEN("r.origin = point(0, 2, -5)") {
                     REQUIRE(r.origin == Point(0, 2, -5));
@@ -137,7 +139,7 @@ SCENARIO("Rendering with a camera") {
                             c.setTransform(Camera::viewMatrix(from, to, up));
                             WHEN("image: render(c, w)") {
                                 Framebuffer image(11, 11);
-                                w.renderRT(c, image, 0, 0, 11, 11);
+                                RT::render(w, c, image, 0, 0, 11, 11);
 
                                 THEN("pixel_at(image, 5, 5) = color(0.38066, 0.47583, 0.2855)") {
                                     REQUIRE(image.at(5, 5) == Color(0.38066, 0.47583, 0.2855).pack());

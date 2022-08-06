@@ -3,11 +3,14 @@
  *     BOUNCER *
  ***************/
 
+#define GEO_RT
 #include <catch2/catch_test_macros.hpp>
 #include <core/Raster.hpp>
 #define LIGHT_OPERATOR_OVERLOADS
-#include <render/Light.h>
+#include <render/RT/RTLighting.h>
 #include <render/Geometry.h>
+
+using namespace RT;
 
 SCENARIO("The default material") {
     GIVEN("m: material()") {

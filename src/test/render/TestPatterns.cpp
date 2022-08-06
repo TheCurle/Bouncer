@@ -3,6 +3,7 @@
  *     BOUNCER *
  ***************/
 
+#define GEO_RT
 #include <catch2/catch_test_macros.hpp>
 #include <render/Geometry.h>
 #include <render/Patterns.h>

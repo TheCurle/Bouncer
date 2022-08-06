@@ -3,10 +3,13 @@
  *     BOUNCER *
  ***************/
 
+#define GEO_RT
 #include <catch2/catch_test_macros.hpp>
 #include <render/Light.h>
 #include <render/Geometry.h>
 #include <view/World.h>
+#include "render/RT/RTIntersection.h"
+#include "render/RT/RTLighting.h"
 
 using namespace RT;
 
@@ -35,7 +38,7 @@ SCENARIO("Finding n1 and n2 at various intersections") {
                                           {6,    &a}};
 
                         WHEN("detail: fillDetail(xs[0], r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(xs[0], r, xs);
+                            IntersectionDetail detail = RT::fillDetail(xs[0], r, xs);
                             THEN("detail.n1 = 1.0") {
                                 REQUIRE(detail.refractiveIdxIncoming == 1);
                             }
@@ -46,7 +49,7 @@ SCENARIO("Finding n1 and n2 at various intersections") {
                         }
 
                         WHEN("detail: fillDetail(xs[1], r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(xs[1], r, xs);
+                            IntersectionDetail detail = RT::fillDetail(xs[1], r, xs);
                             THEN("detail.n1 = 1.5") {
                                 REQUIRE(detail.refractiveIdxIncoming == 1.5);
                             }
@@ -57,7 +60,7 @@ SCENARIO("Finding n1 and n2 at various intersections") {
                         }
 
                         WHEN("detail: fillDetail(xs[2], r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(xs[2], r, xs);
+                            IntersectionDetail detail = RT::fillDetail(xs[2], r, xs);
                             THEN("detail.n1 = 2.0") {
                                 REQUIRE(detail.refractiveIdxIncoming == 2.0);
                             }
@@ -68,7 +71,7 @@ SCENARIO("Finding n1 and n2 at various intersections") {
                         }
 
                         WHEN("detail: fillDetail(xs[3], r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(xs[3], r, xs);
+                            IntersectionDetail detail = RT::fillDetail(xs[3], r, xs);
                             THEN("detail.n1 = 2.5") {
                                 REQUIRE(detail.refractiveIdxIncoming == 2.5);
                             }
@@ -79,7 +82,7 @@ SCENARIO("Finding n1 and n2 at various intersections") {
                         }
 
                         WHEN("detail: fillDetail(xs[4], r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(xs[4], r, xs);
+                            IntersectionDetail detail = RT::fillDetail(xs[4], r, xs);
                             THEN("detail.n1 = 2.5") {
                                 REQUIRE(detail.refractiveIdxIncoming == 2.5);
                             }
@@ -90,7 +93,7 @@ SCENARIO("Finding n1 and n2 at various intersections") {
                         }
 
                         WHEN("detail: fillDetail(xs[5], r)") {
-                            IntersectionDetail detail = Intersection::fillDetail(xs[5], r, xs);
+                            IntersectionDetail detail = RT::fillDetail(xs[5], r, xs);
                             THEN("detail.n1 = 1.5") {
                                 REQUIRE(detail.refractiveIdxIncoming == 1.5);
                             }
@@ -116,7 +119,7 @@ SCENARIO("Refracted color of an opaque surface") {
                 AND_GIVEN("xs: intersections(4:shape, 6:shape)") {
                     Intersections xs { { 4, shape }, { 6, shape } };
                     WHEN("detail: prepareDetail(i, r, xs)") {
-                        IntersectionDetail detail = Intersection::fillDetail(xs[0], r, xs);
+                        IntersectionDetail detail = RT::fillDetail(xs[0], r, xs);
                         AND_WHEN("c: refractedColor(w, detail, 5)") {
                             Color c = Light::refracted(w, detail, 5);
                             THEN("c = black") {
@@ -143,7 +146,7 @@ SCENARIO("Refracted color at maximum recursion") {
                     AND_GIVEN("xs: intersections(4:shape, 6:shape)") {
                         Intersections xs { { 4, shape }, { 6, shape } };
                         WHEN("detail: prepareDetail(i, r, xs)") {
-                            IntersectionDetail detail = Intersection::fillDetail(xs[0], r, xs);
+                            IntersectionDetail detail = RT::fillDetail(xs[0], r, xs);
                             AND_WHEN("c: refractedColor(w, detail, 0)") {
                                 Color c = Light::refracted(w, detail, 0);
                                 THEN("c = black") {
@@ -171,7 +174,7 @@ SCENARIO("Refracted color under total internal reflection") {
                     AND_GIVEN("xs: intersections(-sqrt(2)/2:shape, sqrt(2)/2:shape)") {
                         Intersections xs { { -std::sqrt(2)/2, shape }, { std::sqrt(2)/2, shape } };
                         WHEN("detail: prepareDetail(i, r, xs)") {
-                            IntersectionDetail detail = Intersection::fillDetail(xs[1], r, xs);
+                            IntersectionDetail detail = RT::fillDetail(xs[1], r, xs);
                             AND_WHEN("c: refractedColor(w, detail, 5)") {
                                 Color c = Light::refracted(w, detail, 5);
                                 THEN("c = black") {
@@ -204,7 +207,7 @@ SCENARIO("Refracted color under normal conditions") {
                             AND_GIVEN("xs: intersections(-0.9899:A -0.4899:B, 0.4899:B, 0.9899:A)") {
                                 Intersections xs { { -0.9899, A }, { -0.4899, B }, { 0.4899, B }, { 0.9899, A } };
                                 WHEN("detail: prepareDetail(i, r, xs)") {
-                                    IntersectionDetail detail = Intersection::fillDetail(xs[2], r, xs);
+                                    IntersectionDetail detail = RT::fillDetail(xs[2], r, xs);
                                     AND_WHEN("c: refractedColor(w, detail, 5)") {
                                         Color c = Light::refracted(w, detail, 5);
                                         THEN("c = color(0, 0.99787, 0.04747)") {
@@ -224,11 +227,11 @@ SCENARIO("Refracted color under normal conditions") {
 SCENARIO("Shade hit with transparency") {
     GIVEN("w: default_world()") {
         World w = World::defaultWorld();
-        AND_GIVEN("floor: plane() with transform: translation(0, -1, 0) and transparency: 0.5 and refractiveIndex: 1.5") {
+        AND_GIVEN("floor: plane() with transform: translation(0, -1, 0) and transparency: 0.5 and refractiveIndex: 1.0") {
             Plane floor;
             floor.transform = Matrix::translation(0, -1, 0);
             floor.material.transparency = 0.5;
-            floor.material.refractiveIndex = 1.5;
+            floor.material.refractiveIndex = 1.0;
             AND_GIVEN("floor is added to w") {
                 AND_GIVEN("ball: sphere() with color: (1, 0, 0) and ambient: 0.5 and transform: translation(0, -3.5, -0.5)") {
                     Sphere ball;
@@ -242,7 +245,7 @@ SCENARIO("Shade hit with transparency") {
                             AND_GIVEN("xs: intersections(sqrt(2):floor)") {
                                 Intersections xs { { std::sqrt(2), &floor } };
                                 WHEN("detail: prepareDetail(i, r, xs)") {
-                                    IntersectionDetail detail = Intersection::fillDetail(xs[0], r, xs);
+                                    IntersectionDetail detail = RT::fillDetail(xs[0], r, xs);
                                     AND_WHEN("c: refractedColor(w, detail, 5)") {
                                         Color c = Light::refracted(w, detail, 5);
                                         THEN("c = color(0.93642, 0.68642, 0.68642)") {

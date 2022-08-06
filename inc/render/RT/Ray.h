@@ -3,8 +3,9 @@
  *     BOUNCER *
  ***************/
 
-#include <catch2/catch_test_macros.hpp>
-#include <core/Matrix.h>
+#include "catch2/catch_test_macros.hpp"
+#include "core/Matrix.h"
+#include "view/Camera.h"
 #include <list>
 #include <algorithm>
 #include <utility>
@@ -54,9 +55,6 @@ namespace RT {
         [[nodiscard]] bool isEmpty() const {
             return object == nullptr;
         }
-
-        // Due to the One Definition Rule, this function is defined in Geometry.h
-        static IntersectionDetail fillDetail(const Intersection &i, Ray r, Intersections &sections);
     };
 
     // A collection of Intersection objects.
@@ -128,4 +126,19 @@ namespace RT {
             return {transformedOrigin, transformedDir};
         }
     };
+
+    // Create a an RT Ray that will render the given pixel on the screen.
+    inline RT::Ray rayForPixel(Camera c, int x, int y) {
+        double xOffset = (x + 0.5) * c.pixelSize;
+        double yOffset = (y + 0.5) * c.pixelSize;
+
+        double worldX = c.halfWidth - xOffset;
+        double worldY = c.halfHeight - yOffset;
+
+        Point pixel = Point(c.inverseTransform * Point(worldX, worldY, -1));
+        Point origin = Point(c.inverseTransform * Point(0, 0, 0));
+        Vector dir = Vector((pixel - origin).normalize());
+
+        return RT::Ray { origin, dir };
+    }
 }

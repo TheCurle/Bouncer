@@ -206,6 +206,10 @@ class Point : public Tuple {
         x = other.x; y = other.y; z = other.z; w = 1;
     }
 
+    Point(const Point& other) : Tuple((Tuple &) other) {
+        x = other.x; y = other.y; z = other.z; w = 1;
+    }
+
     Point& operator=(const Point& other) {
         x = other.x; y = other.y; z = other.z; w = 1;
         return *this;

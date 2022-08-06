@@ -5,11 +5,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#define GEO_RT
 #define GEOMETRY_OPERATOR_OVERLOADS
 #include <render/Geometry.h>
 #undef GEOMETRY_OPERATOR_OVERLOADS
 
-#include <render/Ray.h>
+#include "render/RT/Ray.h"
+#include "render/RT/RTIntersection.h"
 
 using namespace RT;
 
@@ -92,7 +94,7 @@ SCENARIO("Filling intersection detail") {
                 Intersection i { 4, &s };
                 WHEN("detail: prepare_computation(i, r)") {
                     Intersections xs { i };
-                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                    IntersectionDetail detail = RT::fillDetail(i, r, xs);
 
                     THEN("detail.time = i.time") {
                         REQUIRE(detail.time == i.time);
@@ -128,7 +130,7 @@ SCENARIO("Hit of an external intersection") {
                 Intersection i {4, &s};
                 WHEN("detail: prepare_computation(i, r)") {
                     Intersections xs { i };
-                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                    IntersectionDetail detail = RT::fillDetail(i, r, xs);
 
                     THEN("detail.inside = false") {
                         REQUIRE(detail.isInternal == false);
@@ -148,7 +150,7 @@ SCENARIO("Hit of an internal intersection") {
                 Intersection i {1, &s};
                 WHEN("detail: prepare_computation(i, r)") {
                     Intersections xs { i };
-                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                    IntersectionDetail detail = RT::fillDetail(i, r, xs);
 
                     THEN("detail.point = point(0, 0, 1)") {
                         REQUIRE(detail.point == Point(0, 0, 1));
@@ -180,7 +182,7 @@ SCENARIO("Reflecting a vector") {
                 Intersection i { std::sqrt(2), &shape };
                 WHEN("detail: fillDetail(i, r)") {
                     Intersections xs { i };
-                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                    IntersectionDetail detail = RT::fillDetail(i, r, xs);
                     THEN("detail.reflectv = vector(0, sqrt(2) / 2, sqrt(2) / 2)") {
                         REQUIRE(detail.reflectv == Vector(0, std::sqrt(2) / 2, std::sqrt(2) / 2));
                     }
@@ -201,7 +203,7 @@ SCENARIO("Under point is offset below the surface") {
                 AND_GIVEN("xs: intersections(i)") {
                     Intersections xs { i };
                     WHEN("detail: fillDetail(i, r, xs)") {
-                        IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                        IntersectionDetail detail = RT::fillDetail(i, r, xs);
 
                         THEN("detail.underPoint.z > epsilon / 2") {
                             REQUIRE(detail.underPoint.z > 0.001 / 2);

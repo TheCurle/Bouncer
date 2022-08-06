@@ -3,11 +3,13 @@
  *     BOUNCER *
  ***************/
 
+#define GEO_RT
 #include <catch2/catch_test_macros.hpp>
 #include <core/Raster.hpp>
 #define LIGHT_OPERATOR_OVERLOADS
 #include <render/Light.h>
 #include <view/World.h>
+#include "render/RT/RTLighting.h"
 
 using namespace RT;
 
@@ -147,7 +149,7 @@ SCENARIO("Shading an intersection with the world") {
                     Intersection i { 4, shape };
                     WHEN("detail: fillDetail(i, r)") {
                         Intersections xs { i };
-                        IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                        IntersectionDetail detail = RT::fillDetail(i, r, xs);
                         AND_WHEN("c: shadeHit(w, detail)") {
                             Color c = Light::shadeHit(w, detail, 1);
 
@@ -175,7 +177,7 @@ SCENARIO("Shading an internal intersection") {
                         Intersection i { 0.5, shape };
                         WHEN("detail: fillDetail(i, r)") {
                             Intersections xs { i };
-                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                            IntersectionDetail detail = RT::fillDetail(i, r, xs);
                             AND_WHEN("c: shadeHit(w, detail)") {
                                 Color c = Light::shadeHit(w, detail, 1);
 
@@ -287,7 +289,7 @@ SCENARIO("Shading a hit in the shadow of an object") {
                                     Intersection i { 4, &s2 };
                                     WHEN("detail: fillDetail(i, r)") {
                                         Intersections xs { i };
-                                        IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                                        IntersectionDetail detail = RT::fillDetail(i, r, xs);
                                         AND_WHEN("c: shade_hit(w, detail)") {
                                             Color c = Light::shadeHit(w, detail, 1);
 
@@ -316,7 +318,7 @@ SCENARIO("The hit should offset the point, to avoid ray acne") {
                 Intersection i { 5, &shape };
                 WHEN("detail: fillDetail(i, r)") {
                     Intersections xs { i };
-                    IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                    IntersectionDetail detail = RT::fillDetail(i, r, xs);
 
                     THEN("detail.overPoint.z < -EPSILON / 2") {
                         REQUIRE(detail.overPoint.z < -0.001 / 2);
@@ -344,7 +346,7 @@ SCENARIO("Reflected color of a nonreflective material") {
                         Intersection i { 1, shape };
                         WHEN("detail: fillDetail(i, r)") {
                             Intersections xs { i };
-                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                            IntersectionDetail detail = RT::fillDetail(i, r, xs);
                             AND_WHEN("color: reflected_color(w, detail)") {
                                 Color color = Light::reflected(w, detail, 1);
 
@@ -376,7 +378,7 @@ SCENARIO("Reflected color of a reflective surface") {
                         Intersection i {std::sqrt(2), &shape};
                         WHEN("detail: fillDetail(i, r)") {
                             Intersections xs { i };
-                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                            IntersectionDetail detail = RT::fillDetail(i, r, xs);
                             AND_WHEN("color: reflected_color(w, detail)") {
                                 Color color = Light::reflected(w, detail, 2);
 
@@ -409,7 +411,7 @@ SCENARIO("Blended color of a reflective surface") {
                         Intersection i {std::sqrt(2), &shape};
                         WHEN("detail: fillDetail(i, r)") {
                             Intersections xs { i };
-                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                            IntersectionDetail detail = RT::fillDetail(i, r, xs);
                             AND_WHEN("color: reflected_color(w, detail)") {
                                 Color color = Light::shadeHit(w, detail, 1);
 
@@ -472,7 +474,7 @@ SCENARIO("Reflections at maximum depth") {
                         Intersection i {std::sqrt(2), &shape};
                         WHEN("detail: fillDetail(i, r)") {
                             Intersections xs { i };
-                            IntersectionDetail detail = Intersection::fillDetail(i, r, xs);
+                            IntersectionDetail detail = RT::fillDetail(i, r, xs);
                             AND_WHEN("color: reflected_color(w, detail)") {
                                 Color color = Light::reflected(w, detail, 0);
 

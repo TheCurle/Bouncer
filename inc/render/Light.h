@@ -10,8 +10,6 @@
 #include <core/Raster.hpp>
 #include <render/Patterns.h>
 
-struct World;
-
 // Represents a single point emitting light of a given brightness.
 struct PointLight {
     Point position;
@@ -55,51 +53,3 @@ struct Material {
                 shininess == other.shininess;
     }
 };
-
-// A holder for generic lighting calculations
-namespace Light {
-
-    /*
-     * To keep in line with the One Definition Rule, the following functions are defined in the World.h header file.
-     * This is because they require working with the World struct which has dependencies back to this file.
-     *
-     * double fresnelContribution(RT::IntersectionDetail& detail)
-     * Color reflected(World& w, RT::IntersectionDetail details, int countdown)
-     * Color refracted(World& w, RT::IntersectionDetail details, int countdown)
-     * bool isInShadow(World& world, Point& point)
-     * Color shadeHit(World& world, RT::IntersectionDetail& hit, int countdown)
-     * Color at(World& w, RT::Ray r, int countdown)
-     */
-
-    // Phong Shading Lighting workhouse.
-    inline Color lighting(Material m, Geo* object, PointLight light, const Point& position, const Vector& eyev, const Vector& normalv, bool inShadow) {
-        Color materialColor = m.pattern != nullptr ? Pattern::colorAt(position, object) : m.color;
-
-        Color effectiveColor = materialColor * light.intensity;
-        Vector lightV = Vector((light.position - position).normalize());
-
-        Color ambient = effectiveColor * m.ambient;
-        Color diffuse(0, 0, 0);
-        Color specular(0, 0, 0);
-
-        double lDotNorm = lightV * normalv;
-        if (lDotNorm > 0 && !inShadow) {
-            diffuse = effectiveColor * m.diffuse * lDotNorm;
-
-            Vector reflectV = (-lightV).reflect(normalv);
-            double reflectDot = reflectV * eyev;
-
-            if (reflectDot > 0) {
-                double factor = std::pow(reflectDot, m.shininess);
-                specular = light.intensity * m.specular * factor;
-            }
-        }
-
-        return ambient + diffuse + specular;
-    }
-
-    inline Color lighting(Material m, Geo* object, const PointLight& light, const Point& position, const Vector& eyev, const Vector& normalv) {
-        return lighting(m, object, light, position, eyev, normalv, false);
-    }
-
-}

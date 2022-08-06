@@ -7,8 +7,9 @@
 #include <utility>
 #include <core/Matrix.h>
 #include <render/Light.h>
-#include <render/Ray.h>
-
+#ifdef GEO_RT
+    #include <render/RT/Ray.h>
+#endif
 #pragma once
 
 /**
@@ -50,8 +51,11 @@ struct Geo {
     // Get the normal vector at the given point on the object.
     virtual Vector normalAt(const Point& p) = 0;
 
+#ifdef GEO_RT
     // For raytracing; append all intersections with the given ray to the given vector.
     virtual void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) = 0;
+#endif
+
 };
 
 /**
@@ -68,6 +72,8 @@ struct Sphere : public Geo {
     static Sphere glassSphere() {
         static Material glassMaterial;
         glassMaterial.diffuse = 0;
+        glassMaterial.specular = 1;
+        glassMaterial.shininess = 300;
         glassMaterial.transparency = 1;
         glassMaterial.refractiveIndex = 1.5;
         static Sphere glassSphere(glassMaterial);
@@ -83,7 +89,7 @@ struct Sphere : public Geo {
         transform = trans;
         inverseTransform = Matrix::fastInverse(trans);
     }
-
+#ifdef GEO_RT
     void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) override {
         // Transform the ray according to the object's properties
         RT::Ray r2 = RT::Ray::transform(r, inverseTransform);
@@ -118,7 +124,7 @@ struct Sphere : public Geo {
         s.emplace_back(intersection1);
         s.emplace_back(intersection2);
     }
-
+#endif
     // The normal of a sphere is the opposite of the vector leading from the point to the origin.
     // We subtract the point from the origin to get the vector, then transpose the inverse matrix to account for scaling and skewing of the sphere.
     // Normalizing this vector will return the normal of the sphere at that point.
@@ -132,6 +138,8 @@ struct Sphere : public Geo {
 
 /**
  * A plane; infinitely flat, infinitely large.
+ *
+ * TODO: it seems this plane cannot be translated through any means.
  */
 struct Plane : public Geo {
 
@@ -141,10 +149,11 @@ struct Plane : public Geo {
     // We can rotate and translate it according to the transformation, but this should not change.
     Vector normalAt(const Point &p) override {
         (void) p;
-        static const Vector normal = {0, 1, 0};
-        return Vector(inverseTransform * normal);
+        static const Vector oN = {0, 1, 0};
+        Vector wN = Vector(Matrix::transpose(inverseTransform) * oN);
+        return Vector(wN.normalize());
     }
-
+#ifdef GEO_RT
     // Intersecting the ray with a plane is simple; translate the ray, check whether it's parallel, and append the intersection.
     void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) override {
         RT::Ray r2 = RT::Ray::transform(r, inverseTransform);
@@ -155,6 +164,23 @@ struct Plane : public Geo {
         // TODO: hotspot. 0.527s / 4.728s spent here; 11% of execution time.
         s.emplace_back(RT::Intersection(t, this));
     }
+#endif
+};
+
+// A humble cube.
+// Implemented as an axis-aligned bounding box, 1 x 1 unit on each face.
+struct Cube : public Geo {
+
+    Cube() = default;
+
+    Vector normalAt(const Point& p) override {
+
+    }
+#ifdef GEO_RT
+    void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) override {
+
+    }
+#endif
 };
 
 bool operator==(const Geo& x, const Geo& y);
@@ -167,7 +193,6 @@ bool operator==(const Geo& x, const Geo& y) {
 
 
 // Specializations to allow Catch to print these types
-
 namespace Catch {
     template < >
     struct StringMaker<Geo> {
@@ -186,47 +211,6 @@ namespace Catch {
             return buf.str();
         }
     };
-}
-
-inline RT::IntersectionDetail RT::Intersection::fillDetail(const Intersection& i, Ray r, Intersections& isections) {
-    Point hitPos = Ray::position(r, i.time);
-    Vector hitNormal = i.object->normalAt(hitPos);
-    Vector eyeDir = -r.direction;
-    Vector reflectv = r.direction.reflect(hitNormal);
-
-    bool inside = (hitNormal * eyeDir) < 0;
-    if (inside) {
-        hitNormal = -hitNormal;
-    }
-
-    Point bumpPoint = Point(hitPos + hitNormal * 0.001);
-    Point underPoint = Point(hitPos - hitNormal * 0.001);
-
-    double n1 = 1;
-    double n2 = 1;
-
-    std::vector<Geo*> containers;
-    containers.reserve(isections.size);
-    for (size_t idx = 0; idx < isections.size; idx++) {
-        if (isections[idx] == i)
-            if (!containers.empty())
-                n1 = containers.back()->material.refractiveIndex;
-
-        auto pos = std::find(containers.begin(), containers.end(), isections[idx].object);
-        if (pos != containers.end()) {
-            containers.erase(pos);
-        } else
-            containers.emplace_back(isections[idx].object);
-
-        if (isections[idx] == i) {
-            if (!containers.empty())
-                n2 = containers.back()->material.refractiveIndex;
-            break;
-        }
-    }
-
-
-    return { i.time, *i.object, hitPos, bumpPoint, underPoint, eyeDir, hitNormal, reflectv, n1, n2, inside };
 }
 
 namespace Pattern {

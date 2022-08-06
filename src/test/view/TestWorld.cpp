@@ -3,9 +3,11 @@
  *     BOUNCER *
  ***************/
 
+#define GEO_RT
 #include <catch2/catch_test_macros.hpp>
 #include <render/Light.h>
 #include <view/World.h>
+#include "render/RT/RTWorld.h"
 
 using namespace RT;
 
@@ -67,7 +69,7 @@ SCENARIO("Intersecting a world with a ray") {
         AND_GIVEN("r: ray( point(0, 0, -5), vector(0, 0, 1) )") {
             Ray r { {0, 0, -5 }, { 0, 0, 1 } };
             WHEN("xs: intersect_world(w, r)") {
-                Intersections xs = w.intersect(r);
+                Intersections xs = RT::intersect(w, r);
 
                 THEN("xs.count = 4") {
                     REQUIRE(xs.size == 4);
