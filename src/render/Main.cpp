@@ -14,7 +14,7 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 #include "render/RT/RTLighting.h"
-#include "render/Raster/RLines.h"
+#include "render/Raster/RClipping.h"
 #include "render/Raster/RScene.h"
 
 int framewidth = 1280;
@@ -33,18 +33,18 @@ Raster::Mesh cube = {
         }},
 
         {{
-            { 0, 1, 2, Color::black() },
-            { 0, 2, 3, Color::black() },
-            { 4, 0, 3, Color::black() },
-            { 4, 3, 7, Color::black() },
-            { 5, 4, 7, Color::black() },
-            { 5, 7, 6, Color::black() },
-            { 1, 5, 6, Color::black() },
-            { 1, 6, 2, Color::black() },
-            { 4, 5, 1, Color::black() },
-            { 4, 1, 0, Color::black() },
-            { 2, 6, 7, Color::black() },
-            { 2, 7, 3, Color::black() }
+            { 0, 1, 2, { 1, 0, 0 } },
+            { 0, 2, 3, { 1, 0, 0 } },
+            { 4, 0, 3, { 0, 1, 0 } },
+            { 4, 3, 7, { 0, 1, 0 } },
+            { 5, 4, 7, { 0, 0, 1 } },
+            { 5, 7, 6, { 0, 0, 1 } },
+            { 1, 5, 6, { 1, 0, 1 } },
+            { 1, 6, 2, { 1, 0, 1 } },
+            { 4, 5, 1, { 0, 1, 1 } },
+            { 4, 1, 0, { 0, 1, 1 } },
+            { 2, 6, 7, { 1, 1, 0 } },
+            { 2, 7, 3, { 1, 1, 0 } }
         }}
 };
 
@@ -60,7 +60,7 @@ public:
         renderThread = std::thread([&]() {
             frame = Framebuffer(framewidth, frameheight);
             Camera cam(1280, 720, 90);
-            cam.setTransform(Matrix::rotation_y(-M_PI / 14) * Matrix::translation(-2, 0, -7));
+            cam.setTransform(Matrix::rotation_y(M_PI / 14) * Matrix::translation(0, 0, -7));
 
             World w;
 

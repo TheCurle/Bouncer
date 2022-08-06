@@ -5,25 +5,12 @@
 
 #include <render/Geometry.h>
 #include "RTriangles.h"
+#include "RModel.h"
 
 #pragma once
 
 
 namespace Raster {
-    struct Mesh {
-        std::vector<Point> vertices;
-        std::vector<Tri> tris;
-    };
-
-    struct Model : public Geo {
-        Mesh mesh;
-
-        Model(Mesh m, Matrix t) : Geo(), mesh(m) {
-            setMatrix(t);
-        }
-
-        Vector normalAt(const Point& p) override { return { 0, 0, 0 }; }
-    };
 
     inline Point projectPoint(Point p, Camera& c) {
         return { c.horizontalSize / 2 + (p.x * c.horizontalSize / 1), c.verticalSize / 2 + (p.y * c.verticalSize / 1), 0 };
@@ -37,7 +24,7 @@ namespace Raster {
     inline void RenderModel(Framebuffer& f, Raster::Model model, Camera& c) {
         std::vector<Point> projected;
         for (auto& p : model.mesh.vertices) {
-            projected.emplace_back(projectVertex(Point((c.transform * model.transform) * p), c));
+            projected.emplace_back(projectVertex(p, c));
         }
 
         for (auto& t : model.mesh.tris) {
@@ -46,7 +33,16 @@ namespace Raster {
     }
 
     inline void Render(World& w, Framebuffer& f, Camera& c) {
+        float s2 = std::sqrt(2) / 2;
+        World& cW = ClipWorld(w, c, std::array<ClipPlane, 5> {{
+            {{0, 0, 1}, -1},
+            {{s2, 0, s2}, 0},
+            {{-s2, 0, s2}, 0},
+            {{0, -s2, s2}, 0},
+            {{0, s2, s2}, 0}
+        }});
+
         for (size_t i = 0; i < w.numObjs; i++)
-            RenderModel(f, *static_cast<Model*>(w.objects[i]), c);
+            RenderModel(f, *static_cast<Model*>(cW.objects[i]), c);
     }
 }

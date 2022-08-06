@@ -6,12 +6,16 @@
 #include <core/Tuple.hpp>
 #include <core/Raster.hpp>
 #include "RInterp.h"
+#include "RLines.h"
 #include <iostream>
 
 #pragma once
 
 namespace Raster {
     struct Tri {
+        Tri() : c({ 0, 0, 0 }) {}
+        Tri(size_t o, size_t t, size_t th, Color co) : p0(o), p1(t), p2(th), c(co) {}
+
         size_t p0;
         size_t p1;
         size_t p2;
@@ -106,6 +110,6 @@ namespace Raster {
     }
 
     inline void RenderTri(Framebuffer& f, Raster::Tri& t, std::vector<Point> verts) {
-        Raster::DrawWireframeTriangle(f, verts[t.p0], verts[t.p1], verts[t.p2], t.c);
+        Raster::DrawFilledTri(f, verts[t.p0], verts[t.p1], verts[t.p2], t.c);
     }
 }
