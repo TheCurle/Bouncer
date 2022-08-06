@@ -33,8 +33,15 @@ public:
             frame = Framebuffer(framewidth, frameheight);
             auto startTime = std::chrono::system_clock::now();
 
-            Raster::DrawWireframeTriangle(frame, { 300, 200, 0 }, { 600, 550, 0 }, { 520, 600, 0 }, { 1, 0, 1 } );
-            Raster::DrawFilledTri(frame, { 300, 200, 0 }, { 600, 550, 0 }, { 520, 600, 0 }, { 0, 1, 1 } );
+            for (size_t y = 0; y < frameheight; y++)
+                for (size_t x = 0; x < framewidth; x++)
+                    frame.set(x, y, Color::white() );
+
+            Raster::DrawWireframeTriangle(frame, { 200, 200, 0 }, { 500, 550, 0 }, { 420, 600, 0 }, { 1, 0, 1 } );
+            Raster::DrawFilledTri(frame, { 200, 200, 0 }, { 500, 550, 0 }, { 420, 600, 0 }, { 0, 1, 1 } );
+
+            Raster::DrawWireframeTriangle(frame, { 700, 200, 0 }, { 1000, 550, 0 }, { 920, 600, 0 }, { 1, 0, 1 } );
+            Raster::DrawShadedTriangle(frame, { 700, 200, 0 }, { 1000, 550, 0 }, { 920, 600, 0 }, { 0, 1, 1 } );
 
             auto endTime = std::chrono::system_clock::now();
             std::cout << "Raster Timing data:" << std::endl <<

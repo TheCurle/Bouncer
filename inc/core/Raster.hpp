@@ -31,12 +31,12 @@ public:
         x = red; y = green; z = blue; w = 2;
     }
 
-    static Color black() {
+    static Color& black() {
         static Color black = { 0, 0, 0 };
         return black;
     }
 
-    static Color white() {
+    static Color& white() {
         static Color white = { 1, 1, 1 };
         return white;
     }
