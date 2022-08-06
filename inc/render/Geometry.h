@@ -53,7 +53,7 @@ struct Geo {
 
 #ifdef GEO_RT
     // For raytracing; append all intersections with the given ray to the given vector.
-    virtual void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) = 0;
+    virtual void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) { }
 #endif
 
 };

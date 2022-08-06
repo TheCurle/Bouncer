@@ -11,6 +11,13 @@
 #pragma once
 
 namespace Raster {
+    struct Tri {
+        size_t p0;
+        size_t p1;
+        size_t p2;
+        Color c;
+    };
+
     inline void DrawFilledTri(Framebuffer& f, Point p0, Point p1, Point p2, Color c) {
         std::vector<float> xLeft, xRight;
 
@@ -96,5 +103,9 @@ namespace Raster {
                 f.set(x, y, cShaded);
             }
         }
+    }
+
+    inline void RenderTri(Framebuffer& f, Raster::Tri& t, std::vector<Point> verts) {
+        Raster::DrawWireframeTriangle(f, verts[t.p0], verts[t.p1], verts[t.p2], t.c);
     }
 }

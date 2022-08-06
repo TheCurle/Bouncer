@@ -15,10 +15,38 @@
 #include "olcPixelGameEngine.h"
 #include "render/RT/RTLighting.h"
 #include "render/Raster/RLines.h"
-#include "render/Raster/RTriangles.h"
+#include "render/Raster/RScene.h"
 
 int framewidth = 1280;
 int frameheight = 720;
+
+Raster::Mesh cube = {
+        {{
+            {1, 1, 1},
+            {-1, 1, 1},
+            {-1, -1, 1},
+            {1, -1, 1},
+            {1, 1, -1},
+            {-1, 1, -1},
+            {-1, -1, -1},
+            {1, -1, -1}
+        }},
+
+        {{
+            { 0, 1, 2, Color::black() },
+            { 0, 2, 3, Color::black() },
+            { 4, 0, 3, Color::black() },
+            { 4, 3, 7, Color::black() },
+            { 5, 4, 7, Color::black() },
+            { 5, 7, 6, Color::black() },
+            { 1, 5, 6, Color::black() },
+            { 1, 6, 2, Color::black() },
+            { 4, 5, 1, Color::black() },
+            { 4, 1, 0, Color::black() },
+            { 2, 6, 7, Color::black() },
+            { 2, 7, 3, Color::black() }
+        }}
+};
 
 // Override base class with your custom functionality
 class RasterView : public olc::PixelGameEngine
@@ -31,17 +59,21 @@ public:
         sAppName = "Stencil Live View";
         renderThread = std::thread([&]() {
             frame = Framebuffer(framewidth, frameheight);
+            Camera cam(1280, 720, 90);
+            World w;
+
             auto startTime = std::chrono::system_clock::now();
 
             for (size_t y = 0; y < frameheight; y++)
                 for (size_t x = 0; x < framewidth; x++)
                     frame.set(x, y, Color::white() );
 
-            Raster::DrawWireframeTriangle(frame, { 200, 200, 0 }, { 500, 550, 0 }, { 420, 600, 0 }, { 1, 0, 1 } );
-            Raster::DrawFilledTri(frame, { 200, 200, 0 }, { 500, 550, 0 }, { 420, 600, 0 }, { 0, 1, 1 } );
+            Geo* cube1 = new Raster::Model(cube, Matrix::translation(-1.5, 0, 7));
+            Geo* cube2 = new Raster::Model(cube, Matrix::translation(1.5, 0, 7));
 
-            Raster::DrawWireframeTriangle(frame, { 700, 200, 0 }, { 1000, 550, 0 }, { 920, 600, 0 }, { 1, 0, 1 } );
-            Raster::DrawShadedTriangle(frame, { 700, 200, 0 }, { 1000, 550, 0 }, { 920, 600, 0 }, { 0, 1, 1 } );
+            w.addObjects({ cube1, cube2 });
+
+            Raster::Render(w, frame, cam);
 
             auto endTime = std::chrono::system_clock::now();
             std::cout << "Raster Timing data:" << std::endl <<
