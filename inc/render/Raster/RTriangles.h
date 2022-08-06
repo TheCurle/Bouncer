@@ -23,11 +23,11 @@ namespace Raster {
         auto x02 = lerp(p0.y, p0.x, p2.y, p2.x);
 
         std::remove(x01.begin(), x01.end(), x01.back());
-        auto x012 = std::vector<float>(x01.size() + x12.size());
+        auto x012 = std::vector<float>(x02.size());
         x012.insert(std::begin(x012), std::begin(x01), std::end(x01));
         x012.insert(std::begin(x012) + x01.size(), std::begin(x12), std::end(x12));
 
-        auto m = std::floor(x012.size() / 2);
+        auto m = x012.size() / 4;
         if (x02[m] < x012[m]) {
             xLeft = x02;
             xRight = x012;
