@@ -19,8 +19,7 @@ namespace Raster {
         Mesh mesh;
 
         Model(Mesh m, Matrix t) : Geo(), mesh(m) {
-            transform = t;
-            inverseTransform = Matrix::fastInverse(t);
+            setMatrix(t);
         }
 
         Vector normalAt(const Point& p) override { return { 0, 0, 0 }; }
@@ -38,7 +37,7 @@ namespace Raster {
     inline void RenderModel(Framebuffer& f, Raster::Model model, Camera& c) {
         std::vector<Point> projected;
         for (auto& p : model.mesh.vertices) {
-            projected.emplace_back(projectVertex(Point(model.transform * p), c));
+            projected.emplace_back(projectVertex(Point((c.transform * model.transform) * p), c));
         }
 
         for (auto& t : model.mesh.tris) {
