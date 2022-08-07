@@ -153,8 +153,8 @@ namespace Raster {
     }
 
     inline void RenderTri(Framebuffer& f, Raster::Tri& t, std::vector<Point> verts, DepthBuffer& d) {
-        Vector norm = normal(t, verts);
-        Tuple center = (verts[t.p0] + verts[t.p1] + verts[t.p2]) * ((float) -1 / (float) 3);
+        Vector norm = Vector(normal(t, verts).normalize());
+        Tuple center = (verts[t.p0] + verts[t.p1] + verts[t.p2]) * ((double) -1 / (double) 3);
 
         float discriminant = norm * Vector(center);
 
