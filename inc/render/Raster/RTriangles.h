@@ -11,8 +11,6 @@
 
 #pragma once
 
-extern Framebuffer depthBuffer;
-
 namespace Raster {
     struct Tri {
         Tri() : c({ 0, 0, 0 }) {}
@@ -150,7 +148,21 @@ namespace Raster {
         }
     }
 
+    inline Vector normal(Tri t, std::vector<Point> v) {
+        return ( Vector(v[t.p1] + (v[t.p0] * -1)).cross(Vector(v[t.p2] + (v[t.p0] * -1))) );
+    }
+
     inline void RenderTri(Framebuffer& f, Raster::Tri& t, std::vector<Point> verts, DepthBuffer& d) {
+        Vector norm = normal(t, verts);
+        Tuple center = (verts[t.p0] + verts[t.p1] + verts[t.p2]) * ((float) -1 / (float) 3);
+
+        float discriminant = norm * Vector(center);
+
+        if (discriminant < 0) {
+            std::cout << "Discarding tri " << t.p0 << "-" << t.p1 << "-" << t.p2 << " because it is back-face." << std::endl;
+            return;
+        }
+
         Raster::DrawFilledTri(f, verts[t.p0], verts[t.p1], verts[t.p2], t.c, d);
     }
 }
