@@ -121,6 +121,15 @@ public:
 
         buffer[y * width + x] = col.pack();
     }
+    // Set the Color of the specified pixel.
+    void set(size_t x, size_t y, uint32_t& col) {
+        if (x >= width)
+            return;
+        if (y >= height)
+            return;
+
+        buffer[y * width + x] = col;
+    }
 
     void export_png(const std::string& fileName) {
         stbi_write_png(fileName.c_str(), width, height, 4, buffer.get(), width * 4);
@@ -129,6 +138,45 @@ public:
 private:
     // Internal backing storage for the framebuffer's pixel grid.
     std::unique_ptr<uint32_t[]> buffer;
+};
+
+
+/**
+ * Represents a float array that can be written to at will.
+ */
+class DepthBuffer {
+public:
+    size_t width;
+    size_t height;
+
+    // Value constructor.
+    DepthBuffer(size_t w, size_t h) : width(w), height(h) {
+        // Assign the buffer array to a 2-dimensional array of black.
+        buffer = std::make_unique<float[]>(w * h);
+    }
+
+    // Get the depth of the specified pixel.
+    float at(size_t x, size_t y) {
+        if (x >= width || y >= height)
+            return 0;
+
+        return buffer[y * width + x];
+    }
+
+    // Set the depth of the specified pixel.
+    void set(size_t x, size_t y, float depth) {
+        if (x >= width)
+            return;
+        if (y >= height)
+            return;
+
+        buffer[y * width + x] = depth;
+    }
+
+
+private:
+    // Internal backing storage for the depth buffer's data grid.
+    std::unique_ptr<float[]> buffer;
 };
 
 

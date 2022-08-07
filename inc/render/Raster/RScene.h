@@ -13,26 +13,26 @@
 namespace Raster {
 
     inline Point projectPoint(Point p, Camera& c) {
-        return { c.horizontalSize / 2 + (p.x * c.horizontalSize / 1), c.verticalSize / 2 + (p.y * c.verticalSize / 1), 0 };
+        return { c.horizontalSize / 2 + (p.x * c.horizontalSize / 1), c.verticalSize / 2 + (p.y * c.verticalSize / 1), p.z };
     }
 
     inline Point projectVertex(Point v, Camera& c) {
-        return projectPoint({ v.x * 1 / v.z, v.y * 1 / v.z, 0 }, c);
+        return projectPoint({ v.x * 1 / v.z, v.y * 1 / v.z, v.z }, c);
     }
 
 
-    inline void RenderModel(Framebuffer& f, Raster::Model model, Camera& c) {
+    inline void RenderModel(Framebuffer& f, Raster::Model model, Camera& c, DepthBuffer& d) {
         std::vector<Point> projected;
         for (auto& p : model.mesh.vertices) {
             projected.emplace_back(projectVertex(p, c));
         }
 
         for (auto& t : model.mesh.tris) {
-            RenderTri(f, t, projected);
+            RenderTri(f, t, projected, d);
         }
     }
 
-    inline void Render(World& w, Framebuffer& f, Camera& c) {
+    inline void Render(World& w, Framebuffer& f, Camera& c, DepthBuffer& d) {
         float s2 = std::sqrt(2) / 2;
         World& cW = ClipWorld(w, c, std::array<ClipPlane, 5> {{
             {{0, 0, 1}, -1},
@@ -43,6 +43,6 @@ namespace Raster {
         }});
 
         for (size_t i = 0; i < w.numObjs; i++)
-            RenderModel(f, *static_cast<Model*>(cW.objects[i]), c);
+            RenderModel(f, *static_cast<Model*>(cW.objects[i]), c, d);
     }
 }

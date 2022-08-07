@@ -17,8 +17,8 @@
 #include "render/Raster/RClipping.h"
 #include "render/Raster/RScene.h"
 
-int framewidth = 1280;
-int frameheight = 720;
+const int framewidth = 1280;
+const int frameheight = 720;
 
 Raster::Mesh cube = {
         {{
@@ -59,6 +59,12 @@ public:
         sAppName = "Stencil Live View";
         renderThread = std::thread([&]() {
             frame = Framebuffer(framewidth, frameheight);
+            DepthBuffer db(framewidth, frameheight);
+
+            for (size_t y = 0; y < frameheight; y++)
+                for (size_t x = 0; x < framewidth; x++)
+                    db.set(x, y, 0);
+
             Camera cam(1280, 720, 90);
             cam.setTransform(Matrix::rotation_y(M_PI / 14) * Matrix::translation(0, 0, -7));
 
@@ -75,7 +81,7 @@ public:
 
             w.addObjects({ cube1, cube2 });
 
-            Raster::Render(w, frame, cam);
+            Raster::Render(w, frame, cam, db);
 
             auto endTime = std::chrono::system_clock::now();
             std::cout << "Raster Timing data:" << std::endl <<
