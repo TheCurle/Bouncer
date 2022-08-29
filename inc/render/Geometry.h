@@ -26,7 +26,7 @@ struct Geo {
     // Inverse transformation; determines how the world must be moved and rotated relative to the object.
     Matrix inverseTransform;
     // Render material detail. Determines how it is rendered and the effect of various lighting calculations.
-    Material material;
+    Light::Material material;
 
     Geo() {
         static int ids = 0;
@@ -34,13 +34,13 @@ struct Geo {
 
         transform = Matrix::identity();
         inverseTransform = Matrix::identity();
-        material = Material();
+        material = Light::Material();
     }
 
     explicit Geo(int nid) {
         id = nid;
         transform = Matrix::identity();
-        material = Material();
+        material = Light::Material();
     }
 
     void setMatrix(const Matrix& mat) {
@@ -70,7 +70,7 @@ struct Sphere : public Geo {
     Sphere(Sphere&&) = default;
 
     static Sphere glassSphere() {
-        static Material glassMaterial;
+        static Light::Material glassMaterial;
         glassMaterial.diffuse = 0;
         glassMaterial.specular = 1;
         glassMaterial.shininess = 300;
@@ -81,7 +81,7 @@ struct Sphere : public Geo {
         return glassSphere;
     }
 
-    explicit Sphere(Material mat) {
+    explicit Sphere(Light::Material mat) {
         material = mat;
     }
 

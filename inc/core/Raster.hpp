@@ -71,6 +71,13 @@ public:
         return {x + other.x, y + other.y, z + other.z};
     }
 
+    Color& operator+=(const Color& other) {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+        return *this;
+    }
+
     // Color subtraction operator.
     Color operator-(const Color& other) {
         return {x - other.x, y - other.y, z - other.z};

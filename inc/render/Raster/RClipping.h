@@ -36,10 +36,12 @@ namespace Raster {
     World& ClipWorld(World& w, Camera& c, std::array<ClipPlane, 5> planes) {
         World* cWorld = new World {
                 {},
-                w.lightSource
+                {}
         };
         cWorld->numObjs = 0;
         cWorld->objects = {};
+        cWorld->numLights = w.numLights;
+        cWorld->lightSources = std::move(w.lightSources);
 
         for (int i = 0; i < w.numObjs; ++i) {
             Raster::Model* model = static_cast<Model*>(w.objects[i]);

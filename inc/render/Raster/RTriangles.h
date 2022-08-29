@@ -7,6 +7,7 @@
 #include <core/Raster.hpp>
 #include "RInterp.h"
 #include "RLines.h"
+#include <render/Raster/shading/RLight.h>
 #include <iostream>
 
 #pragma once
@@ -22,8 +23,19 @@ namespace Raster {
         Color c;
     };
 
-    inline void DrawFilledTri(Framebuffer& f, Point p0, Point p1, Point p2, Color c, DepthBuffer& d) {
+    inline Vector normal(Tri t, std::vector<Point> v) {
+        return ( Vector(v[t.p1] + (v[t.p0] * -1)).cross(Vector(v[t.p2] + (v[t.p0] * -1))) );
+    }
+
+    inline Vector normal(Point p0, Point p1, Point p2) {
+        return (Vector(p1 + (p0 * -1)).cross(Vector(p2 + (p0 * -1))));
+    }
+
+    inline void DrawFilledTri(Framebuffer& f, Point p0, Point p1, Point p2, Color c, DepthBuffer& d, Camera& cam,
+                              std::unique_ptr<Light::Light[]>& lights, size_t numLights) {
         std::vector<float> xLeft, xRight, zLeft, zRight;
+
+        Vector triNorm = normal({ 0, 1, 2, { 0, 0, 0 } }, { p0, p1, p2 });
 
         if (p0.y > p1.y) { std::swap(p0.y, p1.y); std::swap(p0.x, p1.x); }
         if (p0.y > p2.y) { std::swap(p0.y, p2.y); std::swap(p0.x, p2.x); }
@@ -68,7 +80,16 @@ namespace Raster {
             for (size_t x = leftX; x <= rightX; ++x) {
                 float z = 1 / zLine[x - leftX];
                 if (z > d.at(x, y)) {
-                    f.set(x, y, c);
+                    Color final = c *
+                            Raster::lightAt(
+                                Point(p0 + p1 + p2  * ((double) -1 / (double) 3)),
+                                triNorm,
+                                cam,
+                                lights,
+                                numLights
+                    );
+
+                    f.set(x, y, final);
                     d.set(x, y, z);
                 }
             }
@@ -148,12 +169,9 @@ namespace Raster {
         }
     }
 
-    inline Vector normal(Tri t, std::vector<Point> v) {
-        return ( Vector(v[t.p1] + (v[t.p0] * -1)).cross(Vector(v[t.p2] + (v[t.p0] * -1))) );
-    }
-
-    inline void RenderTri(Framebuffer& f, Raster::Tri& t, std::vector<Point> verts, DepthBuffer& d) {
-        Vector norm = Vector(normal(t, verts).normalize());
+    inline void RenderTri(Framebuffer &f, Tri &t, std::vector<Point> verts, DepthBuffer &d, Camera &cam,
+                          std::unique_ptr<Light::Light[]>& lights, size_t numLights) {
+        Vector norm = Vector(normal(verts[t.p0], verts[t.p1], verts[t.p2]).normalize());
         Tuple center = (verts[t.p0] + verts[t.p1] + verts[t.p2]) * ((double) -1 / (double) 3);
 
         float discriminant = norm * Vector(center);
@@ -163,6 +181,6 @@ namespace Raster {
             return;
         }
 
-        Raster::DrawFilledTri(f, verts[t.p0], verts[t.p1], verts[t.p2], t.c, d);
+        Raster::DrawFilledTri(f, verts[t.p0], verts[t.p1], verts[t.p2], t.c, d, cam, lights, numLights);
     }
 }

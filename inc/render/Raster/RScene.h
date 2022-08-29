@@ -21,14 +21,15 @@ namespace Raster {
     }
 
 
-    inline void RenderModel(Framebuffer& f, Raster::Model model, Camera& c, DepthBuffer& d) {
+    inline void
+    RenderModel(Framebuffer &f, Model model, Camera &c, DepthBuffer &d, std::unique_ptr<Light::Light[]>& lights, size_t numLights) {
         std::vector<Point> projected;
         for (auto& p : model.mesh.vertices) {
             projected.emplace_back(projectVertex(p, c));
         }
 
         for (auto& t : model.mesh.tris) {
-            RenderTri(f, t, projected, d);
+            RenderTri(f, t, projected, d, c, lights, numLights);
         }
     }
 
@@ -43,6 +44,6 @@ namespace Raster {
         }});
 
         for (size_t i = 0; i < w.numObjs; i++)
-            RenderModel(f, *static_cast<Model*>(cW.objects[i]), c, d);
+            RenderModel(f, *static_cast<Model*>(cW.objects[i]), c, d, cW.lightSources, cW.numLights);
     }
 }

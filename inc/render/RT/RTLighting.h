@@ -12,7 +12,7 @@ namespace RT {
     namespace Light {
 
         // Phong Shading Lighting workhouse.
-        inline Color lighting(Material m, Geo* object, PointLight light, const Point &position, const Vector &eyev,
+        inline Color lighting(::Light::Material m, Geo* object, ::Light::Light light, const Point &position, const Vector &eyev,
                               const Vector &normalv, bool inShadow) {
             Color materialColor = m.pattern != nullptr ? Pattern::colorAt(position, object) : m.color;
 
@@ -39,7 +39,7 @@ namespace RT {
             return ambient + diffuse + specular;
         }
 
-        inline Color lighting(Material m, Geo* object, const PointLight &light, const Point &position, const Vector &eyev,
+        inline Color lighting(::Light::Material m, Geo* object, const ::Light::Light &light, const Point &position, const Vector &eyev,
                  const Vector &normalv) {
             return lighting(m, object, light, position, eyev, normalv, false);
         }
@@ -100,8 +100,8 @@ namespace RT {
         }
 
         // Trace a ray from the point to the nearest light source, and determine whether there is something blocking it.
-        inline bool isInShadow(World &world, Point &point) {
-            Vector v = world.lightSource.position - point;
+        inline bool isInShadow(World &world, Point &point, ::Light::Light& light) {
+            Vector v = light.position - point;
             double distance = v.magnitude();
             Vector direction = Vector(v.normalize());
 
@@ -114,12 +114,14 @@ namespace RT {
 
         // Calculate the final color of an interection by summing up the Phong lighting, the reflections, and refractions of a point.
         inline Color shadeHit(World &world, RT::IntersectionDetail &hit, int countdown) {
-            Color rayTarget = lighting(hit.object.material, &hit.object, world.lightSource, hit.overPoint, hit.eyev,
-                                       hit.normalv, Light::isInShadow(world, hit.overPoint));
+            Color rayTarget(0,0,0);
+            for (size_t i = 0; i < world.numLights; i++)
+                rayTarget += lighting(hit.object.material, &hit.object, world.lightSources[i], hit.overPoint, hit.eyev,
+                                       hit.normalv, Light::isInShadow(world, hit.overPoint, world.lightSources[i]));
             Color reflectedRay = Light::reflected(world, hit, countdown);
             Color refractedRay = Light::refracted(world, hit, countdown);
 
-            Material mat = hit.object.material;
+            ::Light::Material mat = hit.object.material;
             if (mat.reflectivity > 0 && mat.transparency > 0) {
                 double reflectance = fresnelContribution(hit);
                 return rayTarget + (reflectedRay * reflectance) + (refractedRay * (1 - reflectance));

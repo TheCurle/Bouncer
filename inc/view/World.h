@@ -19,12 +19,14 @@
 struct World {
     std::unique_ptr<Geo*[]> objects;
     size_t numObjs;
-    PointLight lightSource;
+    std::unique_ptr<Light::Light[]> lightSources;
+    size_t numLights;
 
-    World() : objects(nullptr), numObjs(0), lightSource(PointLight({ 0, 0, 0 }, { 0, 0, 0 })) {}
+    World() : objects(nullptr), numObjs(0), lightSources(nullptr) {}
 
-    World(std::initializer_list<Geo*> geo, const PointLight& light) : objects(std::make_unique<Geo*[]>(geo.size())), numObjs(geo.size()), lightSource(light) {
+    World(std::initializer_list<Geo*> geo, const std::initializer_list<Light::Light>& lights) : objects(std::make_unique<Geo*[]>(geo.size())), numObjs(geo.size()), lightSources(std::make_unique<Light::Light[]>(lights.size())), numLights(lights.size()) {
         std::copy(geo.begin(), geo.end(), objects.get());
+        std::copy(lights.begin(), lights.end(), lightSources.get());
     }
 
     void addObjects(std::initializer_list<Geo*> init) {
@@ -39,11 +41,14 @@ struct World {
     static World defaultWorld() {
         return World(
                 {
-                    new Sphere(Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200, 0, 0, 1)),
+                    new Sphere(Light::Material({ 0.8, 1.0, 0.6 }, 0.1, 0.7, 0.2, 200, 0, 0, 1)),
                     new Sphere(Matrix::scaling(0.5, 0.5, 0.5))
                 },
 
-                PointLight({ -10, 10, -10 }, { 1, 1, 1 } )
+                {
+                    { Light::Type::POINT, { -10, 10, -10 }, { 1, 1, 1 } },
+                    { Light::Type::AMBIENT, { 0, 0, 0 }, { 1, 1, 1 } }
+                }
         );
     }
 };
