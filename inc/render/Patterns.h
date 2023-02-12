@@ -3,16 +3,15 @@
  *     BOUNCER *
  ***************/
 
+#pragma once
 #include <catch2/catch_test_macros.hpp>
 #include <utility>
 #include <core/Matrix.h>
-#include <render/Light.h>
+#include <core/Raster.hpp>
 
-#pragma once
 struct Geo;
 
 namespace Pattern {
-    // Due to the One Definition Rule, this function is defined in Geometry.h
     Color colorAt(const Point& point, Geo* object);
 
     // Two-color pattern template.

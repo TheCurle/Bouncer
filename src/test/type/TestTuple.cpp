@@ -241,12 +241,17 @@ SCENARIO("Computing the magnitude of vector(0, 0, 1)", "[Tuple]") {
     }
 }
 
+// Compare two doubles with tolerance.
+bool safeCompare(double a, double b) {
+    return std::abs(a - b) < 0.001;
+}
+
 SCENARIO("Computing the magnitude of vector(1, 2, 3)", "[Tuple]") {
     GIVEN("v <- vector(1, 2, 3)") {
         Vector v(1, 2, 3);
 
         THEN("v.magnitude() = √14") {
-            REQUIRE(Tuple::safeCompare(v.magnitude(), sqrt(14)));
+            REQUIRE(safeCompare(v.magnitude(), sqrt(14)));
         }
     }
 }

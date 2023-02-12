@@ -32,13 +32,11 @@ public:
     }
 
     static Color black() {
-        static Color black = { 0, 0, 0 };
-        return black;
+        return Color { 0, 0, 0 };
     }
 
     static Color white() {
-        static Color white = { 1, 1, 1 };
-        return white;
+        return Color { 1, 1, 1 };
     }
 
     // Return the red component

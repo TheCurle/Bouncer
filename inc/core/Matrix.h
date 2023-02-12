@@ -5,7 +5,7 @@
 
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 
 #include <utility>
 #include <vector>
@@ -15,9 +15,6 @@
 #include <core/Tuple.hpp>
 
 #pragma once
-
-struct Matrix;
-Matrix operator/(Matrix thisMatrix, double dbl);
 
 bool safeCompare(double a, double b);
 
@@ -32,7 +29,7 @@ bool safeCompare(double a, double b);
 
 struct Matrix {
     // The dimension of the matrix. Only square matrices can be represented this way.
-    size_t size;
+    size_t size{};
     std::unique_ptr<double[]> data;
 
     // Retrieve the Identity matrix. Transforms and multiplications to this are effectively null.
@@ -107,7 +104,7 @@ struct Matrix {
 
     // Calculate the determinant of this matrix, via the Laplace Expansion.
     // Used to check whether the matrix is invertible.
-    static double determinant(Matrix in) {
+    static double determinant(const Matrix& in) {
         // We can only directly check a 2x2 matrix.
         if (in.size == 2) {
             return ((in.at(0, 0) * in.at(1, 1)) - (in.at(0, 1) * in.at(1, 0)));
@@ -186,13 +183,13 @@ struct Matrix {
                 }
             }
             double scale = input_matrix.at(i, i);
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(size, input_matrix, scale, ident, i)
             for (int col = 0; col < size; col++) {
                 input_matrix.at(i, col) = input_matrix.at(i, col) / scale;
                 ident.at(i, col) = ident.at(i, col) / scale;
             }
             if (i < size - 1) {
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(size, input_matrix, scale, ident, i)
                 for (int row = i + 1; row < size; row++) {
                     double factor = input_matrix.at(row, i);
                     for (int col = 0; col < size; col++) {
@@ -204,7 +201,7 @@ struct Matrix {
         }
 
         for (int zeroing_col = size - 1; zeroing_col >= 1; zeroing_col--) {
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(zeroing_col, input_matrix, size, ident)
             for (int row = zeroing_col - 1; row >= 0; row--) {
                 double factor = input_matrix.at(row, zeroing_col);
                 for (int col = 0; col < size; col++) {
@@ -218,7 +215,7 @@ struct Matrix {
 
 
     // Calculate the matrix that reverses the multiplication of the given matrix. Essentially "1/x" but for matrices.
-    static Matrix inverse(Matrix in) {
+    static Matrix inverse(const Matrix& in) {
         const double determinant = Matrix::determinant(in);
         Matrix cofactors(in.size, in.size);
 
@@ -239,7 +236,7 @@ struct Matrix {
     }
 
     // Transpose the matrix; columns become rows, and rows become columns.
-    static Matrix transpose(Matrix in) {
+    static Matrix transpose(const Matrix& in) {
         Matrix out(in.size, in.size);
 
         for (size_t i = 0; i < in.size; ++i) {
@@ -297,91 +294,84 @@ struct Matrix {
     }
 
     // A simpler way to retrieve the data at known coordinates.
-    inline double& at(int width, int height) const {
+    [[nodiscard]] inline double& at(int width, int height) const {
         return data[width * size + height];
+    }
+
+    // Compare the equality of two matrices directly.
+    bool operator==(const Matrix& otherMatrix) const {
+        for (size_t i = 0; i < size * size; ++i) {
+            if (!safeCompare(data[i], otherMatrix.data[i]))
+                return false;
+        }
+
+        return true;
+    }
+
+    // Inverted equality check.
+    bool operator!=(const Matrix& otherMatrix) {
+        return !(*this == otherMatrix);
+    }
+
+    // Matrix multiplication. By-The-Books.
+    Matrix operator*(const Matrix& otherMatrix) {
+        Matrix result(size, size);
+
+        for (size_t row = 0; row < size; row++) {
+            for (size_t column = 0; column < size; column++) {
+                for(size_t idx = 0; idx < size; idx++) {
+                    result.at(row, idx) += at(row, column) * otherMatrix.at(column, idx);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    Tuple operator*(const Tuple& tup) const {
+        double x =
+                tup.x * at(0, 0) +
+                tup.y * at(0, 1) +
+                tup.z * at(0, 2) +
+                tup.w * at(0, 3);
+
+        double y =
+                tup.x * at(1, 0) +
+                tup.y * at(1, 1) +
+                tup.z * at(1, 2) +
+                tup.w * at(1, 3);
+
+        double z =
+                tup.x * at(2, 0) +
+                tup.y * at(2, 1) +
+                tup.z * at(2, 2) +
+                tup.w * at(2, 3);
+
+        double w =
+                tup.x * at(3, 0) +
+                tup.y * at(3, 1) +
+                tup.z * at(3, 2) +
+                tup.w * at(3, 3);
+
+        return {x, y, z, w };
+    }
+
+    // Matrix division by a double.. By-The-Books.
+    Matrix operator/( const double& dbl) const {
+        Matrix result(size, size);
+
+        for (size_t row = 0; row < size; row++) {
+            for (size_t column = 0; column < size; column++) {
+                result.data[row * size + column] =
+                        at(row, column) / dbl;
+            }
+        }
+
+        return result;
     }
 };
 
-bool operator==(const Matrix& thisMatrix, const Matrix& otherMatrix);
-bool operator!=(const Matrix& thisMatrix, const Matrix& otherMatrix);
-Matrix operator*(const Matrix& thisMatrix, const Matrix& otherMatrix);
-Matrix operator/(Matrix& thisMatrix, double dbl);
-Tuple operator*(const Matrix& mat, const Tuple& tup);
 std::ostream& operator<<(std::ostream& stream, const Matrix& matrix);
-
-//#define MATRIX_OPERATOR_OVERLOADS
-#ifdef MATRIX_OPERATOR_OVERLOADS
-// Compare the equality of two matrices directly.
-bool operator==(const Matrix& thisMatrix, const Matrix& otherMatrix) {
-    for (size_t i = 0; i < thisMatrix.size * thisMatrix.size; ++i) {
-        if (!safeCompare(thisMatrix.data[i], otherMatrix.data[i]))
-            return false;
-    }
-
-    return true;
-}
-
-// Inverted equality check.
-bool operator!=(const Matrix& thisMatrix, const Matrix& otherMatrix) {
-    return !(thisMatrix== otherMatrix);
-}
-
-// Matrix multiplication. By-The-Books.
-Matrix operator*(const Matrix& thisMatrix, const Matrix& otherMatrix) {
-    Matrix result(thisMatrix.size, thisMatrix.size);
-
-    for (size_t row = 0; row < thisMatrix.size; row++) {
-        for (size_t column = 0; column < thisMatrix.size; column++) {
-            for(size_t idx = 0; idx < thisMatrix.size; idx++) {
-                result.at(row, idx) += thisMatrix.at(row, column) * otherMatrix.at(column, idx);
-            }
-        }
-    }
-
-    return result;
-}
-
-Tuple operator*(const Matrix& mat, const Tuple& tup) {
-    double x =
-            tup.x * mat.at(0, 0) +
-            tup.y * mat.at(0, 1) +
-            tup.z * mat.at(0, 2) +
-            tup.w * mat.at(0, 3);
-
-    double y =
-            tup.x * mat.at(1, 0) +
-            tup.y * mat.at(1, 1) +
-            tup.z * mat.at(1, 2) +
-            tup.w * mat.at(1, 3);
-
-    double z =
-            tup.x * mat.at(2, 0) +
-            tup.y * mat.at(2, 1) +
-            tup.z * mat.at(2, 2) +
-            tup.w * mat.at(2, 3);
-
-    double w =
-            tup.x * mat.at(3, 0) +
-            tup.y * mat.at(3, 1) +
-            tup.z * mat.at(3, 2) +
-            tup.w * mat.at(3, 3);
-
-    return {x, y, z, w };
-}
-
-// Matrix division by a double.. By-The-Books.
-Matrix operator/(const Matrix& thisMatrix, const double& dbl) {
-    Matrix result(thisMatrix.size, thisMatrix.size);
-
-    for (size_t row = 0; row < thisMatrix.size; row++) {
-        for (size_t column = 0; column < thisMatrix.size; column++) {
-            result.data[row * thisMatrix.size + column] =
-                    thisMatrix.at(row, column) / dbl;
-        }
-    }
-
-    return result;
-}
 
 // A simple wrapper class that allows you to print tables (such as matrices) to stdout
 struct TableFormat {
@@ -398,18 +388,3 @@ struct TableFormat {
         return *this;
     }
 };
-
-// Matrix stream operator. Allows you to print a Matrix directly into stdout.
-std::ostream& operator<<(std::ostream& stream, const Matrix& matrix) {
-    TableFormat formatter;
-
-    for (size_t row = 0; row < matrix.size; row++) {
-        for (size_t column = 0; column < matrix.size; column++) {
-            formatter << matrix.at(row, column);
-        }
-        formatter << std::endl;
-    }
-
-    return stream;
-}
-#endif

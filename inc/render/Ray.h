@@ -61,7 +61,7 @@ namespace RT {
 
     // A collection of Intersection objects.
     struct Intersections {
-        size_t size;
+        size_t size = 0;
         std::unique_ptr<Intersection[]> isections;
 
         template <class iter>
@@ -99,7 +99,7 @@ namespace RT {
 
         // Return the lowest non-negative intersection in the list.
         // This is made easier by the sorting on construction.
-        Intersection hit() {
+        [[nodiscard]] Intersection hit() const {
             for (size_t i = 0; i < size; i++) {
                 if (isections[i].time >= 0) return isections[i];
             }

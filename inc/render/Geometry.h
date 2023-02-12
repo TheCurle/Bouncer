@@ -42,9 +42,18 @@ struct Geo {
         material = Material();
     }
 
+    // Fetch the name of this geometry object, as a C-String.
+    virtual const char* getName() const {
+        return "Unknown Geometry";
+    };
+
     void setMatrix(const Matrix& mat) {
         transform = mat;
         inverseTransform = Matrix::fastInverse(mat);
+    }
+
+    bool operator==(const Geo& x) const {
+        return transform == x.transform && material == x.material;
     }
 
     // Get the normal vector at the given point on the object.
@@ -65,7 +74,7 @@ struct Sphere : public Geo {
     Sphere(Sphere&) = default;
     Sphere(Sphere&&) = default;
 
-    static Sphere glassSphere() {
+    static Sphere& glassSphere() {
         static Material glassMaterial;
         glassMaterial.diffuse = 0;
         glassMaterial.transparency = 1;
@@ -82,6 +91,10 @@ struct Sphere : public Geo {
     explicit Sphere(const Matrix& trans) {
         transform = trans;
         inverseTransform = Matrix::fastInverse(trans);
+    }
+
+    const char* getName() const override {
+        return "Sphere";
     }
 
     void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) override {
@@ -145,6 +158,10 @@ struct Plane : public Geo {
         return Vector(inverseTransform * normal);
     }
 
+    const char* getName() const override {
+        return "Plane";
+    }
+
     // Intersecting the ray with a plane is simple; translate the ray, check whether it's parallel, and append the intersection.
     void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) override {
         RT::Ray r2 = RT::Ray::transform(r, inverseTransform);
@@ -156,14 +173,6 @@ struct Plane : public Geo {
         s.emplace_back(RT::Intersection(t, this));
     }
 };
-
-bool operator==(const Geo& x, const Geo& y);
-
-#ifdef GEOMETRY_OPERATOR_OVERLOADS
-bool operator==(const Geo& x, const Geo& y) {
-    return x.transform == y.transform && x.material == y.material;
-}
-#endif
 
 
 // Specializations to allow Catch to print these types
@@ -186,54 +195,4 @@ namespace Catch {
             return buf.str();
         }
     };
-}
-
-inline RT::IntersectionDetail RT::Intersection::fillDetail(const Intersection& i, Ray r, Intersections& isections) {
-    Point hitPos = Ray::position(r, i.time);
-    Vector hitNormal = i.object->normalAt(hitPos);
-    Vector eyeDir = -r.direction;
-    Vector reflectv = r.direction.reflect(hitNormal);
-
-    bool inside = (hitNormal * eyeDir) < 0;
-    if (inside) {
-        hitNormal = -hitNormal;
-    }
-
-    Point bumpPoint = Point(hitPos + hitNormal * 0.001);
-    Point underPoint = Point(hitPos - hitNormal * 0.001);
-
-    double n1 = 1;
-    double n2 = 1;
-
-    std::vector<Geo*> containers;
-    containers.reserve(isections.size);
-    for (size_t idx = 0; idx < isections.size; idx++) {
-        if (isections[idx] == i)
-            if (!containers.empty())
-                n1 = containers.back()->material.refractiveIndex;
-
-        auto pos = std::find(containers.begin(), containers.end(), isections[idx].object);
-        if (pos != containers.end()) {
-            containers.erase(pos);
-        } else
-            containers.emplace_back(isections[idx].object);
-
-        if (isections[idx] == i) {
-            if (!containers.empty())
-                n2 = containers.back()->material.refractiveIndex;
-            break;
-        }
-    }
-
-
-    return { i.time, *i.object, hitPos, bumpPoint, underPoint, eyeDir, hitNormal, reflectv, n1, n2, inside };
-}
-
-namespace Pattern {
-    inline Color colorAt(const Point& point, Geo* object) {
-        Point objectPoint = Point(object->inverseTransform * point);
-        Point patternPoint = Point(object->material.pattern->inverseTransform * objectPoint);
-
-        return object->material.pattern->at(patternPoint);
-    }
 }

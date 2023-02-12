@@ -23,19 +23,16 @@ struct TupleContainer {
     double z;
     double w;
 
+    // Compare two doubles with tolerance.
+    bool safeCompare(double a, double b) const {
+        return std::abs(a - b) < 0.001;
+    }
+
     // Overloaded equality operator, to account for the weirdness of the 4 dimensions.
     bool operator==(const TupleContainer& other) const {
         return safeCompare(other.x, x) && safeCompare(other.y, y) &&
                  safeCompare(other.z, z) && safeCompare(other.w, w);
     }
-    
-    // Compare two doubles with tolerance.
-    static bool safeCompare(double a, double b) {
-        return std::abs(a - b) < epsilon;
-    }
-
-    // The tolerance for comparisons.
-    static constexpr double epsilon = 0.001;
 };
 
 /**
@@ -98,6 +95,10 @@ public:
  */
 class Vector : public Tuple {
     public:
+    // Compare two doubles with tolerance.
+    bool safeCompare(double a, double b) const {
+        return std::abs(a - b) < 0.001;
+    }
 
 // Overloaded equality operator to safe-compare the components.
     bool operator==(const Tuple& other) const {
@@ -156,7 +157,7 @@ class Vector : public Tuple {
     // Normalize this vector to a unit vector.
     Tuple normalize() {
         double mag = magnitude();
-        if(mag < Tuple::epsilon)
+        if(mag < 0.001)
             return {0, 0, 0, 0};
 
         return {x / mag, y / mag, z / mag, w};
@@ -173,6 +174,10 @@ class Vector : public Tuple {
  */
 class Point : public Tuple {
     public:
+    // Compare two doubles with tolerance.
+    bool safeCompare(double a, double b) const {
+        return std::abs(a - b) < 0.001;
+    }
 
     // Overloaded equality operator to safe-compare the components.
     bool operator==(const Tuple& other) const {
