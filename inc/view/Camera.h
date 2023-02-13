@@ -50,6 +50,20 @@ struct Camera {
         inverseTransform = Matrix::identity();
     }
 
+    Camera& operator=(const Camera& other) {
+        horizontalSize = other.horizontalSize;
+        verticalSize = other.verticalSize;
+        halfWidth = other.halfWidth;
+        halfHeight = other.halfHeight;
+        pixelSize = other.pixelSize;
+        fieldOfView = other.fieldOfView;
+        transform = other.transform;
+        inverseTransform = other.inverseTransform;
+        pos = other.pos;
+        target = other.target;
+        upVec = other.upVec;
+    }
+
     void setTransform(const Matrix& mat) {
         transform = mat;
         inverseTransform = Matrix::fastInverse(mat);

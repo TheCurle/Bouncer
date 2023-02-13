@@ -24,18 +24,25 @@ class FramebufferView : public olc::PixelGameEngine {
     Framebuffer frame;
     World w;
     Camera cam;
+    // A copy of the camera, used for the base position at the start of an arcball rotation.
+    Camera camCached;
     std::thread raytraceThread;
 
     // Should another frame start rendering as soon as the current is finished?
     bool rerender = false;
     // Is the current frame finished rendering?
     std::atomic_bool renderComplete = false;
+    // Should a fast-rendering preview be used instead of the full reflection model?
+    std::atomic_bool renderFast = false;
     // Is this the first frame being rendered?
     bool firstFrame = true;
 
     // A copy of the last known Mouse X and Y values, since the engine doesn't keep track of this..
     int32_t mouseXLast = 0;
     int32_t mouseYLast = 0;
+    // The x and y that the currently held click started at.
+    int32_t mouseXClickStart = 0;
+    int32_t mouseYClickStart = 0;
 
     // GUI elements
     QuickGUI::Manager gui;
@@ -58,7 +65,7 @@ public:
     // Dispatches threads to do the actual work.
     void render() {
         renderComplete = false;
-        w.renderRT(cam, frame, 0, 0, framewidth, frameheight);
+        w.renderRT(cam, frame, 0, 0, framewidth, frameheight, renderFast);
         renderComplete = true;
     }
 
@@ -133,10 +140,12 @@ public:
 
     // Update the camera's angles using the azimuth and elevation sliders.
     void updateCameraAngles() {
-        float deltaAngleX = (2 * M_PI / framewidth);
-        float deltaAngleY = (M_PI / frameheight);
-        float xAngle = (mouseXLast - GetMouseX()) * deltaAngleX;
-        float yAngle = (mouseYLast - GetMouseY()) * deltaAngleY;
+        float deltaAngleX = (2 * M_PI / framewidth / 10);
+        float deltaAngleY = (M_PI / frameheight / 10);
+        float xAngle = (float) (mouseXClickStart - GetMousePos().x) * deltaAngleX;
+        float yAngle = (float) (mouseYClickStart - GetMousePos().y) * deltaAngleY;
+
+        cam = camCached;
 
         Matrix xRot = Matrix::rotation_x(xAngle);
         cam.pos = Point((xRot * (cam.pos - cam.target)) + cam.target);
@@ -145,7 +154,6 @@ public:
         cam.pos = Point((yRot * (cam.pos - cam.target)) + cam.target);
 
         cam.setTransform(cam.pos, cam.target, cam.upVec);
-
         rerender = true;
     }
 
@@ -168,7 +176,7 @@ public:
         }
 
         // Tell the engine to rerender if any parameters have changed.
-        rerender = colorRedSlider->changed || colorGreenSlider->changed
+        rerender |= colorRedSlider->changed || colorGreenSlider->changed
                 || colorBlueSlider->changed || reflectivitySlider->changed
                 || transparencySlider->changed || diffuseSlider->changed
                 || ambientSlider->changed;
@@ -197,10 +205,22 @@ public:
 
         Clear(olc::BLACK);
 
+        renderFast = GetMouse(0).bHeld;
+        if (GetMouse(0).bPressed) {
+            mouseXClickStart = GetMouseX();
+            mouseYClickStart = GetMouseY();
+            camCached = cam;
+        }
+
+        if ((GetMouseX() != mouseXLast || GetMouseY() != mouseYLast) && GetMouse(0).bHeld)
+            updateCameraAngles();
+
         // Don't do any render-thread manipulation unless an image is finished; an async semaphore.
         if (renderComplete) {
             // If the current render job is finished, destroy its thread
             if (raytraceThread.joinable()) raytraceThread.join();
+
+
             // Now that nothing is reading the data of the sliders, we can update and change them.
             updateSliders();
             // If another frame needs to start,
@@ -214,8 +234,6 @@ public:
             if (firstFrame) firstFrame = false;
         }
 
-        if ((GetMouseX() != mouseXLast || GetMouseY() != mouseYLast) && GetMouse(1).bPressed)
-            updateCameraAngles();
 
         // Asynchronously from the actual image being rendered, we can still draw it to the screen.
         // This produces the stripe effect as the image updates.
@@ -239,8 +257,10 @@ public:
 
         gui.Draw(this);
 
-        mouseXLast = GetMouseX();
-        mouseYLast = GetMouseY();
+        if (!GetMouse(0).bHeld) {
+            mouseXLast = GetMousePos().x;
+            mouseYLast = GetMousePos().y;
+        }
 
         return true;
     }
