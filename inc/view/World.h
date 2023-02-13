@@ -61,14 +61,14 @@ struct World {
     }
 
     // Render this world using Ray Tracing, onto the given canvas.
-    void renderRT(const Camera& cam, Framebuffer& canvas, int fromX, int fromY, int toX, int toY) {
+    void renderRT(const Camera& cam, Framebuffer& canvas, int fromX, int fromY, int toX, int toY, bool fast) {
         auto startTime = std::chrono::system_clock::now();
 
-        #pragma omp target teams distribute parallel for default(none) shared(canvas, cam, fromX, fromY, toX, toY)
+        #pragma omp target teams distribute parallel for default(none) shared(canvas, cam, fromX, fromY, toX, toY, fast)
         for (int y = fromY; y < toY; y++) {
             for (int x = fromX; x < toX; x++) {
                 RT::Ray r = cam.rayForPixel(x, y);
-                Color pix = Light::at(*this, r);
+                Color pix = Light::at(*this, r, 10, fast);
                 canvas.set(x, y, pix);
             }
         }

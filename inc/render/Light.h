@@ -14,7 +14,7 @@
 struct World;
 
 namespace Light {
-    Color at(World& w, RT::Ray r, int countdown = 10);
+    Color at(World& w, RT::Ray r, int countdown = 10, bool simpleMode = false);
 }
 
 // Represents a single point emitting light of a given brightness.

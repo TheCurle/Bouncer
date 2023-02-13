@@ -118,7 +118,7 @@ namespace Light {
     }
 
     // Calculate the color at the intersection between the ray and the world.
-    Color at(World& w, RT::Ray r, int countdown) {
+    Color at(World& w, RT::Ray r, int countdown, bool simpleMode) {
         RT::Intersections isections = w.intersect(r);
         RT::Intersection hit = isections.hit();
 
@@ -126,6 +126,9 @@ namespace Light {
 
         RT::IntersectionDetail detail = RT::Intersection::fillDetail(hit, r, isections);
 
-        return shadeHit(w, detail, countdown);
+        if (simpleMode)
+            return detail.object.material.color;
+        else
+            return shadeHit(w, detail, countdown);
     }
 }
