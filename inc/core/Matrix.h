@@ -175,8 +175,9 @@ struct Matrix {
 
     // A fast, highly parallel function to calculate the inverse of a matrix.
     // See inverse below for a more visual explanation of what is going on here.
-    static Matrix fastInverse(const Matrix& input_matrix ) {
-        int size = input_matrix.size;
+    static Matrix fastInverse(const Matrix& mat ) {
+        int size = mat.size;
+        Matrix input_matrix = mat;
 
         Matrix ident = Matrix::identity();
         for (int i = 0; i < size; i++) {
@@ -286,9 +287,13 @@ struct Matrix {
 
     Matrix& operator=(const Matrix& matrix) {
         size = matrix.size;
+        data.release();
         data = std::make_unique<double[]>(matrix.size * matrix.size);
 
-        std::copy(matrix.data.get(), matrix.data.get() + matrix.size * matrix.size, data.get());
+        for (size_t y = 0; y < size; y++)
+            for (size_t x = 0; x < size; x++)
+                data[y * size + x] = matrix.data[y * size + x];
+
         return *this;
     }
 

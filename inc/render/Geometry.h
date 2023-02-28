@@ -51,7 +51,8 @@ struct Geo {
 
 
     void setMatrix(const Matrix& mat) {
-        transform = mat;
+        if (!(mat == transform))
+            transform = mat;
         inverseTransform = Matrix::fastInverse(mat);
 
         center = getCenter();

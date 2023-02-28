@@ -89,10 +89,12 @@ public:
         two->setMatrix(Matrix::translation(100, 0, 200) * Matrix::scaling(100, 100, 100));
         auto* three = new Sphere;
         three->setMatrix(Matrix::translation(-100, 0, -200) * Matrix::scaling(100, 100, 100));
+        auto* four = new Sphere;
+        four->setMatrix(Matrix::translation(200, 200, 200) * Matrix::scaling(100, 100, 100));
 
         // Set up the world objects and a light.
         w = World(
-                { one, two, three },
+                { one, two, three, four },
                 { { -50, 100, -250 }, { 1, 1, 1 } }
         );
 
@@ -340,7 +342,7 @@ public:
 };
 
 // The tolerance for comparisons.
-static constexpr double epsilon = 0.0001;
+static constexpr double epsilon = 0.001;
 // Compare two doubles with tolerance.
 bool safeCompare(double a, double b) {
     return abs(a - b) < epsilon;
