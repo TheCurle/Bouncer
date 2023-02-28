@@ -102,6 +102,16 @@ struct Matrix {
         }};
     }
 
+    static Matrix rotation(Quat& q) {
+        double x = q.x, y = q.y, z = q.z, s = q.w;
+        return Matrix { {
+            { 1 - 2*y*y - 2*z*z, 2*x*y - 2*s*z, 2*x*z + 2*s*y, 0 },
+            { 2*x*y + 2*s*z, 1 - 2*x*x - 2*z*z, 2*y*z - 2*s*x, 0 },
+            { 2*x*z - 2*s*y, 2*y*z + 2*s*x, 1 - 2*x*x - 2*y*y, 0 },
+            { 0, 0, 0, 1 }
+        }};
+    }
+
     // Calculate the determinant of this matrix, via the Laplace Expansion.
     // Used to check whether the matrix is invertible.
     static double determinant(const Matrix& in) {
@@ -222,7 +232,7 @@ struct Matrix {
         // The algorithm boils down to:
         // 1. Create a matrix filled with the cofactors of each position of the current matrix.
         // 2. Divide each cofactor by the determinant of the matrix.
-        // 3. Transpose the matrix (replace each row with each column.
+        // 3. Transpose the matrix (replace each row with each column).
 
         // This loop will do it all in one go; notice that the width and height is different in each access.
         // This will cause problems if the determinant is 0 for whatever reason, though.
@@ -368,6 +378,17 @@ struct Matrix {
         }
 
         return result;
+    }
+
+    Point toTranslation() const {
+        return { data[3], data[7], data[11] };
+    }
+
+    Matrix& setTranslation(const Point& p) {
+        data[3] = p.x;
+        data[7] = p.y;
+        data[11] = p.z;
+        return *this;
     }
 };
 

@@ -20,6 +20,8 @@
 struct Geo {
     // The integer ID of this object
     int id;
+    // A reference for where the object's center is located. Used for object manipulation.
+    Point center;
     // Transformation of this object; determines how it is moved and rotated relative to the world origin.
     Matrix transform;
     // Inverse transformation; determines how the world must be moved and rotated relative to the object.
@@ -27,7 +29,7 @@ struct Geo {
     // Render material detail. Determines how it is rendered and the effect of various lighting calculations.
     Material material;
 
-    Geo() {
+    Geo() : center{ 0, 0, 0 }{
         static int ids = 0;
         id = ids++;
 
@@ -36,7 +38,7 @@ struct Geo {
         material = Material();
     }
 
-    explicit Geo(int nid) {
+    explicit Geo(int nid) : center { 0, 0, 0 } {
         id = nid;
         transform = Matrix::identity();
         material = Material();
@@ -47,9 +49,16 @@ struct Geo {
         return "Unknown Geometry";
     };
 
+
     void setMatrix(const Matrix& mat) {
         transform = mat;
         inverseTransform = Matrix::fastInverse(mat);
+
+        center = getCenter();
+    }
+
+    Point getCenter() {
+        return transform.toTranslation();
     }
 
     bool operator==(const Geo& x) const {

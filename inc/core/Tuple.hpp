@@ -217,6 +217,27 @@ class Point : public Tuple {
     };
 };
 
+
+/**
+ * A quaternion; represents rotation as x,y,z coordinates on the unit sphere, along with a scalar w for more resolution.
+ * Can be multiplied with matrices.
+ */
+class Quat : public Tuple {
+public:
+    // Value constructor. Set all values implicitly.
+    Quat(double s, double x, double y, double z) : Tuple(x,y,z,s) {}
+
+    // Build a quat relative to the given point on the unit sphere.
+    static Quat of(Point& p) {
+        auto v = (Vector) p;
+        double dist = v*v;
+        if (dist <= 1.0f)
+            return {0.0, p.x, p.y, std::sqrt(1.0f - dist)};
+        else
+            return {0.0, v.normalize().x, v.normalize().y, 0.0};
+    }
+};
+
 // Specializations to allow Catch to print these types
 
 namespace Catch {
