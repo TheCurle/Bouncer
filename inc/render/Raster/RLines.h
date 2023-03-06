@@ -12,22 +12,22 @@
 namespace Raster {
 
     void DrawLine(Framebuffer& f, Point p0, Point p1, Color c) {
-        float dx = p1.x - p0.x, dy = p1.y - p0.y;
+        double dx = p1.x - p0.x, dy = p1.y - p0.y;
         if (std::abs(dx) > std::abs(dy)) {
             // Horizontal line
             if (dx < 0) {
                 auto temp = p1; p1 = p0; p0 = temp;
             }
             auto ys = lerp(p0.x, p0.y, p1.x, p1.y);
-            for (float x = p0.x; x <= p1.x; ++x)
-                f.set(x, ys[x - p0.x], c);
+            for (double x = p0.x; x <= p1.x; ++x)
+                f.set((size_t) x, (size_t) ys[x - p0.x], c);
         } else {
             // Vertical line
             if (dy < 0) {
                 auto temp = p1; p1 = p0; p0 = temp;
             }
             auto xs = lerp(p0.y, p0.x, p1.y, p1.x);
-            for (float y = p0.y; y <= p1.y; ++y)
+            for (double y = p0.y; y <= p1.y; ++y)
                 f.set(xs[y - p0.y], y, c);
         }
     }

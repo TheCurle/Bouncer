@@ -7,17 +7,17 @@
 #pragma once
 
 namespace Raster {
-    inline std::vector<float> lerp(float i0, float d0, float i1, float d1) {
+    inline std::vector<double> lerp(double i0, double d0, double i1, double d1) {
 
         if (i0 == i1)
             return { d0 };
 
-        std::vector<float> vals;
+        std::vector<double> vals;
 
-        float a = (d1 - d0) / (i1 - i0);
-        float d = d0;
+        double a = (d1 - d0) / (i1 - i0);
+        double d = d0;
 
-        for (float i = i0; i <= i1; ++i) {
+        for (double i = i0; i <= i1; i+=1) {
             vals.emplace_back(d);
             d += a;
         }

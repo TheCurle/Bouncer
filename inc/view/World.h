@@ -22,7 +22,7 @@ struct World {
     std::unique_ptr<Light::Light[]> lightSources;
     size_t numLights;
 
-    World() : objects(nullptr), numObjs(0), lightSources(nullptr) {}
+    World() : objects(nullptr), numObjs(0), lightSources(nullptr), numLights(0) {}
 
     World(std::initializer_list<Geo*> geo, const std::initializer_list<Light::Light>& lights) : objects(std::make_unique<Geo*[]>(geo.size())), numObjs(geo.size()), lightSources(std::make_unique<Light::Light[]>(lights.size())), numLights(lights.size()) {
         std::copy(geo.begin(), geo.end(), objects.get());
@@ -36,6 +36,15 @@ struct World {
         numObjs += init.size();
         objects.release();
         objects = std::move(geos);
+    }
+
+    void addLights(std::initializer_list<Light::Light> lights) {
+        auto sources = std::make_unique<Light::Light[]>(numLights + lights.size());
+        std::copy(lightSources.get(), lightSources.get() + numLights, sources.get());
+        std::copy(lights.begin(), lights.end(), sources.get() + numLights);
+        numLights += lights.size();
+        lightSources.release();
+        lightSources = std::move(sources);
     }
 
     static World defaultWorld() {

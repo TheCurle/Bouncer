@@ -3,6 +3,7 @@
  *     STENCIL *
  ***************/
 
+#include <utility>
 #include <vector>
 #include <core/Tuple.hpp>
 #include <render/Geometry.h>
@@ -23,7 +24,7 @@ namespace Raster {
         Point boundingCenter;
         float boundingRadius;
 
-        Model(Mesh m, Matrix t) : Geo(), mesh(m), boundingCenter({ 0, 0, 0 }), boundingRadius(std::sqrt(3)) {
+        Model(Mesh m, const Matrix& t) : Geo(), mesh(std::move(m)), boundingCenter({ 0, 0, 0 }), boundingRadius((float) std::sqrt(3)) {
             setMatrix(t);
         }
 

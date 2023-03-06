@@ -81,6 +81,8 @@ public:
 
             w.addObjects({ cube1, cube2 });
 
+            w.addLights( { { Light::Type::POINT, { -10, -10, -10 }, { 1, 1, 1 } } });
+
             Raster::Render(w, frame, cam, db);
 
             auto endTime = std::chrono::system_clock::now();
@@ -106,9 +108,10 @@ public:
             }
 
         if (PixelGameEngine::GetKey(olc::Key::ESCAPE).bPressed) {
-            renderThread.join();
             olc_Terminate();
         }
+
+        if (renderThread.joinable()) renderThread.join();
 
         return true;
     }
@@ -186,10 +189,10 @@ int main(int argc, char* argv[]) {
     (void) argc;
     (void) argv;
 
-    RTView rt;
-    if (rt.Construct(framewidth, frameheight, 1, 1, false, true)) {
-        rt.Start();
-    }
+    //RTView rt;
+    //if (rt.Construct(framewidth, frameheight, 1, 1, false, true)) {
+    //    rt.Start();
+    //}
 
     RasterView raster;
     if (raster.Construct(framewidth, frameheight, 1, 1, false, true)) {

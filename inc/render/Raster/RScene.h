@@ -12,11 +12,11 @@
 
 namespace Raster {
 
-    inline Point projectPoint(Point p, Camera& c) {
+    inline Point projectPoint(const Point& p, Camera& c) {
         return { c.horizontalSize / 2 + (p.x * c.horizontalSize / 1), c.verticalSize / 2 + (p.y * c.verticalSize / 1), p.z };
     }
 
-    inline Point projectVertex(Point v, Camera& c) {
+    inline Point projectVertex(const Point& v, Camera& c) {
         return projectPoint({ v.x * 1 / v.z, v.y * 1 / v.z, v.z }, c);
     }
 
@@ -34,7 +34,7 @@ namespace Raster {
     }
 
     inline void Render(World& w, Framebuffer& f, Camera& c, DepthBuffer& d) {
-        float s2 = std::sqrt(2) / 2;
+        double s2 = std::sqrt(2) / 2;
         World& cW = ClipWorld(w, c, std::array<ClipPlane, 5> {{
             {{0, 0, 1}, -1},
             {{s2, 0, s2}, 0},
@@ -44,6 +44,6 @@ namespace Raster {
         }});
 
         for (size_t i = 0; i < w.numObjs; i++)
-            RenderModel(f, *static_cast<Model*>(cW.objects[i]), c, d, cW.lightSources, cW.numLights);
+            RenderModel(f, *dynamic_cast<Model*>(cW.objects[i]), c, d, cW.lightSources, cW.numLights);
     }
 }

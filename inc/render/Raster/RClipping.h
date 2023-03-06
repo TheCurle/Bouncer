@@ -13,14 +13,14 @@ namespace Raster {
         float distance;
     };
 
-    float getDistanceToPlane(ClipPlane p, Point pt) {
+    double getDistanceToPlane(const ClipPlane& p, const Point& pt) {
         return (pt.x * p.normal.x) + (pt.y * p.normal.y) + (pt.z + p.normal.z) + p.distance;
     }
 
-    std::list<Tri> ClipTriangle(Tri t, std::vector<Point> v, ClipPlane p) {
-        float d0 = getDistanceToPlane(p, v[t.p0]);
-        float d1 = getDistanceToPlane(p, v[t.p1]);
-        float d2 = getDistanceToPlane(p, v[t.p2]);
+    std::list<Tri> ClipTriangle(Tri t, std::vector<Point> v, const ClipPlane& p) {
+        double d0 = getDistanceToPlane(p, v[t.p0]);
+        double d1 = getDistanceToPlane(p, v[t.p1]);
+        double d2 = getDistanceToPlane(p, v[t.p2]);
 
         if (d0 > 0 && d1 > 0 && d2 > 0)
             return { t };
@@ -34,7 +34,7 @@ namespace Raster {
     }
 
     World& ClipWorld(World& w, Camera& c, std::array<ClipPlane, 5> planes) {
-        World* cWorld = new World {
+        auto* cWorld = new World {
                 {},
                 {}
         };
@@ -43,12 +43,12 @@ namespace Raster {
         cWorld->numLights = w.numLights;
         cWorld->lightSources = std::move(w.lightSources);
 
-        for (int i = 0; i < w.numObjs; ++i) {
-            Raster::Model* model = static_cast<Model*>(w.objects[i]);
+        for (size_t i = 0; i < w.numObjs; ++i) {
+            auto* model = dynamic_cast<Model*>(w.objects[i]);
 
             model->boundingCenter = Point(c.inverseTransform * model->inverseTransform * model->boundingCenter);
             for (auto& plane : planes) {
-                float distance = plane.normal * Vector(model->boundingCenter);
+                double distance = plane.normal * Vector(model->boundingCenter);
                 if (distance < -model->boundingRadius) {
                     std::cout << "Model " + std::to_string(model->id) + " being discarded because it is " + std::to_string(distance) + " units away from a clipping plane. Limit: " + std::to_string(-model->boundingRadius) << std::endl;
                     goto nextObject; // Early discard

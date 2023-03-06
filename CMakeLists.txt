@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 
 project(bouncer)
 
-enable_testing()
-
-# if you're on linux.... good luck
-list(APPEND CMAKE_PREFIX_PATH "D:/catch2/lib/cmake/Catch2")
-find_package(Catch2 3 REQUIRED)
 find_package(OpenMP REQUIRED)
 find_package(OpenGL REQUIRED)
 
@@ -21,14 +16,6 @@ file(GLOB renderer_src CONFIGURE_DEPENDS
         "src/render/*.cpp"
 )
 
-file(GLOB test_src CONFIGURE_DEPENDS
-        "src/test/*.cpp"
-        "src/test/render/*.cpp"
-        "src/test/geometry/*.cpp"
-        "src/test/type/*.cpp"
-        "src/test/view/*.cpp"
-)
-
 include_directories("inc")
 include_directories(${OPENGL_INCLUDE_DIR})
 
@@ -36,13 +23,3 @@ include_directories(${OPENGL_INCLUDE_DIR})
 add_executable(bouncer ${renderer_src})
 set_target_properties(bouncer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
 target_link_libraries(bouncer PRIVATE OpenMP::OpenMP_CXX ${OPENGL_LIBRARY} user32 gdi32 gdiplus Shlwapi dwmapi stdc++fs)
-
-add_executable(tests ${test_src})
-set_target_properties(tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain OpenMP::OpenMP_CXX)
-
-
-# Catch tests
-include(CTest)
-include(Catch)
-catch_discover_tests(tests)

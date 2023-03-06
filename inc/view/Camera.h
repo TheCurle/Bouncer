@@ -40,6 +40,10 @@ struct Camera {
         inverseTransform = Matrix::identity();
     }
 
+    Point getPosition() {
+        return { transform.data[3], transform.data[7], transform.data[11] };
+    }
+
     void setTransform(const Matrix& mat) {
         transform = mat;
         inverseTransform = Matrix::fastInverse(mat);
