@@ -76,8 +76,8 @@ public:
                 for (size_t x = 0; x < framewidth; x++)
                     frame.set(x, y, Color::white() );
 
-            Geo* cube1 = new Raster::Model(cube, Matrix::rotation_x(M_PI / 4) * Matrix::translation(-1.5, 0, 0));
-            Geo* cube2 = new Raster::Model(cube, Matrix::rotation_y(M_PI / 16) * Matrix::translation(1.5, 0, 0));
+            Geo* cube1 = new Raster::Model(cube, Matrix::rotation_x(M_PI / 4) * Matrix::translation(-1.5, 0, 0) * Matrix::scaling(100, 100, 100));
+            Geo* cube2 = new Raster::Model(cube, Matrix::rotation_y(M_PI / 16) * Matrix::translation(1.5, 0, 0) * Matrix::scaling(100, 100, 100));
 
             w.addObjects({ cube1, cube2 });
 

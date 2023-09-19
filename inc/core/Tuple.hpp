@@ -105,6 +105,10 @@ class Vector : public Tuple {
                  safeCompare(other.z, z) && safeCompare(other.w, w);
     }
 
+    Vector operator+(const Tuple& other) {
+        return { other.x + x, other.y + y, other.z + z };
+    }
+
     // Vector subtraction overload.
     Vector operator-(const Vector& other) {
         return {x - other.x, y - other.y, z - other.z};
@@ -190,6 +194,10 @@ class Point : public Tuple {
     // Returns the Point calculated by moving this Point by the given Vector.
     Point operator-(const Vector& other) const {
         return {x - other.x, y - other.y, z - other.z};
+    }
+
+    Point operator+(const Tuple& other) const {
+        return { other.x + x, other.y + y, other.z + z };
     }
 
     // Point value constructor.
