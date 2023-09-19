@@ -40,10 +40,11 @@ namespace Raster {
 
         bool flipped = false;
         Point p0 = v[t.p0], p1 = v[t.p1], p2 = v[t.p2];
+        size_t t0 = t.p0, t1 = t.p1, t2 = t.p2;
 
-        SWAP_IF_BIGGER(d0, d1, p0, p1, t.p0, t.p1)
-        SWAP_IF_BIGGER(d0, d2, p0, p2, t.p0, t.p2)
-        SWAP_IF_BIGGER(d1, d2, p1, p2, t.p1, t.p2)
+        SWAP_IF_BIGGER(d0, d1, p0, p1, t0, t1)
+        SWAP_IF_BIGGER(d0, d2, p0, p2, t0, t2)
+        SWAP_IF_BIGGER(d1, d2, p1, p2, t1, t2)
 
         if (d0 > 0) {
             return { t };
@@ -57,9 +58,9 @@ namespace Raster {
 
             Tri newTri;
             if (flipped)
-                newTri = { idx, idx + 1, t.p2, t.c };
+                newTri = { idx, idx + 1, t2, t.c };
             else
-                newTri = { idx + 1, idx, t.p2, t.c };
+                newTri = { idx + 1, idx, t2, t.c };
 
             return { newTri };
         } else {
@@ -73,11 +74,11 @@ namespace Raster {
 
             Tri new0, new1;
             if (flipped) {
-                new0 = {t.p2, t.p1, idx, t.c };
-                new1 = { idx, t.p1, idx + 1, t.c };
+                new0 = { t2, t1, idx, t.c };
+                new1 = { idx, t1, idx + 1, t.c };
             } else {
-                new0 = { t.p1, t.p2, idx, t.c };
-                new1 = { t.p1, idx, idx + 1, t.c };
+                new0 = { t1, t2, idx, t.c };
+                new1 = { t1, idx, idx + 1, t.c };
             }
 
             return { new0, new1 };
