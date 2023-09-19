@@ -17,23 +17,13 @@
 
 
 namespace Raster {
-    struct ClipPlane {
-        Vector normal;
-        float distance;
-
-        Point intersect(const Point& pA, const Point& pB) const {
-            Vector diff = (pA - pB);
-            double t = (-distance - (normal.x * pA.x + normal.y * pA.y + normal.z * pA.z)) / (normal.x * diff.x + normal.y * diff.y + normal.z * diff.z);
-            return pA + ( diff * t );
-        }
-    };
 
     double getDistanceToPlane(const ClipPlane& p, const Point& pt) {
         return (pt.x * p.normal.x) + (pt.y * p.normal.y) + (pt.z + p.normal.z) + p.distance;
     }
 
 
-    std::list<Tri> ClipTriangle(Tri t, std::vector<Point> v, const ClipPlane& p) {
+    std::list<Tri> RenderableModel::clipTriangle(Tri t, std::vector<Point> v, const ClipPlane& p) {
         double d0 = getDistanceToPlane(p, v[t.p0]);
         double d1 = getDistanceToPlane(p, v[t.p1]);
         double d2 = getDistanceToPlane(p, v[t.p2]);
@@ -85,7 +75,7 @@ namespace Raster {
         }
     }
 
-    World& ClipWorld(World& w, Camera& c, std::array<ClipPlane, 5> planes) {
+    World& ClipWorld(World& w) {
         auto* cWorld = new World {
                 {},
                 {}
@@ -98,35 +88,7 @@ namespace Raster {
         for (size_t i = 0; i < w.numObjs; ++i) {
             auto* model = dynamic_cast<Model*>(w.objects[i]);
 
-            model->boundingCenter = Point(c.inverseTransform * model->inverseTransform * model->boundingCenter);
-            for (auto& plane : planes) {
-                double distance = plane.normal * Vector(model->boundingCenter);
-                if (distance < -model->boundingRadius) {
-                    std::cout << "Model " + std::to_string(model->id) + " being discarded because it is " + std::to_string(distance) + " units away from a clipping plane. Limit: " + std::to_string(-model->boundingRadius) << std::endl;
-                    goto nextObject; // Early discard
-                }
-            }
-
-            for (auto& vert : model->mesh.vertices)
-                vert = Point(c.inverseTransform * model->inverseTransform * vert);
-
-            for (auto& plane : planes) {
-                std::vector<Tri> newTris;
-                for (std::vector<Tri>::iterator iter = model->mesh.tris.begin(); iter != model->mesh.tris.end(); iter++) {
-                    auto clipped = ClipTriangle(*iter, model->mesh.vertices, plane);
-                    if (clipped.size() > 0)
-                        newTris.insert(newTris.end(), clipped.begin(), clipped.end());
-                    else {
-                        model->mesh.tris.erase(iter);
-                        iter--;
-                    }
-                }
-                model->mesh.tris = newTris;
-            }
-
             cWorld->addObjects({ model });
-
-            nextObject:;
         }
 
         return *cWorld;

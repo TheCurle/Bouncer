@@ -178,6 +178,8 @@ class Vector : public Tuple {
 class Point : public Tuple {
     public:
 
+    Point() : Tuple(0, 0, 0, 1) {}
+
     // Overloaded equality operator to safe-compare the components.
     bool operator==(const Tuple& other) const {
         return safeCompare(other.x, x) && safeCompare(other.y, y) &&
