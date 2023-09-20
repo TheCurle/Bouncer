@@ -9,19 +9,18 @@
 namespace Raster {
     inline std::vector<double> lerp(double i0, double d0, double i1, double d1) {
 
-        if (i0 == i1)
-            return { d0 };
+        std::vector<double> list;
+        double working_value = d0;
+        double slope = (d1 - d0) / (i1 - i0);
 
-        std::vector<double> vals;
+        if (i0 > i1)
+            slope *= -1;
 
-        double a = (d1 - d0) / (i1 - i0);
-        double d = d0;
-
-        for (double i = i0; i <= i1; i+=1) {
-            vals.emplace_back(d);
-            d += a;
+        for (int i = 0; i <= abs(i1 - i0); i++) {
+            list.emplace_back(working_value);
+            working_value += slope;
         }
 
-        return vals;
+        return list;
     }
 }
