@@ -23,22 +23,6 @@ namespace Raster {
         }
     };
 
-    struct Mesh {
-        std::vector<Point> vertices;
-        std::vector<Tri> tris;
-    };
-
-    struct Model : public Geo {
-        Mesh mesh;
-
-        Model(Mesh m, const Matrix& t) : Geo(), mesh(std::move(m)) {
-            setMatrix(t);
-        }
-
-        Vector normalAt(const Point& p) override { return { 0, 0, 0 }; }
-
-    };
-
     class RenderableModel : public Model {
 
     public:

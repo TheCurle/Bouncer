@@ -20,7 +20,7 @@
 const int framewidth = 1280;
 const int frameheight = 720;
 
-Raster::Mesh cube = {
+Mesh cube = {
         {{
             {1, 1, 1},
             {-1, 1, 1},
@@ -48,6 +48,9 @@ Raster::Mesh cube = {
         }}
 };
 
+World w;
+Camera cam(1280, 720, 90);
+
 // Override base class with your custom functionality
 class RasterView : public olc::PixelGameEngine
 {
@@ -65,23 +68,11 @@ public:
                 for (size_t x = 0; x < framewidth; x++)
                     db.set(x, y, 0);
 
-            Camera cam(1280, 720, 90);
-            cam.setTransform(Matrix::rotation_y(M_PI / 14) * Matrix::translation(0, 0, -7));
-
-            World w;
-
             auto startTime = std::chrono::system_clock::now();
 
             for (size_t y = 0; y < frameheight; y++)
                 for (size_t x = 0; x < framewidth; x++)
                     frame.set(x, y, Color::white() );
-
-            Geo* cube1 = new Raster::Model(cube, Matrix::translation(-1.5, 0, 0) * Matrix::rotation_x(M_PI / 4) * Matrix::rasterScale(0.5, 0.5, 0.5));
-            Geo* cube2 = new Raster::Model(cube, Matrix::translation(1.5, 0, 0) * Matrix::rotation_y(M_PI / 16) *  Matrix::rasterScale(0.5, 0.5, 0.5));
-
-            w.addObjects({ cube1, cube2 });
-
-            w.addLights( { { Light::Type::POINT, { -10, -10, -10 }, { 1, 1, 1 } } });
 
             Raster::Render(w, frame, cam, db);
 
@@ -120,7 +111,6 @@ public:
 class RTView : public olc::PixelGameEngine
 {
     Framebuffer frame;
-    World w;
     std::thread raytraceThread;
 public:
     RTView() : frame(Framebuffer(1,1)) {
@@ -128,22 +118,6 @@ public:
         sAppName = "Bouncer Live View";
 
         raytraceThread = std::thread([&]() {
-            w = World::defaultWorld();
-
-            Plane floor;
-            floor.transform = Matrix::translation(0, 5, 0);
-            floor.material.diffuse = 1;
-            floor.material.transparency = 0.5;
-            floor.material.refractiveIndex = 1.5;
-            Sphere ball;
-            ball.transform = Matrix::translation(0, -3.5, -0.5);
-            ball.material.color = { 1, 0, 0 };
-            ball.material.ambient = 0.5;
-            w.addObjects( { &floor, &ball } );
-
-            Camera cam(framewidth, frameheight, M_PI / 3);
-            cam.setTransform(Camera::viewMatrix({ 0, 3, -3 }, { 0, -5, 0 }, { 0, 1, 0 }));
-
             frame = Framebuffer(cam.horizontalSize, cam.verticalSize);
 
             RT::render(w, cam, frame, 0, 0, framewidth, frameheight);
@@ -171,6 +145,7 @@ public:
         }
 
         if (PixelGameEngine::GetKey(olc::Key::ESCAPE).bPressed) {
+            raytraceThread.join();
             olc_Terminate();
         }
 
@@ -189,10 +164,21 @@ int main(int argc, char* argv[]) {
     (void) argc;
     (void) argv;
 
-    //RTView rt;
-    //if (rt.Construct(framewidth, frameheight, 1, 1, false, true)) {
-    //    rt.Start();
-    //}
+    Sphere sphere1;
+    sphere1.transform = Matrix::translation(-1.5, 0, 0) * Matrix::rotation_x(M_PI / 4) * Matrix::rasterScale(0.5, 0.5, 0.5);
+    Sphere sphere2;
+    sphere2.transform = Matrix::translation(1.5, 0, 0) * Matrix::rotation_y(M_PI / 16) *  Matrix::rasterScale(0.5, 0.5, 0.5);
+
+    w.addObjects({ &sphere1, &sphere2 });
+
+    w.addLights( { { Light::Type::POINT, { -10, -10, -10 }, { 1, 1, 1 } } });
+
+    cam.setTransform(Matrix::rotation_y(M_PI / 14) * Matrix::translation(0, 0, -7));
+
+    RTView rt;
+    if (rt.Construct(framewidth, frameheight, 1, 1, false, true)) {
+        rt.Start();
+    }
 
     RasterView raster;
     if (raster.Construct(framewidth, frameheight, 1, 1, false, true)) {

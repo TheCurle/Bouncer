@@ -9,8 +9,47 @@
 #include <render/Light.h>
 #ifdef GEO_RT
     #include <render/RT/Ray.h>
+#include "render/Raster/RTriangles.h"
+
 #endif
 #pragma once
+
+
+struct Mesh {
+    std::vector<Point> vertices;
+    std::vector<Raster::Tri> tris;
+};
+
+inline Mesh createSphere(int divs, Color c) {
+    std::vector<Point> vertices;
+    std::vector<Raster::Tri> triangles;
+
+    double delta_angle = 2.0 * M_PI / divs;
+
+    // Generate vertices and normals.
+    for (double d = 0; d < divs + 1; d++) {
+        double y = (2.0 / divs) * (d - divs/2);
+        double radius = std::sqrt(1.0 - y*y);
+        for (double i = 0; i < divs; i++) {
+            Point vertex = { radius * std::cos(i*delta_angle), y, radius * std::sin(i*delta_angle) };
+            vertices.emplace_back(vertex);
+        }
+    }
+
+    // Generate triangles.
+    for (double d = 0; d < divs; d++) {
+        for (double i = 0; i < divs; i++) {
+            size_t i0 = d * divs + i;
+            size_t i1 = ( d + 1) * divs + (int) (i + 1) % divs;
+            size_t i2 = divs * d + (int) (i + 1) % divs;
+
+            triangles.emplace_back(Raster::Tri { i0, i1, i2, c });
+            triangles.emplace_back(Raster::Tri { i0, i0 + divs, i1, c });
+        }
+    }
+
+    return { vertices, triangles };
+}
 
 /**
  * Represents a generic object that can be rendered.
@@ -58,14 +97,30 @@ struct Geo {
 
 };
 
+struct Model : public Geo {
+    Mesh mesh;
+
+    Model() : Geo(), mesh() {}
+
+    Model(Mesh m, const Matrix& t) : Geo(), mesh(std::move(m)) {
+        setMatrix(t);
+    }
+
+    Vector normalAt(const Point& p) override { return { 0, 0, 0 }; }
+
+};
+
 /**
  * A sphere.
  * By default, a unit sphere (of radius 1) centered on the origin (0, 0, 0).
  *
  * Apply transformations to move it.
  */
-struct Sphere : public Geo {
-    Sphere() = default;
+struct Sphere : public Model {
+    Sphere() : Model() {
+        mesh = createSphere(8, { 0, 0, 0 });
+    };
+
     Sphere(Sphere&) = default;
     Sphere(Sphere&&) = default;
 
@@ -83,12 +138,14 @@ struct Sphere : public Geo {
 
     explicit Sphere(Light::Material mat) {
         material = mat;
+        mesh = createSphere(8, mat.color);
     }
 
-    explicit Sphere(const Matrix& trans) {
+    explicit Sphere(const Matrix& trans) : Sphere() {
         transform = trans;
         inverseTransform = Matrix::fastInverse(trans);
     }
+
 #ifdef GEO_RT
     void intersect(RT::Ray& r, std::vector<RT::Intersection>& s) override {
         // Transform the ray according to the object's properties
