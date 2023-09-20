@@ -65,6 +65,15 @@ struct Matrix {
         }};
     }
 
+    static Matrix rasterScale(double x, double y, double z) {
+        return Matrix {{
+            {1/x, 0, 0, 0},
+            {0, 1/y, 0, 0},
+            {0, 0, 1/z, 0},
+            {0, 0, 0, 1}
+        }};
+    }
+
     // Fetch a matrix that will scale points clockwise around the X axis by the given factor (interpreted in radians)
     static Matrix rotation_x(double factor) {
         return Matrix {{

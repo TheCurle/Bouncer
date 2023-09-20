@@ -51,9 +51,7 @@ namespace Raster {
         std::vector<Point> translatedVertices;
         std::vector<Tri> clippedTris;
 
-        // During clipping, we need to store the triangles and points to add separately
-        // TODO: do we?
-        std::vector<Point> newVertices;
+        // During clipping, we need to store the triangles to add separately, so that we don't invalidate our iterators
         std::vector<Tri> newTris;
 
         RenderableModel(Model& m) : Model(m), boundingCenter({ 0, 0, 0 }), boundingRadius((float) std::sqrt(3)) {
@@ -126,7 +124,6 @@ namespace Raster {
                 double dot = normal * triCam;
 
                 if (dot < 0) {
-                    printf("clipping tri: %zu %zu %zu\r\n", candidate.p0, candidate.p1, candidate.p2);
                     clippedTris.erase(iter);
                     iter--;
                 }
