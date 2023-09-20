@@ -21,93 +21,83 @@ namespace Raster {
         size_t p1;
         size_t p2;
         Color c;
-    };
 
-    inline Vector normal(Tri t, std::vector<Point> v) {
-        return ( Vector(v[t.p1] + (v[t.p0] * -1)).cross(Vector(v[t.p2] + (v[t.p0] * -1))) );
-    }
-
-    inline Vector normal(Point p0, Point p1, Point p2) {
-        return (Vector(p1 + (p0 * -1)).cross(Vector(p2 + (p0 * -1))));
-    }
-
-    inline void DrawFilledTri(Framebuffer& f, Point p0, Point p1, Point p2, Color c, DepthBuffer& d, Camera& cam,
-                              std::unique_ptr<Light::Light[]>& lights, size_t numLights) {
-        std::vector<double> xLeft, xRight, zLeft, zRight;
-
-        Vector triNorm = normal({ 0, 1, 2, { 0, 0, 0 } }, { p0, p1, p2 });
-
-        if (p0.y > p1.y) { std::swap(p0.y, p1.y); std::swap(p0.x, p1.x); }
-        if (p0.y > p2.y) { std::swap(p0.y, p2.y); std::swap(p0.x, p2.x); }
-        if (p1.y > p2.y) { std::swap(p1.y, p2.y); std::swap(p1.x, p2.x); }
-
-        auto x01 = lerp(p0.y, p0.x, p1.y, p1.x);
-        auto z01 = lerp(p0.y, p0.z, p1.y, p1.z);
-        auto x12 = lerp(p1.y, p1.x, p2.y, p2.x);
-        auto z12 = lerp(p1.y, p1.z, p2.y, p2.z);
-        auto x02 = lerp(p0.y, p0.x, p2.y, p2.x);
-        auto z02 = lerp(p0.y, p0.z, p2.y, p2.z);
-
-        std::remove(x01.begin(), x01.end(), x01.back());
-        auto x012 = std::vector<double>(x02.size());
-        x012.insert(std::begin(x012), std::begin(x01), std::end(x01));
-        x012.insert(std::begin(x012) + x01.size(), std::begin(x12), std::end(x12));
-
-        std::remove(z01.begin(), z01.end(), z01.back());
-        auto z012 = std::vector<double>(z02.size());
-        z012.insert(std::begin(z012), std::begin(z01), std::end(z01));
-        z012.insert(std::begin(z012) + z01.size(), std::begin(z12), std::end(z12));
-
-        auto m = x012.size() / 4;
-        if (x02[m] < x012[m]) {
-            xLeft = x02;
-            xRight = x012;
-
-            zLeft = z02;
-            zRight = z012;
-        } else {
-            xRight = x02;
-            xLeft = x012;
-
-            zLeft = z012;
-            zRight = z02;
+        static Tri sentinel() { // a value used in clipping to detect "no change"
+            static Tri value = Tri(0, 0, 0, Color::white());
+            return value;
         }
 
-        for (size_t y = p0.y; y <= p2.y; ++y) {
-            size_t leftX = (size_t) xLeft[y - p0.y], rightX = xRight[y - p0.y];
-            auto zLine = lerp((double) leftX, zLeft[y - p0.y], (double) rightX, zRight[y - p0.y]);
+        bool operator==(const Tri& other) {
+            return p0 == other.p0 && p1 == other.p1 && p2 == other.p2; // ignore color
+        }
+    };
 
-            for (size_t x = leftX; x <= rightX; ++x) {
-                double z = 1 / zLine[x - leftX];
-                if (z - d.at(x, y) > 0.001) {
-                    Color final = c *
-                            Raster::lightAt(
-                                Point(p0 + p1 + p2  * ((double) -1 / (double) 3)),
-                                triNorm,
-                                cam,
-                                lights,
-                                numLights
-                    );
+    inline void DrawDepthTriangle(Framebuffer& f, DepthBuffer& d, Point& p0, Point& p1, Point& p2, Color c, double h0, double h1, double h2) {
 
-                    f.set(x, y, final);
+        if (p1.y < p0.y) {
+            std::swap(p1, p0);
+            std::swap(h1, h0);
+        }
+
+        if (p2.y < p0.y) {
+            std::swap(p2, p0);
+            std::swap(h2, h0);
+        }
+
+        if (p2.y < p1.y) {
+            std::swap(p2, p1);
+            std::swap(h2, h1);
+        }
+
+        auto long_x = lerp(p0.y, p0.x, p2.y, p2.x);
+        auto long_h = lerp(p0.y, h0, p2.y, h2);
+
+        auto combined_x = lerp(p0.y, p0.x, p1.y, p1.x);
+        auto combined_h = lerp(p0.y, h0, p1.y, h1);
+        auto temp = lerp(p1.y, p1.x, p2.y, p2.x);
+        combined_x.insert(combined_x.end(), temp.begin(), temp.end());
+        temp = lerp(p1.y, h1, p2.y, h2);
+        combined_h.insert(combined_h.end(), temp.begin(), temp.end());
+
+        std::vector<double>* leftSideX;
+        std::vector<double>* leftSideH;
+        std::vector<double>* rightSideX;
+        std::vector<double>* rightSideH;
+        int idx = (int) (p1.y - p0.y);
+        if (long_x[idx] < combined_x[idx]) {
+            leftSideX = &long_x;
+            leftSideH = &long_h;
+            rightSideX = &combined_x;
+            rightSideH = &combined_h;
+        } else {
+            rightSideX = &long_x;
+            rightSideH = &long_h;
+            leftSideX = &combined_x;
+            leftSideH = &combined_h;
+        }
+
+        for (double y = p0.y; y <= p2.y; y++) {
+            int yIdx = (int) (y - p0.y);
+
+            auto hSeg = lerp((*leftSideX)[yIdx], (*leftSideH)[yIdx], (*rightSideX)[yIdx], (*rightSideH)[yIdx]);
+
+            for (int x = (*leftSideX)[yIdx]; x <= (*rightSideX)[yIdx]; x++) {
+                double z = hSeg[x - int((*leftSideX)[yIdx])];
+                if (z > d.at(x, y)) {
+                    f.set(x, y, c);
                     d.set(x, y, z);
                 }
             }
         }
     }
 
-    inline void RenderTri(Framebuffer &f, Tri &t, std::vector<Point> verts, DepthBuffer &d, Camera &cam,
-                          std::unique_ptr<Light::Light[]>& lights, size_t numLights) {
-        Vector norm = Vector(normal(verts[t.p0], verts[t.p1], verts[t.p2]).normalize());
-        Point v0 = verts[t.p0];
-        Point camera = cam.getPosition();
 
-        double discriminant = (v0 - camera) * norm;
-        if (discriminant >= 0) {
-            //std::cout << "tri " << t.p0 << "-" << t.p1 << "-" << t.p2 << " d" << discriminant << std::endl;
-            return;
-        }
+    inline void RenderTri(Framebuffer &f, DepthBuffer &d, Tri &t, std::vector<Point> verts, std::vector<Point> cameraSpacePoints) {
 
-        Raster::DrawFilledTri(f, verts[t.p0], verts[t.p1], verts[t.p2], t.c, d, cam, lights, numLights);
+        double d0 = 1 / (cameraSpacePoints[t.p0].z);
+        double d1 = 1 / (cameraSpacePoints[t.p1].z);
+        double d2 = 1 / (cameraSpacePoints[t.p2].z);
+
+        Raster::DrawDepthTriangle(f, d, verts[t.p0], verts[t.p1], verts[t.p2], t.c, d0, d1, d2);
     }
 }

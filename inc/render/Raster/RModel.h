@@ -97,9 +97,12 @@ namespace Raster {
 
         void clipAgainstPlane(ClipPlane& p) {
             translatedVertices.insert(translatedVertices.end(), mesh.vertices.begin(), mesh.vertices.end());
+            newTris.clear();
 
             for (auto iter = clippedTris.begin(); iter != clippedTris.end(); iter++) {
                 auto clipped = clipTriangle(*iter, translatedVertices, p);
+                if (clipped.size() == 1 && clipped.back() == Tri::sentinel()) continue;
+
                 if (!clipped.empty())
                     newTris.insert(newTris.end(), clipped.begin(), clipped.end());
                 else {
@@ -109,6 +112,25 @@ namespace Raster {
             }
 
             clippedTris.insert(clippedTris.end(), newTris.begin(), newTris.end());
+        }
+
+        void cull() {
+            for (auto iter = clippedTris.begin(); iter != clippedTris.end(); iter++) {
+                Tri candidate = *iter;
+
+                Vector triCam = -((Vector) translatedVertices[candidate.p0]);
+                Vector v1 = translatedVertices[candidate.p1] - translatedVertices[candidate.p0];
+                Vector v2 = translatedVertices[candidate.p2] - translatedVertices[candidate.p0];
+
+                Vector normal = v1.cross(v2);
+                double dot = normal * triCam;
+
+                if (dot < 0) {
+                    printf("clipping tri: %zu %zu %zu\r\n", candidate.p0, candidate.p1, candidate.p2);
+                    clippedTris.erase(iter);
+                    iter--;
+                }
+            }
         }
     };
 }

@@ -37,10 +37,10 @@ namespace Raster {
         SWAP_IF_BIGGER(d1, d2, p1, p2, t1, t2)
 
         if (d0 > 0) {
-            return { t };
+            return { Tri::sentinel() }; // don't affect the list!
         } else if (d2 < 0) {
-            return {};
-        } else if (d1 < 0) {
+            return {};                  // remove the tri!
+        } else if (d1 < 0) {            // add new tris!
             Point pB = p.intersect(p2, p1);
             Point pC = p.intersect(p2, p0);
             size_t idx = v.size();

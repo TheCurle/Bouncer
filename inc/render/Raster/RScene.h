@@ -42,10 +42,10 @@ namespace Raster {
             projected.emplace_back(projectVertex(p, c));
         }
 
-        //model->cull();
+        model->cull();
 
         for (auto& t : model->clippedTris) {
-            RenderTri(f, t, projected, d, c, lights, numLights);
+            RenderTri(f, d, t, projected, model->translatedVertices);
         }
     }
 
@@ -64,7 +64,7 @@ namespace Raster {
         Matrix& invCamera = c.inverseTransform;
 
         for (size_t i = 0; i < w.numObjs; i++) {
-            RenderableModel* clippedModel = new RenderableModel(*dynamic_cast<Model*>(cW.objects[i]));
+            auto* clippedModel = new RenderableModel(*dynamic_cast<Model*>(cW.objects[i]));
             clippedModel->generateWorldSpace();
             clippedModel->applyTransform(invCamera);
 
